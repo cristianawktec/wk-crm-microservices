@@ -1,0 +1,6 @@
+<!-- User Avatar Placeholder 3 -->
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="64" cy="64" r="60" fill="#e74c3c"/>
+  <circle cx="64" cy="50" r="20" fill="white"/>
+  <path d="M 30 100 Q 64 80 98 100 L 98 120 L 30 120 Z" fill="white"/>
+</svg>

@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wk-crm-dotnet", "wk-crm-dotnet", "{AED27339-F44D-2179-2AF2-273858E46617}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E1DA9B66-E8D7-8177-E307-444CED157657}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "wk-crm-dotnet\src\WebApi\WebApi.csproj", "{65BE8D75-9024-6EF0-C47F-6FA35732F642}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{65BE8D75-9024-6EF0-C47F-6FA35732F642}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65BE8D75-9024-6EF0-C47F-6FA35732F642}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65BE8D75-9024-6EF0-C47F-6FA35732F642}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65BE8D75-9024-6EF0-C47F-6FA35732F642}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E1DA9B66-E8D7-8177-E307-444CED157657} = {AED27339-F44D-2179-2AF2-273858E46617}
+		{65BE8D75-9024-6EF0-C47F-6FA35732F642} = {E1DA9B66-E8D7-8177-E307-444CED157657}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8E20CE6E-706D-4D29-B21D-BA332BA018D3}
+	EndGlobalSection
+EndGlobal
