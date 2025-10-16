@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\CustomerController;
 
 Route::get('/health', function () {
     return response()->json([
@@ -31,3 +32,16 @@ Route::get('/info', function () {
         ]
     ]);
 });
+
+// Customer Routes
+use App\Http\Controllers\Api\CustomerSimpleController;
+
+Route::get('customers/test', function () {
+    return response()->json([
+        'success' => true,
+        'message' => 'Teste do endpoint customers funcionando!'
+    ]);
+});
+
+// Usando controller simplificado (sem DI complexa)
+Route::apiResource('customers', CustomerSimpleController::class);

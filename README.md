@@ -1,26 +1,26 @@
-# 🚀 WK CRM Microservices Platform
+# 🚀 Plataforma de Microserviços WK CRM
 
-Enterprise-grade Customer Relationship Management system built with modern microservices architecture.
+Sistema de Gestão de Relacionamento com Cliente (CRM) de nível empresarial construído com arquitetura moderna de microserviços.
 
-## 🏗️ Architecture Overview
+## 🏗️ Visão Geral da Arquitetura
 
 ```
 ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
-│   Admin Panel   │  │  Customer App   │  │   AI Service    │
+│  Painel Admin   │  │  App Cliente    │  │ Serviço de IA   │
 │   (Angular 18)  │  │    (Vue 3)      │  │ (Python/FastAPI)│
 └─────────────────┘  └─────────────────┘  └─────────────────┘
          │                     │                     │
          └─────────────────────┼─────────────────────┘
                                │
                     ┌─────────────────┐
-                    │   API Gateway   │
+                    │   Gateway API   │
                     │  (Node.js/TS)   │
                     └─────────────────┘
                                │
               ┌────────────────┼────────────────┐
               │                │                │
     ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-    │   CRM Laravel   │ │   CRM .NET 8    │ │  Products API   │
+    │   CRM Laravel   │ │   CRM .NET 8    │ │  API Produtos   │
     │  (Laravel 11)   │ │ (Clean Arch)    │ │   (Node.js)     │
     └─────────────────┘ └─────────────────┘ └─────────────────┘
               │                │                │
@@ -32,87 +32,87 @@ Enterprise-grade Customer Relationship Management system built with modern micro
                     └─────────────────┘
 ```
 
-## 🛠️ Tech Stack
+## 🛠️ Stack Tecnológica
 
-### Backend Services
-- **🎯 API Gateway**: Node.js + TypeScript + Express
+### Serviços Backend
+- **🎯 Gateway API**: Node.js + TypeScript + Express
 - **🏢 CRM Laravel**: Laravel 11 + DDD + PostgreSQL
 - **🏢 CRM .NET**: .NET 8 + Clean Architecture + Entity Framework
-- **📦 Products API**: Node.js + Express + PostgreSQL
-- **🤖 AI Service**: Python + FastAPI + Google Gemini
+- **📦 API Produtos**: Node.js + Express + PostgreSQL
+- **🤖 Serviço IA**: Python + FastAPI + Google Gemini
 
-### Frontend Applications
-- **👨‍💼 Admin Panel**: Angular 18 + Angular Material
-- **👤 Customer App**: Vue 3 + Tailwind CSS
+### Aplicações Frontend
+- **👨‍💼 Painel Admin**: Angular 18 + Angular Material
+- **👤 App Cliente**: Vue 3 + Tailwind CSS
 
-### Infrastructure
-- **🐳 Containerization**: Docker + Docker Compose
-- **🗄️ Database**: PostgreSQL 16
+### Infraestrutura
+- **🐳 Containerização**: Docker + Docker Compose
+- **🗄️ Banco de Dados**: PostgreSQL 16
 - **⚡ Cache**: Redis 7
-- **🌐 Reverse Proxy**: Nginx
-- **📊 Monitoring**: Built-in health checks
+- **🌐 Proxy Reverso**: Nginx
+- **📊 Monitoramento**: Verificações de saúde integradas
 
-## 🚀 Quick Start
+## 🚀 Início Rápido
 
-### Prerequisites
+### Pré-requisitos
 - Docker Desktop
 - Node.js 20+
 - .NET 8 SDK
 - PHP 8.3+
 - Python 3.11+
 
-### 1. Clone and Setup
+### 1. Clonar e Configurar
 ```bash
 git clone <repository-url>
 cd wk-crm-microservices
 cp .env.example .env
 ```
 
-### 2. Configure Environment
-Edit `.env` file with your configuration:
+### 2. Configurar Ambiente
+Edite o arquivo `.env` com sua configuração:
 ```env
-# Database
+# Banco de Dados
 POSTGRES_DB=wk_main
 POSTGRES_USER=wk_user
-POSTGRES_PASSWORD=your_secure_password
+POSTGRES_PASSWORD=secure_password_123
 
 # Redis
-REDIS_PASSWORD=your_redis_password
+REDIS_PASSWORD=redis_password
 
-# API Keys
+# Chaves API
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
-### 3. Start All Services
+### 3. Iniciar Todos os Serviços
 ```bash
-# Start all services
+# Iniciar todos os serviços
 docker-compose up -d
 
-# Check status
+# Verificar status
 docker-compose ps
 
-# View logs
+# Ver logs
 docker-compose logs -f
 ```
 
-### 4. Access Applications
-- **🌐 Main Gateway**: http://localhost:3000
-- **👨‍💼 Admin Panel**: http://localhost:4200
-- **👤 Customer App**: http://localhost:3002
-- **🗄️ Database**: localhost:5432
+### 4. Acessar Aplicações
+- **🌐 Gateway Principal**: http://localhost:3000
+- **👨‍💼 Painel Admin**: http://localhost:4200
+- **👤 App Cliente**: http://localhost:3002
+- **🗄️ Banco de Dados**: localhost:5432
 - **⚡ Redis**: localhost:6379
 
-## 📋 Development
+## 📋 Desenvolvimento
 
-### Laravel CRM API (Primary)
+### API CRM Laravel (Principal)
 ```bash
 cd wk-crm-laravel
 composer install
 php artisan migrate
-php artisan serve --port=8000
+php artisan serve --port=8080
 ```
 
-### .NET CRM API (Demo)
+### API CRM .NET (Demo)
 ```bash
 cd wk-crm-dotnet
 dotnet restore
@@ -120,97 +120,97 @@ dotnet ef database update
 dotnet run --urls=http://localhost:5000
 ```
 
-### Node.js Services
+### Serviços Node.js
 ```bash
-# API Gateway
+# Gateway API
 cd wk-gateway
 npm install
 npm run dev
 
-# Products API
+# API Produtos
 cd wk-products-api
 npm install
 npm run dev
 ```
 
-### Python AI Service
+### Serviço Python IA
 ```bash
 cd wk-ai-service
 pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### Frontend Applications
+### Aplicações Frontend
 ```bash
 # Angular Admin
 cd wk-admin-frontend
 npm install
 ng serve --port 4200
 
-# Vue Customer App
+# Vue App Cliente
 cd wk-customer-app
 npm install
 npm run dev
 ```
 
-## 🏗️ Project Structure
+## 🏗️ Estrutura do Projeto
 
 ```
 wk-crm-microservices/
 ├── 🔧 infrastructure/           # Docker, Nginx, deployment
 ├── 📦 wk-crm-laravel/          # Laravel 11 + DDD
-│   ├── app/Domain/             # Domain entities & services
-│   ├── app/Application/        # Use cases & DTOs
-│   └── app/Infrastructure/     # Repositories & external services
+│   ├── app/Domain/             # Entidades e serviços do domínio
+│   ├── app/Application/        # Casos de uso e DTOs
+│   └── app/Infrastructure/     # Repositórios e serviços externos
 ├── 📦 wk-crm-dotnet/           # .NET 8 + Clean Architecture
-│   ├── src/Domain/             # Domain entities
+│   ├── src/Domain/             # Entidades do domínio
 │   ├── src/Application/        # CQRS + MediatR
-│   ├── src/Infrastructure/     # Data access & external services
-│   └── src/WebApi/             # REST API controllers
+│   ├── src/Infrastructure/     # Acesso a dados e serviços externos
+│   └── src/WebApi/             # Controladores REST API
 ├── 📦 wk-products-api/         # Node.js + Express
-├── 📦 wk-gateway/              # API Gateway + Auth
-├── 🎨 wk-admin-frontend/       # Angular 18 admin panel
-├── 🎨 wk-customer-app/         # Vue 3 customer portal
-├── 🤖 wk-ai-service/           # Python + FastAPI + AI
-└── 📚 docs/                    # Documentation
+├── 📦 wk-gateway/              # Gateway API + Auth
+├── 🎨 wk-admin-frontend/       # Painel admin Angular 18
+├── 🎨 wk-customer-app/         # Portal cliente Vue 3
+├── 🤖 wk-ai-service/           # Python + FastAPI + IA
+└── 📚 docs/                    # Documentação
 ```
 
-## 🔒 Security Features
+## 🔒 Recursos de Segurança
 
-- JWT Authentication & Authorization
-- Role-based access control (RBAC)
-- API rate limiting
-- Request validation
-- CORS protection
-- Helmet security headers
-- Database query protection
-- Redis session management
+- Autenticação e Autorização JWT
+- Controle de acesso baseado em funções (RBAC)
+- Limitação de taxa de API
+- Validação de requisições
+- Proteção CORS
+- Cabeçalhos de segurança Helmet
+- Proteção de consultas de banco de dados
+- Gerenciamento de sessão Redis
 
-## 📊 Development Principles
+## 📊 Princípios de Desenvolvimento
 
-### Domain-Driven Design (DDD)
-- **Entities**: Core business objects
-- **Value Objects**: Immutable data containers
-- **Aggregates**: Consistency boundaries
-- **Repositories**: Data access abstraction
-- **Services**: Business logic coordination
+### Design Orientado ao Domínio (DDD)
+- **Entidades**: Objetos centrais do negócio
+- **Objetos de Valor**: Contêineres de dados imutáveis
+- **Agregados**: Limites de consistência
+- **Repositórios**: Abstração de acesso a dados
+- **Serviços**: Coordenação de lógica de negócio
 
-### Clean Architecture (.NET)
-- **Domain Layer**: Business entities & rules
-- **Application Layer**: Use cases & interfaces
-- **Infrastructure Layer**: Data & external services
-- **Presentation Layer**: REST API controllers
+### Arquitetura Limpa (.NET)
+- **Camada de Domínio**: Entidades e regras de negócio
+- **Camada de Aplicação**: Casos de uso e interfaces
+- **Camada de Infraestrutura**: Dados e serviços externos
+- **Camada de Apresentação**: Controladores REST API
 
-### SOLID Principles
-- Single Responsibility Principle
-- Open/Closed Principle
-- Liskov Substitution Principle
-- Interface Segregation Principle
-- Dependency Inversion Principle
+### Princípios SOLID
+- Princípio da Responsabilidade Única
+- Princípio Aberto/Fechado
+- Princípio da Substituição de Liskov
+- Princípio da Segregação de Interface
+- Princípio da Inversão de Dependência
 
-## 🧪 Testing
+## 🧪 Testes
 
-### Unit Tests
+### Testes Unitários
 ```bash
 # Laravel
 cd wk-crm-laravel && php artisan test
@@ -232,70 +232,81 @@ cd wk-admin-frontend && ng test
 cd wk-customer-app && npm run test:unit
 ```
 
-### Integration Tests
+### Testes de Integração
 ```bash
-# Run all services
+# Executar todos os serviços
 docker-compose up -d
 
-# Run integration test suite
+# Executar suite de teste de integração
 npm run test:integration
 ```
 
-## 📈 Monitoring & Health Checks
+## 📈 Monitoramento e Verificações de Saúde
 
-### Health Endpoints
+### Endpoints de Saúde
 - **Gateway**: http://localhost:3000/health
-- **CRM Laravel**: http://localhost:8000/health
+- **CRM Laravel**: http://localhost:8080/api/health
 - **CRM .NET**: http://localhost:5000/health
-- **Products API**: http://localhost:3001/health
-- **AI Service**: http://localhost:8080/health
+- **API Produtos**: http://localhost:3001/health
+- **Serviço IA**: http://localhost:8080/health
 
 ### Logging
-All services implement structured logging with Winston (Node.js), Serilog (.NET), and Python logging.
+Todos os serviços implementam logging estruturado com Winston (Node.js), Serilog (.NET) e Python logging.
 
-## 🚀 Deployment
+## 🚀 Deploy
 
-### Docker Production
+### Docker Produção
 ```bash
-# Build all images
+# Construir todas as imagens
 docker-compose -f docker-compose.prod.yml build
 
-# Deploy to production
+# Deploy para produção
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
-### Environment-specific Configs
-- `docker-compose.yml` - Development
-- `docker-compose.prod.yml` - Production
-- `docker-compose.test.yml` - Testing
+### Configurações Específicas por Ambiente
+- `docker-compose.yml` - Desenvolvimento
+- `docker-compose.prod.yml` - Produção
+- `docker-compose.test.yml` - Testes
 
-## 🤝 Contributing
+## 🎯 Tasks Disponíveis no VS Code
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+Use `Ctrl+Shift+P` e digite "Tasks" para acessar:
 
-## 📄 License
+- **Iniciar Microserviços WK CRM**: Inicia todos os containers Docker
+- **Iniciar Servidor Laravel**: Inicia servidor de desenvolvimento Laravel
+- **Parar Servidor Laravel**: Para o servidor Laravel
+- **Parar Microserviços**: Para todos os containers
+- **Ver Logs Laravel**: Visualiza logs em tempo real
+- **Limpar Cache Laravel**: Remove cache de configuração
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 🤝 Contribuindo
 
-## 👨‍💻 Author
+1. Faça fork do repositório
+2. Crie branch de feature (`git checkout -b feature/amazing-feature`)
+3. Commit suas mudanças (`git commit -m 'Add amazing feature'`)
+4. Push para a branch (`git push origin feature/amazing-feature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+## 👨‍💻 Autor
 
 **Cristian MS**  
 - Email: cristianms.awk@gmail.com
 - GitHub: [@cristianawktec](https://github.com/cristianawktec)
 
-## 🙏 Acknowledgments
+## 🙏 Agradecimentos
 
-- Laravel Framework
+- Framework Laravel
 - .NET Foundation
-- Vue.js Team
-- Angular Team
+- Equipe Vue.js
+- Equipe Angular
 - FastAPI
-- Docker Community
+- Comunidade Docker
 
 ---
 
-**Built with ❤️ using modern microservices architecture and best practices.**
+**Construído com ❤️ usando arquitetura moderna de microserviços e melhores práticas.**
