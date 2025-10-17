@@ -33,9 +33,15 @@ fi
 
 print_step "🔍 Verificando estrutura de arquivos..."
 
-# 2. Criar diretórios necessários
-mkdir -p /var/www/html/admin
-mkdir -p /opt/wk-crm
+# Criar estrutura de diretórios
+echo "🗂️  Criando estrutura de diretórios..."
+mkdir -p /var/www/admin.consultoriawk.com/public_html
+mkdir -p /var/www/api.consultoriawk.com/public_html
+mkdir -p /var/log/nginx
+chmod 755 /var/www/admin.consultoriawk.com
+chmod 755 /var/www/admin.consultoriawk.com/public_html
+chmod 755 /var/www/api.consultoriawk.com
+chmod 755 /var/www/api.consultoriawk.com/public_html
 
 # 3. Verificar se projeto existe
 if [ ! -d "/opt/wk-crm/.git" ]; then
@@ -48,17 +54,19 @@ else
 fi
 
 # 4. Copiar AdminLTE para local correto
-print_step "📁 Copiando AdminLTE..."
-cp -r /opt/wk-crm/wk-admin-simple/* /var/www/html/admin/ 2>/dev/null || {
+print_step "📁 Copiando AdminLTE para admin.consultoriawk.com..."
+cp -r /opt/wk-crm/wk-admin-simple/* /var/www/admin.consultoriawk.com/public_html/ 2>/dev/null || {
     print_warning "Erro ao copiar AdminLTE, tentando criar estrutura básica..."
-    mkdir -p /var/www/html/admin
-    echo "<!DOCTYPE html><html><head><title>WK CRM Admin</title></head><body><h1>AdminLTE em manutenção</h1><p>Arquivos sendo configurados...</p></body></html>" > /var/www/html/admin/index.html
+    mkdir -p /var/www/admin.consultoriawk.com/public_html
+    echo "<!DOCTYPE html><html><head><title>WK CRM Admin</title></head><body><h1>AdminLTE em manutenção</h1><p>Arquivos sendo configurados...</p></body></html>" > /var/www/admin.consultoriawk.com/public_html/index.html
 }
 
 # 5. Corrigir permissões Web
-print_step "🔐 Corrigindo permissões do diretório web..."
-chown -R www-data:www-data /var/www/html/
-chmod -R 755 /var/www/html/
+print_step "🔐 Corrigindo permissões dos diretórios web..."
+chown -R www-data:www-data /var/www/admin.consultoriawk.com/
+chmod -R 755 /var/www/admin.consultoriawk.com/
+chown -R www-data:www-data /var/www/api.consultoriawk.com/
+chmod -R 755 /var/www/api.consultoriawk.com/
 
 # 6. Configurar Laravel
 print_step "⚙️ Configurando Laravel..."
@@ -126,30 +134,36 @@ chmod 664 /opt/wk-crm/wk-crm-laravel/database/database.sqlite
 # 8. Configurar Nginx
 print_step "🌐 Configurando Nginx..."
 
-# Configuração básica do Nginx para AdminLTE
-cat > /etc/nginx/sites-available/consultoriawk.com << 'EOF'
+# Configuração do Nginx para AdminLTE (subdomínio)
+cat > /etc/nginx/sites-available/admin.consultoriawk.com << 'EOF'
 server {
     listen 80;
-    server_name consultoriawk.com www.consultoriawk.com;
-    root /var/www/html;
+    server_name admin.consultoriawk.com;
+    root /var/www/admin.consultoriawk.com/public_html;
     index index.html index.htm index.php;
 
-    # AdminLTE
-    location /admin/ {
-        alias /var/www/html/admin/;
-        try_files $uri $uri/ /admin/index.html;
-        
-        location ~ \.php$ {
-            fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
-            fastcgi_index index.php;
-            fastcgi_param SCRIPT_FILENAME $request_filename;
-            include fastcgi_params;
-        }
+    # Configurações de cabeçalhos para CORS
+    add_header 'Access-Control-Allow-Origin' '*' always;
+    add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+
+    # Arquivos estáticos
+    location / {
+        try_files $uri $uri/ /index.html;
     }
 
-    # Site principal
-    location / {
-        try_files $uri $uri/ =404;
+    # PHP (se necessário)
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    # Cache para arquivos estáticos
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
     }
 }
 EOF
@@ -161,6 +175,22 @@ server {
     server_name api.consultoriawk.com;
     root /opt/wk-crm/wk-crm-laravel/public;
     index index.php;
+
+    # Configurações CORS para API
+    add_header 'Access-Control-Allow-Origin' '*' always;
+    add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+
+    # Handle preflight requests
+    if ($request_method = 'OPTIONS') {
+        add_header 'Access-Control-Allow-Origin' '*';
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS';
+        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization';
+        add_header 'Access-Control-Max-Age' 1728000;
+        add_header 'Content-Type' 'text/plain; charset=utf-8';
+        add_header 'Content-Length' 0;
+        return 204;
+    }
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
@@ -191,7 +221,7 @@ server {
 EOF
 
 # Habilitar sites
-ln -sf /etc/nginx/sites-available/consultoriawk.com /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/admin.consultoriawk.com /etc/nginx/sites-enabled/
 ln -sf /etc/nginx/sites-available/api.consultoriawk.com /etc/nginx/sites-enabled/
 
 # Remover site padrão
@@ -214,8 +244,8 @@ systemctl status php8.2-fpm --no-pager
 # 11. Criar página de teste
 print_step "🧪 Criando páginas de teste..."
 
-# Teste AdminLTE
-cat > /var/www/html/admin/test.html << 'EOF'
+# Teste AdminLTE (corrigido para subdomínio)
+cat > /var/www/admin.consultoriawk.com/public_html/test.html << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
@@ -249,19 +279,19 @@ print_step "🔍 Executando verificações finais..."
 
 echo ""
 echo "📊 RELATÓRIO DE CORREÇÕES:"
-echo "📁 AdminLTE: /var/www/html/admin/"
+echo "📁 AdminLTE: /var/www/admin.consultoriawk.com/public_html/"
 echo "📡 Laravel API: /opt/wk-crm/wk-crm-laravel/"
-echo "🌐 Nginx: Configurado e recarregado"
+echo "🌐 Nginx: Configurado com subdomínios corretos"
 echo "🐘 PHP-FPM: Reiniciado"
 echo ""
 echo "🧪 TESTES DISPONÍVEIS:"
-echo "🎨 AdminLTE: http://consultoriawk.com/admin/test.html"
+echo "🎨 AdminLTE: http://admin.consultoriawk.com/"
 echo "📡 PHP/Laravel: http://api.consultoriawk.com/test.php"
 echo "📊 API Customers: http://api.consultoriawk.com/api/customers"
 echo ""
 echo "📋 PRÓXIMOS PASSOS:"
 echo "1. Teste os links acima no navegador"
-echo "2. Se AdminLTE não carregar, verifique: ls -la /var/www/html/admin/"
+echo "2. Se AdminLTE não carregar, verifique: ls -la /var/www/admin.consultoriawk.com/public_html/"
 echo "3. Se API não responder, verifique: tail -f /var/log/nginx/error.log"
 echo "4. Para ver logs Laravel: tail -f /opt/wk-crm/wk-crm-laravel/storage/logs/laravel.log"
 echo ""
