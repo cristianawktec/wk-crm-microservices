@@ -2,46 +2,187 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\CustomerController;
 
 Route::get('/health', function () {
     return response()->json([
         'status' => 'OK',
-        'service' => 'WK CRM Laravel API',
-        'version' => '1.0.0',
+        'servico' => 'API WK CRM Laravel',
+        'versao' => '1.0.0',
         'timestamp' => now()->toISOString(),
-        'php_version' => PHP_VERSION,
-        'laravel_version' => app()->version()
+        'versao_php' => PHP_VERSION,
+        'versao_laravel' => app()->version(),
+        'localizacao' => 'Brasil - São Paulo'
     ]);
 });
 
 Route::get('/info', function () {
     return response()->json([
-        'message' => 'WK CRM Laravel API - Domain-Driven Design',
+        'mensagem' => 'API WK CRM Laravel - Design Orientado ao Domínio',
         'endpoints' => [
-            'health' => '/api/health',
-            'customers' => '/api/customers',
+            'saude' => '/api/health',
+            'clientes' => '/api/clientes',
             'leads' => '/api/leads',
-            'opportunities' => '/api/opportunities'
+            'oportunidades' => '/api/oportunidades'
         ],
-        'database' => [
-            'connection' => config('database.default'),
+        'banco_dados' => [
+            'conexao' => config('database.default'),
             'host' => config('database.connections.pgsql.host'),
-            'port' => config('database.connections.pgsql.port'),
+            'porta' => config('database.connections.pgsql.port'),
             'database' => config('database.connections.pgsql.database')
+        ],
+        'arquitetura' => [
+            'padroes' => ['DDD', 'SOLID', 'TDD'],
+            'camadas' => ['Domínio', 'Aplicação', 'Infraestrutura'],
+            'idioma' => 'Português Brasil'
         ]
     ]);
 });
 
-// Customer Routes
-use App\Http\Controllers\Api\CustomerSimpleController;
-
-Route::get('customers/test', function () {
+// Endpoint de clientes com dados em português
+Route::get('/clientes', function () {
     return response()->json([
-        'success' => true,
-        'message' => 'Teste do endpoint customers funcionando!'
+        'dados' => [
+            [
+                'id' => 1,
+                'nome' => 'João Silva',
+                'email' => 'joao.silva@empresa.com.br',
+                'telefone' => '(11) 99999-9999',
+                'empresa' => 'Tech Corp Brasil',
+                'status' => 'ativo',
+                'data_criacao' => '2025-10-01T10:00:00-03:00',
+                'cidade' => 'São Paulo',
+                'estado' => 'SP'
+            ],
+            [
+                'id' => 2,
+                'nome' => 'Maria Santos', 
+                'email' => 'maria.santos@digital.com.br',
+                'telefone' => '(11) 88888-8888',
+                'empresa' => 'Soluções Digitais Ltda',
+                'status' => 'ativo',
+                'data_criacao' => '2025-10-02T15:30:00-03:00',
+                'cidade' => 'Rio de Janeiro',
+                'estado' => 'RJ'
+            ],
+            [
+                'id' => 3,
+                'nome' => 'Pedro Costa',
+                'email' => 'pedro.costa@inovacao.com.br',
+                'telefone' => '(85) 77777-7777',
+                'empresa' => 'Laboratórios de Inovação',
+                'status' => 'ativo',
+                'data_criacao' => '2025-10-03T09:15:00-03:00',
+                'cidade' => 'Fortaleza',
+                'estado' => 'CE'
+            ]
+        ],
+        'meta' => [
+            'total' => 3,
+            'pagina' => 1,
+            'por_pagina' => 10,
+            'arquitetura' => 'Implementação DDD em progresso',
+            'localizacao' => 'Brasil'
+        ]
     ]);
 });
 
-// Usando controller simplificado (sem DI complexa)
-Route::apiResource('customers', CustomerSimpleController::class);
+// Endpoint de leads
+Route::get('/leads', function () {
+    return response()->json([
+        'dados' => [
+            [
+                'id' => 1,
+                'nome' => 'Ana Oliveira',
+                'email' => 'ana.oliveira@prospects.com.br',
+                'telefone' => '(21) 96666-6666',
+                'empresa' => 'Prospectiva Negócios',
+                'fonte' => 'Site',
+                'status' => 'novo',
+                'interesse' => 'CRM',
+                'data_criacao' => '2025-10-17T14:30:00-03:00',
+                'cidade' => 'Brasília',
+                'estado' => 'DF'
+            ]
+        ],
+        'mensagem' => 'Endpoint de Leads - Implementação DDD pendente',
+        'arquitetura' => [
+            'padrao' => 'Design Orientado ao Domínio',
+            'principios' => ['SOLID', 'TDD'],
+            'status' => 'a_ser_implementado',
+            'idioma' => 'Português Brasil'
+        ]
+    ]);
+});
+
+// Endpoint de oportunidades
+Route::get('/oportunidades', function () {
+    return response()->json([
+        'dados' => [
+            [
+                'id' => 1,
+                'titulo' => 'Implementação Sistema CRM - Tech Corp',
+                'cliente_id' => 1,
+                'valor' => 150000.00,
+                'moeda' => 'BRL',
+                'probabilidade' => 75,
+                'status' => 'negociacao',
+                'data_fechamento_prevista' => '2025-11-30',
+                'vendedor' => 'Carlos Mendes',
+                'data_criacao' => '2025-10-15T11:00:00-03:00'
+            ]
+        ],
+        'mensagem' => 'Endpoint de Oportunidades - Implementação DDD pendente', 
+        'arquitetura' => [
+            'padrao' => 'Design Orientado ao Domínio',
+            'principios' => ['SOLID', 'TDD'],
+            'status' => 'a_ser_implementado',
+            'idioma' => 'Português Brasil'
+        ]
+    ]);
+});
+
+// Endpoint para estatísticas do dashboard
+Route::get('/dashboard', function () {
+    return response()->json([
+        'resumo' => [
+            'total_clientes' => 3,
+            'total_leads' => 1,
+            'total_oportunidades' => 1,
+            'valor_pipeline' => 150000.00,
+            'moeda' => 'BRL'
+        ],
+        'metricas' => [
+            'conversao_leads' => '33%',
+            'ticket_medio' => 150000.00,
+            'faturamento_mensal' => 450000.00,
+            'crescimento_mes' => '+15%'
+        ],
+        'atividade_recente' => [
+            [
+                'tipo' => 'novo_lead',
+                'descricao' => 'Novo lead: Ana Oliveira - Prospectiva Negócios',
+                'data' => '2025-10-17T14:30:00-03:00'
+            ],
+            [
+                'tipo' => 'oportunidade_atualizada',
+                'descricao' => 'Oportunidade Tech Corp movida para negociação',
+                'data' => '2025-10-17T10:15:00-03:00'
+            ]
+        ],
+        'sistema' => [
+            'versao' => '1.0.0',
+            'ambiente' => 'desenvolvimento',
+            'regiao' => 'Brasil',
+            'arquitetura' => 'DDD + SOLID + TDD'
+        ]
+    ]);
+});
+
+// Mantendo endpoints em inglês para compatibilidade
+Route::get('/customers', function () {
+    return redirect('/api/clientes');
+});
+
+Route::get('/opportunities', function () {
+    return redirect('/api/oportunidades');
+});

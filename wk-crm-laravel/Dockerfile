@@ -1,4 +1,4 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.2-cli-alpine
 
 # Install system dependencies
 RUN apk add --no-cache \
@@ -8,10 +8,11 @@ RUN apk add --no-cache \
     libxml2-dev \
     zip \
     unzip \
-    postgresql-dev
-
-# Clear cache
-RUN rm -rf /var/cache/apk/*
+    postgresql-dev \
+    autoconf \
+    gcc \
+    g++ \
+    make
 
 # Install PHP extensions
 RUN docker-php-ext-install \
@@ -22,34 +23,30 @@ RUN docker-php-ext-install \
     bcmath \
     pcntl
 
-# Install Redis extension
-RUN pecl install redis && docker-php-ext-enable redis
-
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy composer files
-COPY composer.json ./
+# Copy composer files first for better caching
+COPY composer.json composer.lock* ./
 
-# Install PHP dependencies (allow development packages for now)
-RUN composer install --optimize-autoloader --no-interaction
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # Copy application code
 COPY . .
 
 # Create Laravel directories and set permissions
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 storage bootstrap/cache
+RUN chmod -R 777 storage bootstrap/cache
 
-# Copy PHP configuration
-COPY infrastructure/php.ini /usr/local/etc/php/conf.d/custom.ini
+# Generate app key if needed
+RUN php artisan key:generate --show
 
-# Expose port for PHP-FPM
-EXPOSE 9000
+# Expose port
+EXPOSE 8000
 
-# Start PHP-FPM
-CMD ["php-fpm"]
+# Start Laravel development server
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
