@@ -90,7 +90,18 @@ fi
 if [ ! -f ".env" ]; then
     cp .env.example .env
     print_step "Arquivo .env criado. CONFIGURE AS VARIÁVEIS DE AMBIENTE!"
+    print_step "Configure especialmente:"
+    print_step "  - DB_HOST=localhost"
+    print_step "  - DB_DATABASE=wk_crm_production"
+    print_step "  - DB_USERNAME=wk_user" 
+    print_step "  - APP_URL=https://api.consultoriawk.com"
 fi
+
+# Limpar caches antigos primeiro
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
 
 # Gerar chave da aplicação
 php artisan key:generate --force
