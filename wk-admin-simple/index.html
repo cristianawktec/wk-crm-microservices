@@ -308,14 +308,22 @@
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
-        <!-- Small boxes (Stat box) -->
-        <div class="row">
+        <!-- Alert Container for API messages -->
+        <div id="alert-container"></div>
+        
+        <!-- Loading indicator -->
+        <div id="stats-loading" class="text-center" style="display: none;">
+          <i class="fas fa-spinner fa-spin"></i> Carregando dados...
+        </div>
+
+        <!-- Small boxes (Stat box) - Dynamic content from API -->
+        <div class="row" id="dashboard-container">
           <div class="col-lg-3 col-6">
             <!-- small box -->
-            <div class="small-box bg-info">
+            <div class="small-box bg-info" data-card="total-customers">
               <div class="inner">
-                <h3>2,450</h3>
-                <p>Total Clientes</p>
+                <h3 class="card-value">0</h3>
+                <p class="card-label">Total Clientes</p>
               </div>
               <div class="icon">
                 <i class="fas fa-users"></i>
@@ -324,10 +332,10 @@
             </div>
           </div>
           <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
+            <div class="small-box bg-success" data-card="monthly-sales">
               <div class="inner">
-                <h3>R$ 85.240</h3>
-                <p>Vendas do Mês</p>
+                <h3 class="card-value">R$ 0,00</h3>
+                <p class="card-label">Vendas do Mês</p>
               </div>
               <div class="icon">
                 <i class="fas fa-chart-line"></i>
@@ -336,10 +344,10 @@
             </div>
           </div>
           <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning">
+            <div class="small-box bg-warning" data-card="active-opportunities">
               <div class="inner">
-                <h3>24</h3>
-                <p>Oportunidades Ativas</p>
+                <h3 class="card-value">0</h3>
+                <p class="card-label">Oportunidades Ativas</p>
               </div>
               <div class="icon">
                 <i class="fas fa-handshake"></i>
@@ -348,10 +356,10 @@
             </div>
           </div>
           <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
+            <div class="small-box bg-danger" data-card="support-tickets">
               <div class="inner">
-                <h3>6</h3>
-                <p>Tickets Abertos</p>
+                <h3 class="card-value">0</h3>
+                <p class="card-label">Tickets Abertos</p>
               </div>
               <div class="icon">
                 <i class="fas fa-ticket-alt"></i>
@@ -664,5 +672,9 @@
     }
   });
 </script>
+
+<!-- WK CRM API Connection -->
+<script src="js/api-connection.js"></script>
+
 </body>
 </html>

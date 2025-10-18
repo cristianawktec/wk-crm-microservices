@@ -42,7 +42,8 @@ Sistema de Gestão de Relacionamento com Cliente (CRM) de nível empresarial con
 - **🤖 Serviço IA**: Python + FastAPI + Google Gemini
 
 ### Aplicações Frontend
-- **👨‍💼 Painel Admin**: Angular 18 + Angular Material
+- **👨‍💼 Painel Admin**: Angular 18 + Angular Material + AdminLTE
+- **🎨 Admin Simples**: AdminLTE + Bootstrap + API Integration
 - **👤 App Cliente**: Vue 3 + Tailwind CSS
 
 ### Infraestrutura
@@ -97,8 +98,10 @@ docker-compose logs -f
 
 ### 4. Acessar Aplicações
 - **🌐 Gateway Principal**: http://localhost:3000
-- **👨‍💼 Painel Admin**: http://localhost:4200
+- **👨‍💼 Painel Admin Angular**: http://localhost:4200
+- **🎨 Admin AdminLTE**: http://localhost:3003 ou http://localhost:4200
 - **👤 App Cliente**: http://localhost:3002
+- **📡 API Laravel**: http://localhost:8080/api
 - **🗄️ Banco de Dados**: localhost:5432
 - **⚡ Redis**: localhost:6379
 
@@ -141,13 +144,26 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Aplicações Frontend
+
+#### AdminLTE (Recomendado para produção)
 ```bash
-# Angular Admin
+# Servidor estático simples
+cd wk-admin-simple
+python -m http.server 3003
+
+# Ou usando PHP
+php -S localhost:4200
+```
+
+#### Angular Admin (Desenvolvimento)
+```bash
 cd wk-admin-frontend
 npm install
 ng serve --port 4200
+```
 
-# Vue App Cliente
+#### Vue App Cliente
+```bash
 cd wk-customer-app
 npm install
 npm run dev
@@ -170,10 +186,32 @@ wk-crm-microservices/
 ├── 📦 wk-products-api/         # Node.js + Express
 ├── 📦 wk-gateway/              # Gateway API + Auth
 ├── 🎨 wk-admin-frontend/       # Painel admin Angular 18
+├── 🎨 wk-admin-simple/         # AdminLTE + Bootstrap (Pronto para produção)
 ├── 🎨 wk-customer-app/         # Portal cliente Vue 3
 ├── 🤖 wk-ai-service/           # Python + FastAPI + IA
 └── 📚 docs/                    # Documentação
 ```
+
+## ✨ Recursos Implementados (AdminLTE)
+
+### 📊 Dashboard Dinâmico
+- Estatísticas em tempo real conectadas à API Laravel
+- Cards com dados de clientes, vendas e métricas
+- Gráficos interativos com Chart.js
+- Indicadores de carregamento e tratamento de erros
+
+### 👥 Gestão de Clientes
+- Lista completa de clientes com dados da API
+- Formulário modal para adicionar novos clientes
+- Botões de ação (editar/excluir) em cada linha
+- Sistema de notificações de sucesso/erro
+- Fallback para dados simulados quando API indisponível
+
+### 🎨 Interface Moderna
+- AdminLTE 3.2 com Bootstrap 5
+- Design responsivo para desktop e mobile
+- Tema personalizado WK CRM
+- Font Awesome icons e animações suaves
 
 ## 🔒 Recursos de Segurança
 

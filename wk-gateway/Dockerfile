@@ -6,8 +6,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including dev deps so TypeScript compiler is available for build)
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .

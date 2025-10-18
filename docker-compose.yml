@@ -125,7 +125,7 @@ services:
     build: ./wk-admin-frontend
     container_name: wk_admin_frontend
     ports:
-      - "4200:4200"
+      - "4200:80"
     environment:
       - NODE_ENV=development
       - API_URL=http://localhost:3000
