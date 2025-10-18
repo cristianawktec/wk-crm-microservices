@@ -171,7 +171,19 @@ echo "3. Teste a API: curl -X GET https://api.consultoriawk.com/api/customers"
 echo "4. Acesse o AdminLTE: https://consultoriawk.com/admin/"
 echo ""
 
-# 9. Testes básicos
+# 9. Verificar e corrigir SSL se necessário
+print_step "🔒 Verificando certificados SSL..."
+
+if [ -f "$PROJECT_DIR/scripts/ssl-check.sh" ]; then
+    print_step "Executando diagnóstico SSL..."
+    bash "$PROJECT_DIR/scripts/ssl-check.sh" || {
+        print_warning "Problemas SSL detectados. Execute ssl-renew.sh manualmente se necessário."
+    }
+else
+    print_warning "Script de verificação SSL não encontrado em $PROJECT_DIR/scripts/"
+fi
+
+# 10. Testes básicos
 print_step "Executando testes básicos..."
 
 # Teste AdminLTE
@@ -193,3 +205,9 @@ print_step "🚀 Deploy finalizado! Verifique os logs em caso de problemas:"
 echo "   - Nginx: tail -f /var/log/nginx/error.log"
 echo "   - Laravel: tail -f $PROJECT_DIR/wk-crm-laravel/storage/logs/laravel.log"
 echo "   - PHP-FPM: tail -f /var/log/php8.2-fpm.log"
+echo ""
+print_step "🔒 Para corrigir SSL execute:"
+echo "   bash $PROJECT_DIR/scripts/ssl-renew.sh"
+echo ""
+print_step "🏥 Para health check completo execute:"
+echo "   bash $PROJECT_DIR/scripts/health-check.sh"
