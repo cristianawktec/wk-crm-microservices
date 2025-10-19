@@ -1,0 +1,120 @@
+/* WK CRM Dashboard Enhanced Styles */
+
+/* Activity Feed Styles */
+.activity-feed {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-text {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.activity-time {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+/* Performance Table Styles */
+#performance-table .table {
+    margin-bottom: 0;
+}
+
+#performance-table .table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+}
+
+#performance-table .table td {
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.badge {
+    font-size: 11px;
+    padding: 4px 8px;
+}
+
+/* Enhanced cards styling */
+.small-box .card-value {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.small-box .card-label {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .activity-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .activity-icon {
+        margin: 0 auto 10px auto;
+    }
+    
+    #performance-table {
+        overflow-x: auto;
+    }
+    
+    #performance-table table {
+        min-width: 600px;
+    }
+}
+
+/* Chart containers */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* Loading states */
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    color: #6c757d;
+}
+
+.loading-spinner i {
+    margin-right: 10px;
+}

@@ -141,42 +141,8 @@ Route::get('/oportunidades', function () {
     ]);
 });
 
-// Endpoint para estatísticas do dashboard
-Route::get('/dashboard', function () {
-    return response()->json([
-        'resumo' => [
-            'total_clientes' => 3,
-            'total_leads' => 1,
-            'total_oportunidades' => 1,
-            'valor_pipeline' => 150000.00,
-            'moeda' => 'BRL'
-        ],
-        'metricas' => [
-            'conversao_leads' => '33%',
-            'ticket_medio' => 150000.00,
-            'faturamento_mensal' => 450000.00,
-            'crescimento_mes' => '+15%'
-        ],
-        'atividade_recente' => [
-            [
-                'tipo' => 'novo_lead',
-                'descricao' => 'Novo lead: Ana Oliveira - Prospectiva Negócios',
-                'data' => '2025-10-17T14:30:00-03:00'
-            ],
-            [
-                'tipo' => 'oportunidade_atualizada',
-                'descricao' => 'Oportunidade Tech Corp movida para negociação',
-                'data' => '2025-10-17T10:15:00-03:00'
-            ]
-        ],
-        'sistema' => [
-            'versao' => '1.0.0',
-            'ambiente' => 'desenvolvimento',
-            'regiao' => 'Brasil',
-            'arquitetura' => 'DDD + SOLID + TDD'
-        ]
-    ]);
-});
+// Endpoint para estatísticas do dashboard - agora com dados reais
+Route::get('/dashboard', [App\Http\Controllers\Api\DashboardController::class, 'index']);
 
 // Mantendo endpoints em inglês para compatibilidade
 Route::get('/customers', function () {

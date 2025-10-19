@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <!-- Custom WK CRM Styles -->
   <link rel="stylesheet" href="css/wk-crm-theme.css">
+  <!-- Dashboard Enhanced Styles -->
+  <link rel="stylesheet" href="css/dashboard-enhanced.css">
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -369,6 +371,54 @@
           </div>
         </div>
 
+        <!-- Enhanced metrics row -->
+        <div class="row">
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-primary" data-card="conversion-rate">
+              <div class="inner">
+                <h3 class="card-value">0%</h3>
+                <p class="card-label">Taxa Conversão</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-percentage"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-secondary" data-card="monthly-revenue">
+              <div class="inner">
+                <h3 class="card-value">R$ 0</h3>
+                <p class="card-label">Receita Mensal</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-dark" data-card="avg-ticket">
+              <div class="inner">
+                <h3 class="card-value">R$ 0</h3>
+                <p class="card-label">Ticket Médio</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-receipt"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-light" data-card="meta-achievement">
+              <div class="inner">
+                <h3 class="card-value">0%</h3>
+                <p class="card-label">Atingimento Meta</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-bullseye"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Main row -->
         <div class="row">
           <!-- Left col -->
@@ -403,74 +453,28 @@
               </div>
             </div>
 
-            <!-- DIRECT CHAT -->
-            <div class="card direct-chat direct-chat-primary">
+            <!-- RECENT ACTIVITY -->
+            <div class="card">
               <div class="card-header">
-                <h3 class="card-title">Chat de Suporte</h3>
+                <h3 class="card-title">
+                  <i class="fas fa-clock mr-1"></i>
+                  Atividade Recente
+                </h3>
                 <div class="card-tools">
-                  <span title="3 New Messages" class="badge badge-primary">3</span>
                   <button type="button" class="btn btn-tool" data-card-widget="collapse">
                     <i class="fas fa-minus"></i>
-                  </button>
-                  <button type="button" class="btn btn-tool" title="Contacts" data-widget="chat-pane-toggle">
-                    <i class="fas fa-comments"></i>
-                  </button>
-                  <button type="button" class="btn btn-tool" data-card-widget="remove">
-                    <i class="fas fa-times"></i>
                   </button>
                 </div>
               </div>
               <div class="card-body">
-                <div class="direct-chat-messages">
-                  <div class="direct-chat-msg">
-                    <div class="direct-chat-infos clearfix">
-                      <span class="direct-chat-name float-left">Alexander Pierce</span>
-                      <span class="direct-chat-timestamp float-right">23 Jan 2:00 pm</span>
-                    </div>
-                    <img class="direct-chat-img" src="img/user1-128x128.jpg" alt="message user image">
-                    <div class="direct-chat-text">
-                      Estou com dificuldades para gerar o relatório de vendas. Podem me ajudar?
-                    </div>
+                <div id="activity-feed" class="activity-feed">
+                  <div class="text-center">
+                    <i class="fas fa-spinner fa-spin"></i> Carregando atividades...
                   </div>
-
-                  <div class="direct-chat-msg right">
-                    <div class="direct-chat-infos clearfix">
-                      <span class="direct-chat-name float-right">Sarah Bullock</span>
-                      <span class="direct-chat-timestamp float-left">23 Jan 2:05 pm</span>
-                    </div>
-                    <img class="direct-chat-img" src="img/user3-128x128.jpg" alt="message user image">
-                    <div class="direct-chat-text">
-                      Claro! Você pode acessar os relatórios no menu Relatórios > Vendas. Posso te guiar passo a passo.
-                    </div>
-                  </div>
-                </div>
-
-                <div class="direct-chat-contacts">
-                  <ul class="contacts-list">
-                    <li>
-                      <a href="#">
-                        <img class="contacts-list-img" src="img/user1-128x128.jpg" alt="User Avatar">
-                        <div class="contacts-list-info">
-                          <span class="contacts-list-name">
-                            Count Dracula
-                            <small class="contacts-list-date float-right">2/28/2015</small>
-                          </span>
-                          <span class="contacts-list-msg">How have you been? I was...</span>
-                        </div>
-                      </a>
-                    </li>
-                  </ul>
                 </div>
               </div>
-              <div class="card-footer">
-                <form action="#" method="post">
-                  <div class="input-group">
-                    <input type="text" name="message" placeholder="Digite sua mensagem ..." class="form-control">
-                    <span class="input-group-append">
-                      <button type="button" class="btn btn-primary">Enviar</button>
-                    </span>
-                  </div>
-                </form>
+            </div>
+                </div>
               </div>
             </div>
           </section>
@@ -478,41 +482,23 @@
           <!-- right col (We are only adding the ID to make the widgets sortable)-->
           <section class="col-lg-5 connectedSortable">
 
-            <!-- Map card -->
-            <div class="card bg-gradient-primary">
-              <div class="card-header border-0">
+            <!-- Performance de Vendedores -->
+            <div class="card">
+              <div class="card-header">
                 <h3 class="card-title">
-                  <i class="fas fa-map-marker-alt mr-1"></i>
-                  Visitantes por Região
+                  <i class="fas fa-trophy mr-1"></i>
+                  Performance de Vendedores
                 </h3>
                 <div class="card-tools">
-                  <button type="button" class="btn btn-primary btn-sm" data-card-widget="collapse" title="Collapse">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
                     <i class="fas fa-minus"></i>
                   </button>
                 </div>
               </div>
               <div class="card-body">
-                <div id="world-map" style="height: 250px; width: 100%;"></div>
-              </div>
-              <div class="card-footer bg-transparent">
-                <div class="row">
-                  <div class="col-4 text-center">
-                    <div class="text-white">
-                      <span class="text-sm">São Paulo</span>
-                    </div>
-                    <div class="text-white">160</div>
-                  </div>
-                  <div class="col-4 text-center">
-                    <div class="text-white">
-                      <span class="text-sm">Rio de Janeiro</span>
-                    </div>
-                    <div class="text-white">130</div>
-                  </div>
-                  <div class="col-4 text-center">
-                    <div class="text-white">
-                      <span class="text-sm">Outros</span>
-                    </div>
-                    <div class="text-white">80</div>
+                <div id="performance-table">
+                  <div class="text-center">
+                    <i class="fas fa-spinner fa-spin"></i> Carregando performance...
                   </div>
                 </div>
               </div>
@@ -619,9 +605,9 @@
 
 <!-- Custom Dashboard Script -->
 <script>
-  // Initialize Charts
+  // Initialize Charts with global variables for updates
   const ctx1 = document.getElementById('revenue-chart-canvas').getContext('2d');
-  new Chart(ctx1, {
+  window.revenueChart = new Chart(ctx1, {
     type: 'line',
     data: {
       labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
@@ -635,12 +621,22 @@
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return 'R$ ' + value.toLocaleString('pt-BR');
+            }
+          }
+        }
+      }
     }
   });
 
   const ctx2 = document.getElementById('sales-chart-canvas').getContext('2d');
-  new Chart(ctx2, {
+  window.salesChart = new Chart(ctx2, {
     type: 'bar',
     data: {
       labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
@@ -668,7 +664,12 @@
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
     }
   });
 </script>
