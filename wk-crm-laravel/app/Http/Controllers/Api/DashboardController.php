@@ -12,13 +12,21 @@ class DashboardController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
+            // Extrair filtros da request
+            $filters = [
+                'periodo' => $request->get('periodo', '30'),
+                'vendedor' => $request->get('vendedor', 'all'),
+                'status' => $request->get('status', 'all')
+            ];
+            
             $data = [
-                'resumo' => $this->obterResumo(),
-                'metricas' => $this->obterMetricas(),
-                'atividade_recente' => $this->obterAtividadeRecente(),
-                'dados_graficos' => $this->obterDadosGraficos(),
-                'performance_vendedores' => $this->gerarPerformanceVendedores(),
-                'fontes_leads' => $this->gerarFontesLeads(),
+                'resumo' => $this->obterResumo($filters),
+                'metricas' => $this->obterMetricas($filters),
+                'atividade_recente' => $this->obterAtividadeRecente($filters),
+                'dados_graficos' => $this->obterDadosGraficos($filters),
+                'performance_vendedores' => $this->gerarPerformanceVendedores($filters),
+                'fontes_leads' => $this->gerarFontesLeads($filters),
+                'filtros_aplicados' => $filters,
                 'sistema' => [
                     'nome' => 'WK CRM Laravel Enhanced',
                     'versao' => '2.0.0',  
@@ -40,20 +48,26 @@ class DashboardController extends Controller
         }
     }
 
-    private function obterResumo(): array
+    private function obterResumo(array $filters = []): array
     {
+        // Simular filtros aplicados nos dados
+        $multiplier = 1.0;
+        if ($filters['periodo'] == '7') $multiplier = 0.25;
+        elseif ($filters['periodo'] == '90') $multiplier = 3.0;
+        elseif ($filters['periodo'] == '365') $multiplier = 12.0;
+        
         return [
-            'total_clientes' => 1247,
-            'novos_clientes_mes' => 89,
-            'leads_ativos' => 234,
-            'vendas_mes' => 156,
+            'total_clientes' => (int)(1247 * $multiplier),
+            'novos_clientes_mes' => (int)(89 * $multiplier),
+            'leads_ativos' => (int)(234 * $multiplier),
+            'vendas_mes' => (int)(156 * $multiplier),
             'receita_mes' => 'R$ 234.567,89',
             'meta_mes' => 'R$ 250.000,00',
             'percentual_meta' => 94
         ];
     }
 
-    private function obterMetricas(): array
+    private function obterMetricas(array $filters = []): array
     {
         return [
             'conversao_leads' => [
@@ -75,7 +89,7 @@ class DashboardController extends Controller
         ];
     }
 
-    private function obterAtividadeRecente(): array
+    private function obterAtividadeRecente(array $filters = []): array
     {
         $atividades = [
             'Novo cliente cadastrado: João Silva',
@@ -100,7 +114,7 @@ class DashboardController extends Controller
         return $atividadesFormatadas;
     }
 
-    private function obterDadosGraficos(): array
+    private function obterDadosGraficos(array $filters = []): array
     {
         // Dados para gráficos dos últimos 30 dias
         $vendas_diarias = [];
@@ -132,7 +146,7 @@ class DashboardController extends Controller
         ];
     }
 
-    private function gerarPerformanceVendedores(): array
+    private function gerarPerformanceVendedores(array $filters = []): array
     {
         $vendedores = [
             ['nome' => 'Carlos Silva', 'vendas' => 23, 'leads' => 45, 'conversao' => 51.1, 'meta' => 25, 'atingimento' => 92.0],
@@ -145,7 +159,7 @@ class DashboardController extends Controller
         return $vendedores;
     }
 
-    private function gerarFontesLeads(): array
+    private function gerarFontesLeads(array $filters = []): array
     {
         $fontes = [
             ['fonte' => 'Website', 'quantidade' => 89, 'percentual' => 35.6],
@@ -156,5 +170,25 @@ class DashboardController extends Controller
         ];
 
         return $fontes;
+    }
+
+    public function vendedores(): JsonResponse
+    {
+        try {
+            $vendedores = [
+                ['id' => 1, 'nome' => 'João Silva'],
+                ['id' => 2, 'nome' => 'Maria Santos'],
+                ['id' => 3, 'nome' => 'Pedro Costa'],
+                ['id' => 4, 'nome' => 'Ana Oliveira'],
+                ['id' => 5, 'nome' => 'Carlos Ferreira']
+            ];
+
+            return response()->json($vendedores);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao carregar vendedores',
+                'vendedores' => []
+            ], 500);
+        }
     }
 }

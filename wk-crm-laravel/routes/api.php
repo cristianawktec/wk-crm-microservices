@@ -144,6 +144,9 @@ Route::get('/oportunidades', function () {
 // Endpoint para estatísticas do dashboard - agora com dados reais
 Route::get('/dashboard', [App\Http\Controllers\Api\DashboardController::class, 'index']);
 
+// Endpoint para carregar vendedores nos filtros
+Route::get('/vendedores', [App\Http\Controllers\Api\DashboardController::class, 'vendedores']);
+
 // Mantendo endpoints em inglês para compatibilidade
 Route::get('/customers', function () {
     return redirect('/api/clientes');
