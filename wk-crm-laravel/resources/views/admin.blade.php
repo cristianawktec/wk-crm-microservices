@@ -218,6 +218,32 @@
           </div>
         </div>
 
+        <!-- Tempo Real -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-broadcast-tower"></i> Dados em Tempo Real</h3>
+                <div class="card-tools">
+                  <span id="realtime-status" class="badge badge-success">
+                    <i class="fas fa-circle text-success"></i> Conectando...
+                  </span>
+                  <button type="button" class="btn btn-sm btn-outline-primary ml-2" onclick="toggleRealTime()">
+                    <i class="fas fa-power-off"></i> Toggle
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="real-time-indicators">
+                  <div class="text-center">
+                    <i class="fas fa-spinner fa-spin"></i> Aguardando dados tempo real...
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Estatísticas -->
         <div class="row">
           <div class="col-lg-3 col-6">
@@ -456,6 +482,125 @@ async function loadVendedores() {
     }
 }
 
+// WebSocket / Server-Sent Events para tempo real
+let eventSource = null;
+let isRealTimeActive = false;
+
+function initializeRealTime() {
+    if (eventSource) {
+        eventSource.close();
+    }
+    
+    eventSource = new EventSource(`${API_BASE_URL}/dashboard/stream`);
+    
+    eventSource.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            updateRealTimeData(data);
+            showRealTimeNotification(data);
+        } catch (error) {
+            console.error('Erro ao processar dados tempo real:', error);
+        }
+    };
+    
+    eventSource.onerror = function(event) {
+        console.error('Erro na conexão tempo real:', event);
+        if (eventSource.readyState === EventSource.CLOSED) {
+            setTimeout(initializeRealTime, 5000); // Reconectar após 5s
+        }
+    };
+    
+    isRealTimeActive = true;
+    updateRealTimeStatus(true);
+}
+
+function updateRealTimeData(data) {
+    if (data.data) {
+        // Atualizar indicadores tempo real
+        const indicators = document.getElementById('real-time-indicators');
+        if (indicators) {
+            indicators.innerHTML = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="info-box bg-info">
+                            <span class="info-box-icon"><i class="fas fa-users"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Online Agora</span>
+                                <span class="info-box-number">${data.data.clientes_online}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-success">
+                            <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Vendas/Hora</span>
+                                <span class="info-box-number">${data.data.vendas_hora}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-warning">
+                            <span class="info-box-icon"><i class="fas fa-user-plus"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Leads Novos</span>
+                                <span class="info-box-number">${data.data.leads_novos}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box bg-danger">
+                            <span class="info-box-icon"><i class="fas fa-percentage"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Conversão Live</span>
+                                <span class="info-box-number">${data.data.conversao_tempo_real}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+}
+
+function showRealTimeNotification(data) {
+    // Toast notification simples
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = `
+        <div class="alert alert-info alert-dismissible fade show" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+            <i class="fas fa-sync-alt"></i> <strong>Tempo Real:</strong> Dados atualizados
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 3000);
+}
+
+function updateRealTimeStatus(active) {
+    const statusElement = document.getElementById('realtime-status');
+    if (statusElement) {
+        statusElement.innerHTML = active 
+            ? '<i class="fas fa-circle text-success"></i> Tempo Real Ativo'
+            : '<i class="fas fa-circle text-danger"></i> Tempo Real Inativo';
+    }
+}
+
+function toggleRealTime() {
+    if (isRealTimeActive) {
+        eventSource?.close();
+        isRealTimeActive = false;
+        updateRealTimeStatus(false);
+    } else {
+        initializeRealTime();
+    }
+}
+
 // Carregar dados quando página carregar
 document.addEventListener('DOMContentLoaded', function() {
     carregarDashboard();
@@ -478,7 +623,10 @@ document.addEventListener('DOMContentLoaded', function() {
         updateActiveFilters();
     });
     
-    // Atualizar a cada 30 segundos
+    // Inicializar tempo real
+    initializeRealTime();
+    
+    // Atualizar a cada 30 segundos (backup)
     setInterval(() => carregarDashboard(currentFilters), 30000);
 });
 </script>
