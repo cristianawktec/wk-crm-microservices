@@ -191,4 +191,119 @@ class DashboardController extends Controller
             ], 500);
         }
     }
+
+    public function simulateUpdate(Request $request): JsonResponse
+    {
+        try {
+            // Simular novo cliente, venda ou lead
+            $tipos = ['novo_cliente', 'nova_venda', 'lead_qualificado', 'meta_atingida'];
+            $tipo = $request->get('tipo', $tipos[array_rand($tipos)]);
+            
+            $simulatedData = $this->gerarDadosSimulados($tipo);
+            
+            // Disparar evento WebSocket
+            broadcast(new \App\Events\DashboardUpdated(
+                $simulatedData,
+                $tipo,
+                $simulatedData['mensagem']
+            ));
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Evento WebSocket disparado com sucesso',
+                'data' => $simulatedData,
+                'tipo' => $tipo
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao disparar evento',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function gerarDadosSimulados(string $tipo): array
+    {
+        switch ($tipo) {
+            case 'novo_cliente':
+                return [
+                    'mensagem' => '🎉 Novo cliente cadastrado: ' . fake()->name,
+                    'valor' => null,
+                    'incremento' => ['total_clientes' => 1],
+                    'icone' => 'fas fa-user-plus',
+                    'cor' => 'success'
+                ];
+            
+            case 'nova_venda':
+                $valor = fake()->numberBetween(1000, 10000);
+                return [
+                    'mensagem' => '💰 Nova venda: R$ ' . number_format($valor, 2, ',', '.'),
+                    'valor' => $valor,
+                    'incremento' => ['vendas_mes' => 1, 'receita_mes' => $valor],
+                    'icone' => 'fas fa-money-bill-wave',
+                    'cor' => 'primary'
+                ];
+            
+            case 'lead_qualificado':
+                return [
+                    'mensagem' => '🎯 Lead qualificado: ' . fake()->company,
+                    'valor' => null,
+                    'incremento' => ['leads_ativos' => 1],
+                    'icone' => 'fas fa-bullseye',
+                    'cor' => 'warning'
+                ];
+            
+            case 'meta_atingida':
+                return [
+                    'mensagem' => '🏆 Meta mensal atingida! Parabéns ao time!',
+                    'valor' => null,
+                    'incremento' => ['percentual_meta' => 100],
+                    'icone' => 'fas fa-trophy',
+                    'cor' => 'danger'
+                ];
+            
+            default:
+                return [
+                    'mensagem' => '📊 Dados atualizados',
+                    'valor' => null,
+                    'incremento' => [],
+                    'icone' => 'fas fa-chart-line',
+                    'cor' => 'info'
+                ];
+        }
+    }
+
+    public function streamUpdates(Request $request)
+    {
+        return response()->stream(function () {
+            while (true) {
+                // Simular dados em tempo real
+                $update = [
+                    'timestamp' => now()->toISOString(),
+                    'data' => [
+                        'clientes_online' => rand(15, 45),
+                        'vendas_hora' => rand(0, 8),
+                        'leads_novos' => rand(0, 12),
+                        'conversao_tempo_real' => rand(20, 35) . '%'
+                    ],
+                    'evento' => 'dados_tempo_real'
+                ];
+
+                echo "data: " . json_encode($update) . "\n\n";
+                
+                if (connection_aborted()) {
+                    break;
+                }
+                
+                sleep(5); // Atualizar a cada 5 segundos
+            }
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET',
+            'Access-Control-Allow-Headers' => 'Cache-Control'
+        ]);
+    }
 }

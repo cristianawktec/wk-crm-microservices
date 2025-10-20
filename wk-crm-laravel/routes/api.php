@@ -147,6 +147,12 @@ Route::get('/dashboard', [App\Http\Controllers\Api\DashboardController::class, '
 // Endpoint para carregar vendedores nos filtros
 Route::get('/vendedores', [App\Http\Controllers\Api\DashboardController::class, 'vendedores']);
 
+// Endpoint para simular atualizações WebSocket (desenvolvimento)
+Route::post('/simulate-update', [App\Http\Controllers\Api\DashboardController::class, 'simulateUpdate']);
+
+// Endpoint SSE para updates em tempo real
+Route::get('/dashboard/stream', [App\Http\Controllers\Api\DashboardController::class, 'streamUpdates']);
+
 // Mantendo endpoints em inglês para compatibilidade
 Route::get('/customers', function () {
     return redirect('/api/clientes');
