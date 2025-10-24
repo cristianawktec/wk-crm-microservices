@@ -1,0 +1,238 @@
+openapi: 3.0.3
+info:
+  title: WK CRM Microservices API
+  version: 1.0.0
+  description: API RESTful para Customers, Leads e Opportunities
+servers:
+  - url: http://localhost:8000/api
+paths:
+  /customers:
+    get:
+      summary: Listar todos os clientes
+      responses:
+        '200':
+          description: Lista de clientes
+    post:
+      summary: Criar novo cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '201':
+          description: Cliente criado
+  /customers/{id}:
+    get:
+      summary: Buscar cliente por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cliente encontrado
+    put:
+      summary: Atualizar cliente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '200':
+          description: Cliente atualizado
+    delete:
+      summary: Excluir cliente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cliente excluído
+  /leads:
+    get:
+      summary: Listar todos os leads
+      responses:
+        '200':
+          description: Lista de leads
+    post:
+      summary: Criar novo lead
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lead'
+      responses:
+        '201':
+          description: Lead criado
+  /leads/{id}:
+    get:
+      summary: Buscar lead por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lead encontrado
+    put:
+      summary: Atualizar lead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lead'
+      responses:
+        '200':
+          description: Lead atualizado
+    delete:
+      summary: Excluir lead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lead excluído
+  /opportunities:
+    get:
+      summary: Listar todas as oportunidades
+      responses:
+        '200':
+          description: Lista de oportunidades
+    post:
+      summary: Criar nova oportunidade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Opportunity'
+      responses:
+        '201':
+          description: Oportunidade criada
+  /opportunities/{id}:
+    get:
+      summary: Buscar oportunidade por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Oportunidade encontrada
+    put:
+      summary: Atualizar oportunidade
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Opportunity'
+      responses:
+        '200':
+          description: Oportunidade atualizada
+    delete:
+      summary: Excluir oportunidade
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Oportunidade excluída
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        status:
+          type: string
+        company:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip_code:
+          type: string
+        country:
+          type: string
+    Lead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        status:
+          type: string
+        source:
+          type: string
+        company:
+          type: string
+    Opportunity:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        value:
+          type: number
+        status:
+          type: string
+        customer_id:
+          type: string

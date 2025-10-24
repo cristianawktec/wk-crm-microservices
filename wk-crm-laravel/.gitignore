@@ -1,0 +1,44 @@
+# Laravel & PHP
+/vendor/
+/node_modules/
+/public/storage
+/storage/*.key
+.env
+.env.*
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+
+# Docker
+*.pid
+*.seed
+*.log
+*.sqlite
+*.sqlite3
+*.sock
+
+# IDEs & OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Composer
+composer.phar
+
+# Coverage
+coverage/
+
+# Others
+*.bak
+*.tmp
+*.old
+
+# Ignore Docker volumes and images
+**/docker-data/
+**/docker-volumes/
+**/docker-images/

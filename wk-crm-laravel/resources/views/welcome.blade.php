@@ -160,8 +160,36 @@
         <div class="subtitle">API Laravel com Arquitetura DDD + SOLID + TDD</div>
         
         <div class="description">
+
             Sistema de CRM microservices desenvolvido especialmente para o mercado brasileiro, 
             com arquitetura moderna, escalável e totalmente localizada em português.
+        </div>
+
+        <!-- Projetos e Tecnologias -->
+        <div style="margin-bottom: 3rem;">
+            <h2 style="font-size:1.3rem; margin-bottom:1rem; font-weight:600;">Projetos & Tecnologias</h2>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1.5rem;">
+                <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:1rem;">
+                    <div style="font-size:1.1rem; font-weight:600; margin-bottom:0.5rem;">📊 Dashboard Admin</div>
+                    <div style="font-size:0.95rem; opacity:0.85;">Laravel + Bootstrap</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:1rem;">
+                    <div style="font-size:1.1rem; font-weight:600; margin-bottom:0.5rem;">👥 API Clientes</div>
+                    <div style="font-size:0.95rem; opacity:0.85;">Laravel (DDD, SOLID, TDD)</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:1rem;">
+                    <div style="font-size:1.1rem; font-weight:600; margin-bottom:0.5rem;">🎨 Painel Administrativo</div>
+                    <div style="font-size:0.95rem; opacity:0.85;">.NET Core</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:1rem;">
+                    <div style="font-size:1.1rem; font-weight:600; margin-bottom:0.5rem;">🌐 Frontend</div>
+                    <div style="font-size:0.95rem; opacity:0.85;">Angular</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:1rem;">
+                    <div style="font-size:1.1rem; font-weight:600; margin-bottom:0.5rem;">🛠️ Outros Serviços</div>
+                    <div style="font-size:0.95rem; opacity:0.85;">PHP, Microserviços, Integrações</div>
+                </div>
+            </div>
         </div>
 
         <div class="features">

@@ -8,7 +8,20 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
+    /**
+     * @OA\Get(
+     *     path="/api/dashboard",
+     *     summary="Retorna os dados do dashboard",
+     *     operationId="dashboard_index",
+     *     tags={"Dashboard"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Dados do dashboard retornados com sucesso"
+     *     )
+     * )
+     */
 {
+    // ...existing code...
     public function index(Request $request): JsonResponse
     {
         try {
@@ -50,64 +63,95 @@ class DashboardController extends Controller
 
     private function obterResumo(array $filters = []): array
     {
-        // Simular filtros aplicados nos dados
-        $multiplier = 1.0;
-        if ($filters['periodo'] == '7') $multiplier = 0.25;
-        elseif ($filters['periodo'] == '90') $multiplier = 3.0;
-        elseif ($filters['periodo'] == '365') $multiplier = 12.0;
-        
+        // Dados reais do banco
+        $total_clientes = \App\Domain\Customer\Customer::count();
+        $novos_clientes_mes = \App\Domain\Customer\Customer::where('created_at', '>=', now()->subMonth())->count();
+        $leads_ativos = \App\Domain\Lead\Lead::where('status', 'new')->count();
+        $vendas_mes = \App\Domain\Opportunity\Opportunity::where('created_at', '>=', now()->subMonth())->count();
+        $receita_mes = \App\Domain\Opportunity\Opportunity::where('created_at', '>=', now()->subMonth())->sum('value');
+        $meta_mes = 250000; // valor fixo ou buscar de config
+        $percentual_meta = $meta_mes > 0 ? round(($receita_mes / $meta_mes) * 100) : 0;
+
         return [
-            'total_clientes' => (int)(1247 * $multiplier),
-            'novos_clientes_mes' => (int)(89 * $multiplier),
-            'leads_ativos' => (int)(234 * $multiplier),
-            'vendas_mes' => (int)(156 * $multiplier),
-            'receita_mes' => 'R$ 234.567,89',
-            'meta_mes' => 'R$ 250.000,00',
-            'percentual_meta' => 94
+            'total_clientes' => $total_clientes,
+            'novos_clientes_mes' => $novos_clientes_mes,
+            'leads_ativos' => $leads_ativos,
+            'vendas_mes' => $vendas_mes,
+            'receita_mes' => 'R$ ' . number_format($receita_mes, 2, ',', '.'),
+            'meta_mes' => 'R$ ' . number_format($meta_mes, 2, ',', '.'),
+            'percentual_meta' => $percentual_meta
         ];
     }
 
     private function obterMetricas(array $filters = []): array
     {
+        $total_leads = \App\Domain\Lead\Lead::count();
+        $convertidos = \App\Domain\Lead\Lead::where('status', 'converted')->count();
+        $em_andamento = \App\Domain\Lead\Lead::where('status', 'new')->count();
+        $taxa_conversao = $total_leads > 0 ? round(($convertidos / $total_leads) * 100, 2) : 0;
+
+        $hoje = \App\Domain\Opportunity\Opportunity::whereDate('created_at', now()->toDateString())->count();
+        $semana = \App\Domain\Opportunity\Opportunity::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
+        $mes = \App\Domain\Opportunity\Opportunity::whereMonth('created_at', now()->month)->count();
+        $trimestre = \App\Domain\Opportunity\Opportunity::whereBetween('created_at', [now()->subMonths(3), now()])->count();
+
+        $valor_ticket_medio = $mes > 0 ? \App\Domain\Opportunity\Opportunity::whereMonth('created_at', now()->month)->sum('value') / $mes : 0;
+        $variacao_ticket = '+0%'; // Implementar cálculo de variação se necessário
+
         return [
             'conversao_leads' => [
-                'total_leads' => 456,
-                'convertidos' => 123,
-                'taxa_conversao' => 27.0,
-                'em_andamento' => 234
+                'total_leads' => $total_leads,
+                'convertidos' => $convertidos,
+                'taxa_conversao' => $taxa_conversao,
+                'em_andamento' => $em_andamento
             ],
             'vendas_periodo' => [
-                'hoje' => 12,
-                'semana' => 89,
-                'mes' => 156,
-                'trimestre' => 489
+                'hoje' => $hoje,
+                'semana' => $semana,
+                'mes' => $mes,
+                'trimestre' => $trimestre
             ],
             'tickets_medio' => [
-                'valor' => 'R$ 1.504,54',
-                'variacao' => '+12.5%'
+                'valor' => 'R$ ' . number_format($valor_ticket_medio, 2, ',', '.'),
+                'variacao' => $variacao_ticket
             ]
         ];
     }
 
     private function obterAtividadeRecente(array $filters = []): array
     {
-        $atividades = [
-            'Novo cliente cadastrado: João Silva',
-            'Venda finalizada: R$ 2.340,00 - Maria Santos',  
-            'Lead qualificado: Pedro Oliveira - Interesse em consultoria',
-            'Reunião agendada: Ana Costa - 15/10 às 14h',
-            'Proposta enviada: Carlos Lima - R$ 5.670,00',
-            'Cliente reativado: Fernanda Rocha',
-            'Novo lead: Ricardo Pereira - Site corporativo'
-        ];
-
         $atividadesFormatadas = [];
-        foreach (array_slice($atividades, 0, 5) as $index => $atividade) {
+
+        // Últimos clientes
+        $clientes = \App\Domain\Customer\Customer::orderByDesc('created_at')->take(2)->get();
+        foreach ($clientes as $c) {
             $atividadesFormatadas[] = [
-                'id' => $index + 1,
-                'descricao' => $atividade,
-                'tempo' => Carbon::now()->subMinutes(rand(10, 300))->diffForHumans(),
-                'tipo' => ['cliente', 'venda', 'lead', 'reuniao', 'proposta'][rand(0, 4)]
+                'id' => $c->id,
+                'descricao' => 'Novo cliente cadastrado: ' . $c->name,
+                'tempo' => Carbon::parse($c->created_at)->diffForHumans(),
+                'tipo' => 'cliente'
+            ];
+        }
+
+        // Últimos leads
+        $leads = \App\Domain\Lead\Lead::orderByDesc('created_at')->take(2)->get();
+        foreach ($leads as $l) {
+            $atividadesFormatadas[] = [
+                'id' => $l->id,
+                'descricao' => 'Novo lead: ' . $l->name . ' - ' . ($l->source ?? 'Fonte desconhecida'),
+                'tempo' => Carbon::parse($l->created_at)->diffForHumans(),
+                'tipo' => 'lead'
+            ];
+        }
+
+        // Últimas oportunidades
+        $opps = \App\Domain\Opportunity\Opportunity::orderByDesc('created_at')->take(1)->get();
+        foreach ($opps as $o) {
+            $atividadesFormatadas[] = [
+                'id' => $o->id,
+                'descricao' => 'Venda finalizada: R$ ' . number_format($o->value, 2, ',', '.') . ' - ' . $o->title,
+                'tempo' => Carbon::parse($o->created_at)->diffForHumans(),
+                'tipo' => 'venda'
             ];
         }
 
@@ -116,33 +160,48 @@ class DashboardController extends Controller
 
     private function obterDadosGraficos(array $filters = []): array
     {
-        // Dados para gráficos dos últimos 30 dias
+        // Gráficos reais dos últimos 30 dias
         $vendas_diarias = [];
         $leads_diarios = [];
-        
         for ($i = 29; $i >= 0; $i--) {
             $data = Carbon::now()->subDays($i)->format('Y-m-d');
+            $vendas_count = \App\Domain\Opportunity\Opportunity::whereDate('created_at', $data)->count();
+            $vendas_valor = \App\Domain\Opportunity\Opportunity::whereDate('created_at', $data)->sum('value');
+            $leads_count = \App\Domain\Lead\Lead::whereDate('created_at', $data)->count();
             $vendas_diarias[] = [
                 'data' => $data,
-                'vendas' => rand(2, 15),
-                'valor' => rand(1500, 8500)
+                'vendas' => $vendas_count,
+                'valor' => $vendas_valor
             ];
             $leads_diarios[] = [
                 'data' => $data,
-                'leads' => rand(5, 25)
+                'leads' => $leads_count
             ];
         }
+
+        // Pipeline simplificado
+        $pipeline = [
+            [
+                'etapa' => 'Leads',
+                'quantidade' => \App\Domain\Lead\Lead::count(),
+                'valor' => 'R$ ' . number_format(\App\Domain\Opportunity\Opportunity::sum('value'), 2, ',', '.')
+            ],
+            [
+                'etapa' => 'Negociação',
+                'quantidade' => \App\Domain\Opportunity\Opportunity::where('status', 'open')->count(),
+                'valor' => 'R$ ' . number_format(\App\Domain\Opportunity\Opportunity::where('status', 'open')->sum('value'), 2, ',', '.')
+            ],
+            [
+                'etapa' => 'Fechamento',
+                'quantidade' => \App\Domain\Opportunity\Opportunity::where('status', 'closed')->count(),
+                'valor' => 'R$ ' . number_format(\App\Domain\Opportunity\Opportunity::where('status', 'closed')->sum('value'), 2, ',', '.')
+            ]
+        ];
 
         return [
             'vendas_mes' => $vendas_diarias,
             'leads_mes' => $leads_diarios,
-            'pipeline' => [
-                ['etapa' => 'Leads', 'quantidade' => 234, 'valor' => 'R$ 456.789'],
-                ['etapa' => 'Qualificados', 'quantidade' => 123, 'valor' => 'R$ 234.567'], 
-                ['etapa' => 'Propostas', 'quantidade' => 89, 'valor' => 'R$ 178.234'],
-                ['etapa' => 'Negociação', 'quantidade' => 45, 'valor' => 'R$ 89.123'],
-                ['etapa' => 'Fechamento', 'quantidade' => 23, 'valor' => 'R$ 67.890']
-            ]
+            'pipeline' => $pipeline
         ];
     }
 
