@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class DashboardController extends Controller
+class DashboardControllerSimple extends Controller
 {
     public function index(Request $request): JsonResponse
     {

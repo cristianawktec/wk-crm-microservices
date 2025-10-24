@@ -1,7 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\LeadController;
+use App\Http\Controllers\OpportunityController;
 
 Route::get('/health', function () {
     return response()->json([
@@ -38,53 +41,11 @@ Route::get('/info', function () {
     ]);
 });
 
-// Endpoint de clientes com dados em português
-Route::get('/clientes', function () {
-    return response()->json([
-        'dados' => [
-            [
-                'id' => 1,
-                'nome' => 'João Silva',
-                'email' => 'joao.silva@empresa.com.br',
-                'telefone' => '(11) 99999-9999',
-                'empresa' => 'Tech Corp Brasil',
-                'status' => 'ativo',
-                'data_criacao' => '2025-10-01T10:00:00-03:00',
-                'cidade' => 'São Paulo',
-                'estado' => 'SP'
-            ],
-            [
-                'id' => 2,
-                'nome' => 'Maria Santos', 
-                'email' => 'maria.santos@digital.com.br',
-                'telefone' => '(11) 88888-8888',
-                'empresa' => 'Soluções Digitais Ltda',
-                'status' => 'ativo',
-                'data_criacao' => '2025-10-02T15:30:00-03:00',
-                'cidade' => 'Rio de Janeiro',
-                'estado' => 'RJ'
-            ],
-            [
-                'id' => 3,
-                'nome' => 'Pedro Costa',
-                'email' => 'pedro.costa@inovacao.com.br',
-                'telefone' => '(85) 77777-7777',
-                'empresa' => 'Laboratórios de Inovação',
-                'status' => 'ativo',
-                'data_criacao' => '2025-10-03T09:15:00-03:00',
-                'cidade' => 'Fortaleza',
-                'estado' => 'CE'
-            ]
-        ],
-        'meta' => [
-            'total' => 3,
-            'pagina' => 1,
-            'por_pagina' => 10,
-            'arquitetura' => 'Implementação DDD em progresso',
-            'localizacao' => 'Brasil'
-        ]
-    ]);
-});
+
+// Rotas RESTful para Customers, Leads e Opportunities
+Route::apiResource('customers', CustomerController::class);
+Route::apiResource('leads', LeadController::class);
+Route::apiResource('opportunities', OpportunityController::class);
 
 // Endpoint de leads
 Route::get('/leads', function () {
