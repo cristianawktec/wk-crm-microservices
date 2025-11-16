@@ -124,15 +124,15 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="/api/clientes" class="nav-link" target="_blank">
+            <a href="/admin/clientes" class="nav-link">
               <i class="nav-icon fas fa-users"></i>
-              <p>API Clientes</p>
+              <p>Clientes (CRUD)</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/api/leads" class="nav-link" target="_blank">
+            <a href="/admin/leads" class="nav-link">
               <i class="nav-icon fas fa-user-plus"></i>
-              <p>API Leads</p>
+              <p>Leads (CRUD)</p>
             </a>
           </li>
           <li class="nav-item">

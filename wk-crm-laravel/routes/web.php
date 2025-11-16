@@ -23,3 +23,8 @@ Route::get('/admin', function () {
 Route::get('/admin/clientes', function () {
     return view('clientes');
 });
+
+// Página de CRUD de Leads
+Route::get('/admin/leads', function () {
+    return view('leads');
+});

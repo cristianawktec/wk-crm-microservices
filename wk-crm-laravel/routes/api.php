@@ -47,61 +47,6 @@ Route::apiResource('clientes', CustomerController::class);
 Route::apiResource('leads', LeadController::class);
 Route::apiResource('oportunidades', OpportunityController::class);
 
-// Endpoint de leads
-Route::get('/leads', function () {
-    return response()->json([
-        'dados' => [
-            [
-                'id' => 1,
-                'nome' => 'Ana Oliveira',
-                'email' => 'ana.oliveira@prospects.com.br',
-                'telefone' => '(21) 96666-6666',
-                'empresa' => 'Prospectiva Negócios',
-                'fonte' => 'Site',
-                'status' => 'novo',
-                'interesse' => 'CRM',
-                'data_criacao' => '2025-10-17T14:30:00-03:00',
-                'cidade' => 'Brasília',
-                'estado' => 'DF'
-            ]
-        ],
-        'mensagem' => 'Endpoint de Leads - Implementação DDD pendente',
-        'arquitetura' => [
-            'padrao' => 'Design Orientado ao Domínio',
-            'principios' => ['SOLID', 'TDD'],
-            'status' => 'a_ser_implementado',
-            'idioma' => 'Português Brasil'
-        ]
-    ]);
-});
-
-// Endpoint de oportunidades
-Route::get('/oportunidades', function () {
-    return response()->json([
-        'dados' => [
-            [
-                'id' => 1,
-                'titulo' => 'Implementação Sistema CRM - Tech Corp',
-                'cliente_id' => 1,
-                'valor' => 150000.00,
-                'moeda' => 'BRL',
-                'probabilidade' => 75,
-                'status' => 'negociacao',
-                'data_fechamento_prevista' => '2025-11-30',
-                'vendedor' => 'Carlos Mendes',
-                'data_criacao' => '2025-10-15T11:00:00-03:00'
-            ]
-        ],
-        'mensagem' => 'Endpoint de Oportunidades - Implementação DDD pendente', 
-        'arquitetura' => [
-            'padrao' => 'Design Orientado ao Domínio',
-            'principios' => ['SOLID', 'TDD'],
-            'status' => 'a_ser_implementado',
-            'idioma' => 'Português Brasil'
-        ]
-    ]);
-});
-
 // Endpoint para estatísticas do dashboard - agora com dados reais
 Route::get('/dashboard', [App\Http\Controllers\Api\DashboardController::class, 'index']);
 

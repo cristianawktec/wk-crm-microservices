@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Domain\Lead\Lead;
+use Illuminate\Http\Response;
+use App\Domain\Lead\Lead as LeadEntity;
+use App\Domain\Lead\LeadRepositoryInterface;
 use App\Http\Requests\StoreLeadRequest;
 use App\Http\Requests\UpdateLeadRequest;
+use App\Http\Resources\LeadResource;
 
 /**
  * @OA\Tag(
@@ -16,6 +19,9 @@ use App\Http\Requests\UpdateLeadRequest;
 
 class LeadController extends Controller
 {
+    public function __construct(private LeadRepositoryInterface $leads)
+    {
+    }
     /**
      * @OA\Get(
      *     path="/api/leads",
@@ -26,7 +32,8 @@ class LeadController extends Controller
      */
     public function index()
     {
-        return response()->json(Lead::all());
+        $result = $this->leads->findAll(50);
+        return LeadResource::collection($result);
     }
 
     /**
@@ -40,8 +47,11 @@ class LeadController extends Controller
      */
     public function show($id)
     {
-        $lead = Lead::findOrFail($id);
-        return response()->json($lead);
+        $lead = $this->leads->findById($id);
+        if (!$lead) {
+            return response()->json(['message' => 'Lead not found'], 404);
+        }
+        return new LeadResource($lead);
     }
 
     /**
@@ -58,20 +68,26 @@ class LeadController extends Controller
      */
     public function store(StoreLeadRequest $request)
     {
-        $validated = $request->validated();
-        
-        $data = [
-            'id' => (string) \Str::uuid(),
-            'name' => $validated['name'] ?? $validated['nome'] ?? null,
-            'email' => $validated['email'] ?? null,
-            'phone' => $validated['phone'] ?? $validated['telefone'] ?? null,
-            'company' => $validated['company'] ?? $validated['empresa'] ?? null,
-            'source' => $validated['source'] ?? $validated['origem'] ?? null,
-            'status' => $validated['status'] ?? 'new',
-        ];
-        
-        $lead = Lead::create($data);
-        return response()->json($lead, 201);
+        $v = $request->validated();
+
+        $entity = LeadEntity::create(
+            id: null,
+            name: $v['name'] ?? $v['nome'] ?? '',
+            email: $v['email'] ?? null,
+            phone: $v['phone'] ?? $v['telefone'] ?? null,
+            company: $v['company'] ?? $v['empresa'] ?? null,
+            source: $v['source'] ?? $v['origem'] ?? null,
+            status: $v['status'] ?? 'new',
+            interest: $v['interest'] ?? $v['interesse'] ?? null,
+            city: $v['city'] ?? $v['cidade'] ?? null,
+            state: $v['state'] ?? $v['estado'] ?? null,
+            notes: $v['notes'] ?? $v['observacoes'] ?? null
+        );
+
+        $saved = $this->leads->save($entity);
+        return (new LeadResource($saved))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
@@ -89,20 +105,29 @@ class LeadController extends Controller
      */
     public function update(UpdateLeadRequest $request, $id)
     {
-        $lead = Lead::findOrFail($id);
-        $validated = $request->validated();
-        
-        $data = [
-            'name' => $validated['name'] ?? $validated['nome'] ?? $lead->name,
-            'email' => $validated['email'] ?? $lead->email,
-            'phone' => $validated['phone'] ?? $validated['telefone'] ?? $lead->phone,
-            'company' => $validated['company'] ?? $validated['empresa'] ?? $lead->company,
-            'source' => $validated['source'] ?? $validated['origem'] ?? $lead->source,
-            'status' => $validated['status'] ?? $lead->status,
-        ];
-        
-        $lead->update($data);
-        return response()->json($lead);
+        $existing = $this->leads->findById($id);
+        if (!$existing) {
+            return response()->json(['message' => 'Lead not found'], 404);
+        }
+
+        $v = $request->validated();
+
+        $entity = LeadEntity::create(
+            id: $existing->getId(),
+            name: $v['name'] ?? $v['nome'] ?? $existing->getName(),
+            email: $v['email'] ?? $existing->getEmail(),
+            phone: $v['phone'] ?? $v['telefone'] ?? $existing->getPhone(),
+            company: $v['company'] ?? $v['empresa'] ?? $existing->getCompany(),
+            source: $v['source'] ?? $v['origem'] ?? $existing->getSource(),
+            status: $v['status'] ?? $existing->getStatus(),
+            interest: $v['interest'] ?? $v['interesse'] ?? $existing->getInterest(),
+            city: $v['city'] ?? $v['cidade'] ?? $existing->getCity(),
+            state: $v['state'] ?? $v['estado'] ?? $existing->getState(),
+            notes: $v['notes'] ?? $v['observacoes'] ?? $existing->getNotes()
+        );
+
+        $updated = $this->leads->update($id, $entity);
+        return new LeadResource($updated);
     }
 
     /**
@@ -116,8 +141,10 @@ class LeadController extends Controller
      */
     public function destroy($id)
     {
-        $lead = Lead::findOrFail($id);
-        $lead->delete();
+        $deleted = $this->leads->delete($id);
+        if (!$deleted) {
+            return response()->json(['message' => 'Lead not found'], 404);
+        }
         return response()->json(['message' => 'Lead deleted']);
     }
 }
