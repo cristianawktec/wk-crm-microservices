@@ -2,135 +2,112 @@
 
 namespace App\Domain\Customer;
 
-use App\Domain\Customer\ValueObjects\CustomerId;
-use App\Domain\Customer\ValueObjects\CustomerEmail;
-use App\Domain\Customer\ValueObjects\CustomerPhone;
-use App\Domain\Shared\ValueObjects\Name;
-use App\Domain\Shared\ValueObjects\CreatedAt;
-use App\Domain\Shared\ValueObjects\UpdatedAt;
-
+/**
+ * Customer Domain Entity - DDD Pattern
+ * Versão simplificada sem Value Objects complexos (para MVP)
+ * TODO: Evoluir para usar Value Objects quando necessário
+ */
 class Customer
 {
-    private CustomerId $id;
-    private Name $name;
-    private CustomerEmail $email;
-    private ?CustomerPhone $phone;
-    private string $status;
-    private ?string $company;
+    private ?string $id;
+    private string $name;
+    private string $email;
+    private ?string $phone;
+    private ?string $cpf;
     private ?string $address;
     private ?string $city;
     private ?string $state;
-    private ?string $zipCode;
-    private ?string $country;
-    private CreatedAt $createdAt;
-    private UpdatedAt $updatedAt;
+    private ?string $postalCode;
+    private string $status;
 
-    public function __construct(
-        CustomerId $id,
-        Name $name,
-        CustomerEmail $email,
-        ?CustomerPhone $phone = null,
-        string $status = 'active',
-        ?string $company = null,
-        ?string $address = null,
-        ?string $city = null,
-        ?string $state = null,
-        ?string $zipCode = null,
-        ?string $country = null,
-        ?CreatedAt $createdAt = null,
-        ?UpdatedAt $updatedAt = null
+    private function __construct(
+        ?string $id,
+        string $name,
+        string $email,
+        ?string $phone,
+        ?string $cpf,
+        ?string $address,
+        ?string $city,
+        ?string $state,
+        ?string $postalCode,
+        string $status
     ) {
         $this->id = $id;
         $this->name = $name;
         $this->email = $email;
         $this->phone = $phone;
-        $this->status = $status;
-        $this->company = $company;
+        $this->cpf = $cpf;
         $this->address = $address;
         $this->city = $city;
         $this->state = $state;
-        $this->zipCode = $zipCode;
-        $this->country = $country;
-        $this->createdAt = $createdAt ?? CreatedAt::now();
-        $this->updatedAt = $updatedAt ?? UpdatedAt::now();
+        $this->postalCode = $postalCode;
+        $this->status = $status;
     }
 
     public static function create(
-        Name $name,
-        CustomerEmail $email,
-        ?CustomerPhone $phone = null,
-        string $status = 'active',
-        ?string $company = null,
+        ?string $id,
+        string $name,
+        string $email,
+        ?string $phone = null,
+        ?string $cpf = null,
         ?string $address = null,
         ?string $city = null,
         ?string $state = null,
-        ?string $zipCode = null,
-        ?string $country = null
+        ?string $postalCode = null
     ): self {
         return new self(
-            CustomerId::generate(),
+            $id,
             $name,
             $email,
             $phone,
-            $status,
-            $company,
+            $cpf,
             $address,
             $city,
             $state,
-            $zipCode,
-            $country
+            $postalCode,
+            'active'
         );
     }
 
     public function updateInfo(
-        Name $name,
-        CustomerEmail $email,
-        ?CustomerPhone $phone = null,
-        ?string $company = null,
+        ?string $name = null,
+        ?string $phone = null,
+        ?string $cpf = null,
         ?string $address = null,
         ?string $city = null,
         ?string $state = null,
-        ?string $zipCode = null,
-        ?string $country = null
+        ?string $postalCode = null
     ): void {
-        $this->name = $name;
-        $this->email = $email;
-        $this->phone = $phone;
-        $this->company = $company;
-        $this->address = $address;
-        $this->city = $city;
-        $this->state = $state;
-        $this->zipCode = $zipCode;
-        $this->country = $country;
-        $this->updatedAt = UpdatedAt::now();
+        if ($name !== null) $this->name = $name;
+        if ($phone !== null) $this->phone = $phone;
+        if ($cpf !== null) $this->cpf = $cpf;
+        if ($address !== null) $this->address = $address;
+        if ($city !== null) $this->city = $city;
+        if ($state !== null) $this->state = $state;
+        if ($postalCode !== null) $this->postalCode = $postalCode;
     }
 
     public function activate(): void
     {
         $this->status = 'active';
-        $this->updatedAt = UpdatedAt::now();
     }
 
     public function deactivate(): void
     {
         $this->status = 'inactive';
-        $this->updatedAt = UpdatedAt::now();
     }
 
     // Getters
-    public function id(): CustomerId { return $this->id; }
-    public function name(): Name { return $this->name; }
-    public function email(): CustomerEmail { return $this->email; }
-    public function phone(): ?CustomerPhone { return $this->phone; }
-    public function status(): string { return $this->status; }
-    public function company(): ?string { return $this->company; }
-    public function address(): ?string { return $this->address; }
-    public function city(): ?string { return $this->city; }
-    public function state(): ?string { return $this->state; }
-    public function zipCode(): ?string { return $this->zipCode; }
-    public function country(): ?string { return $this->country; }
-    public function createdAt(): CreatedAt { return $this->createdAt; }
-    public function updatedAt(): UpdatedAt { return $this->updatedAt; }
+    public function getId(): ?string { return $this->id; }
+    public function getName(): string { return $this->name; }
+    public function getEmail(): string { return $this->email; }
+    public function getPhone(): ?string { return $this->phone; }
+    public function getCpf(): ?string { return $this->cpf; }
+    public function getAddress(): ?string { return $this->address; }
+    public function getCity(): ?string { return $this->city; }
+    public function getState(): ?string { return $this->state; }
+    public function getPostalCode(): ?string { return $this->postalCode; }
+    public function getStatus(): string { return $this->status; }
 
     public function isActive(): bool
     {
@@ -140,19 +117,16 @@ class Customer
     public function toArray(): array
     {
         return [
-            'id' => $this->id->value(),
-            'name' => $this->name->value(),
-            'email' => $this->email->value(),
-            'phone' => $this->phone?->value(),
-            'status' => $this->status,
-            'company' => $this->company,
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'cpf' => $this->cpf,
             'address' => $this->address,
             'city' => $this->city,
             'state' => $this->state,
-            'zip_code' => $this->zipCode,
-            'country' => $this->country,
-            'created_at' => $this->createdAt->value(),
-            'updated_at' => $this->updatedAt->value(),
+            'postal_code' => $this->postalCode,
+            'status' => $this->status,
         ];
     }
 }

@@ -18,3 +18,8 @@ Route::get('/', function () {
 Route::get('/admin', function () {
     return view('admin');
 });
+
+// Página de CRUD de Clientes dentro do dashboard AdminLTE
+Route::get('/admin/clientes', function () {
+    return view('clientes');
+});

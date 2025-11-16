@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Http\Request;
 use App\Domain\Lead\Lead;
+use App\Http\Requests\StoreLeadRequest;
+use App\Http\Requests\UpdateLeadRequest;
 
 /**
  * @OA\Tag(
@@ -55,17 +56,20 @@ class LeadController extends Controller
      *     @OA\Response(response=201, description="Lead criado")
      * )
      */
-    public function store(Request $request)
+    public function store(StoreLeadRequest $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string',
-            'status' => 'nullable|string',
-            'source' => 'nullable|string',
-            'company' => 'nullable|string',
-        ]);
-        $data['id'] = (string) \Str::uuid();
+        $validated = $request->validated();
+        
+        $data = [
+            'id' => (string) \Str::uuid(),
+            'name' => $validated['name'] ?? $validated['nome'] ?? null,
+            'email' => $validated['email'] ?? null,
+            'phone' => $validated['phone'] ?? $validated['telefone'] ?? null,
+            'company' => $validated['company'] ?? $validated['empresa'] ?? null,
+            'source' => $validated['source'] ?? $validated['origem'] ?? null,
+            'status' => $validated['status'] ?? 'new',
+        ];
+        
         $lead = Lead::create($data);
         return response()->json($lead, 201);
     }
@@ -83,17 +87,20 @@ class LeadController extends Controller
      *     @OA\Response(response=200, description="Lead atualizado")
      * )
      */
-    public function update(Request $request, $id)
+    public function update(UpdateLeadRequest $request, $id)
     {
         $lead = Lead::findOrFail($id);
-        $data = $request->validate([
-            'name' => 'sometimes|required|string',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string',
-            'status' => 'nullable|string',
-            'source' => 'nullable|string',
-            'company' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
+        
+        $data = [
+            'name' => $validated['name'] ?? $validated['nome'] ?? $lead->name,
+            'email' => $validated['email'] ?? $lead->email,
+            'phone' => $validated['phone'] ?? $validated['telefone'] ?? $lead->phone,
+            'company' => $validated['company'] ?? $validated['empresa'] ?? $lead->company,
+            'source' => $validated['source'] ?? $validated['origem'] ?? $lead->source,
+            'status' => $validated['status'] ?? $lead->status,
+        ];
+        
         $lead->update($data);
         return response()->json($lead);
     }

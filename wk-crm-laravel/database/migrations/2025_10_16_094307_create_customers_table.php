@@ -16,11 +16,13 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone')->nullable();
+            $table->string('cpf')->nullable();
             $table->string('status')->default('active');
             $table->string('company')->nullable();
             $table->text('address')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
+            $table->string('postal_code')->nullable();
             $table->string('zip_code')->nullable();
             $table->string('country')->default('Brasil');
             $table->timestamps();

@@ -42,10 +42,10 @@ Route::get('/info', function () {
 });
 
 
-// Rotas RESTful para Customers, Leads e Opportunities
-Route::apiResource('customers', CustomerController::class);
+// Rotas RESTful em Português
+Route::apiResource('clientes', CustomerController::class);
 Route::apiResource('leads', LeadController::class);
-Route::apiResource('opportunities', OpportunityController::class);
+Route::apiResource('oportunidades', OpportunityController::class);
 
 // Endpoint de leads
 Route::get('/leads', function () {
@@ -114,11 +114,15 @@ Route::post('/simulate-update', [App\Http\Controllers\Api\DashboardController::c
 // Endpoint SSE para updates em tempo real
 Route::get('/dashboard/stream', [App\Http\Controllers\Api\DashboardController::class, 'streamUpdates']);
 
-// Mantendo endpoints em inglês para compatibilidade
+// Redirecionamentos para compatibilidade com inglês (se necessário)
 Route::get('/customers', function () {
     return redirect('/api/clientes');
 });
 
 Route::get('/opportunities', function () {
     return redirect('/api/oportunidades');
+});
+
+Route::get('/customer', function () {
+    return redirect('/api/clientes');
 });

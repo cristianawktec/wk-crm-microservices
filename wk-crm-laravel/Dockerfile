@@ -1,6 +1,6 @@
-FROM php:8.2-cli-alpine
+FROM php:8.2-fpm-alpine
 
-# Install system dependencies
+# Install system dependencies and Nginx
 RUN apk add --no-cache \
     git \
     curl \
@@ -12,7 +12,9 @@ RUN apk add --no-cache \
     autoconf \
     gcc \
     g++ \
-    make
+    make \
+    nginx \
+    supervisor
 
 # Install PHP extensions
 RUN docker-php-ext-install \
@@ -36,14 +38,20 @@ COPY . .
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache
 RUN chmod -R 777 storage bootstrap/cache
 
-# Install PHP dependencies (after copying artisan)
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # Generate app key if needed
 RUN php artisan key:generate --show
 
+# Copy Nginx configuration
+COPY infrastructure/nginx-simple.conf /etc/nginx/http.d/default.conf
+
+# Copy Supervisor configuration
+COPY infrastructure/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Expose port
 EXPOSE 8000
 
-# Start Laravel development server
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Start Supervisor (manages Nginx + PHP-FPM)
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Http\Request;
 use App\Domain\Opportunity\Opportunity;
+use App\Http\Requests\StoreOpportunityRequest;
+use App\Http\Requests\UpdateOpportunityRequest;
 
 /**
  * @OA\Tag(
@@ -55,16 +56,19 @@ class OpportunityController extends Controller
      *     @OA\Response(response=201, description="Oportunidade criada")
      * )
      */
-    public function store(Request $request)
+    public function store(StoreOpportunityRequest $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'description' => 'nullable|string',
-            'value' => 'required|numeric',
-            'status' => 'nullable|string',
-            'customer_id' => 'required|uuid|exists:customers,id',
-        ]);
-        $data['id'] = (string) \Str::uuid();
+        $validated = $request->validated();
+        
+        $data = [
+            'id' => (string) \Str::uuid(),
+            'title' => $validated['title'] ?? $validated['titulo'] ?? null,
+            'description' => $validated['description'] ?? $validated['descricao'] ?? null,
+            'value' => $validated['value'] ?? $validated['valor'] ?? 0,
+            'customer_id' => $validated['customer_id'] ?? $validated['cliente_id'] ?? null,
+            'status' => $validated['status'] ?? 'open',
+        ];
+        
         $opportunity = Opportunity::create($data);
         return response()->json($opportunity, 201);
     }
@@ -82,16 +86,19 @@ class OpportunityController extends Controller
      *     @OA\Response(response=200, description="Oportunidade atualizada")
      * )
      */
-    public function update(Request $request, $id)
+    public function update(UpdateOpportunityRequest $request, $id)
     {
         $opportunity = Opportunity::findOrFail($id);
-        $data = $request->validate([
-            'title' => 'sometimes|required|string',
-            'description' => 'nullable|string',
-            'value' => 'sometimes|required|numeric',
-            'status' => 'nullable|string',
-            'customer_id' => 'sometimes|required|uuid|exists:customers,id',
-        ]);
+        $validated = $request->validated();
+        
+        $data = [
+            'title' => $validated['title'] ?? $validated['titulo'] ?? $opportunity->title,
+            'description' => $validated['description'] ?? $validated['descricao'] ?? $opportunity->description,
+            'value' => $validated['value'] ?? $validated['valor'] ?? $opportunity->value,
+            'customer_id' => $validated['customer_id'] ?? $validated['cliente_id'] ?? $opportunity->customer_id,
+            'status' => $validated['status'] ?? $opportunity->status,
+        ];
+        
         $opportunity->update($data);
         return response()->json($opportunity);
     }
