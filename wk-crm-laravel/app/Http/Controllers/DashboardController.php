@@ -161,10 +161,10 @@ class DashboardController extends Controller
     private function getLeadsTimeline(string $period): array
     {
         $dateFormat = match($period) {
-            'week' => '%Y-%m-%d',
-            'month' => '%Y-%m-%d',
-            'year' => '%Y-%m',
-            default => '%Y-%m'
+            'week' => 'YYYY-MM-DD',
+            'month' => 'YYYY-MM-DD',
+            'year' => 'YYYY-MM',
+            default => 'YYYY-MM'
         };
 
         $daysBack = match($period) {
@@ -195,10 +195,10 @@ class DashboardController extends Controller
     private function getOpportunitiesTimeline(string $period): array
     {
         $dateFormat = match($period) {
-            'week' => '%Y-%m-%d',
-            'month' => '%Y-%m-%d',
-            'year' => '%Y-%m',
-            default => '%Y-%m'
+            'week' => 'YYYY-MM-DD',
+            'month' => 'YYYY-MM-DD',
+            'year' => 'YYYY-MM',
+            default => 'YYYY-MM'
         };
 
         $daysBack = match($period) {
@@ -229,10 +229,10 @@ class DashboardController extends Controller
     private function getRevenueTimeline(string $period): array
     {
         $dateFormat = match($period) {
-            'week' => '%Y-%m-%d',
-            'month' => '%Y-%m-%d',
-            'year' => '%Y-%m',
-            default => '%Y-%m'
+            'week' => 'YYYY-MM-DD',
+            'month' => 'YYYY-MM-DD',
+            'year' => 'YYYY-MM',
+            default => 'YYYY-MM'
         };
 
         $daysBack = match($period) {
