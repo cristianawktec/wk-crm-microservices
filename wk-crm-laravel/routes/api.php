@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\OpportunityController;
@@ -51,6 +52,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth endpoints
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    
+    // Dashboard e Relatórios
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+    Route::get('/dashboard/charts', [DashboardController::class, 'charts']);
     
     // Rotas RESTful CRM em Português
     Route::apiResource('clientes', CustomerController::class);
