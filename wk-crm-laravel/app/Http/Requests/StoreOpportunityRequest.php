@@ -35,7 +35,7 @@ class StoreOpportunityRequest extends FormRequest
             'expected_close_date' => ['nullable', 'date', 'after_or_equal:today'],
             'status' => ['required', 'string', 'in:' . implode(',', Opportunity::VALID_STATUSES)],
             'lead_id' => ['nullable', 'uuid', 'exists:leads,id'],
-            'cliente_id' => ['nullable', 'integer', 'exists:clientes,id'],
+            'cliente_id' => ['nullable', 'uuid', 'exists:customers,id'],
         ];
     }
 
@@ -53,7 +53,7 @@ class StoreOpportunityRequest extends FormRequest
             'status.in' => 'Status inválido',
             'lead_id.uuid' => 'ID do lead inválido',
             'lead_id.exists' => 'Lead não encontrado',
-            'cliente_id.integer' => 'ID do cliente inválido',
+            'cliente_id.uuid' => 'ID do cliente inválido',
             'cliente_id.exists' => 'Cliente não encontrado',
         ];
     }

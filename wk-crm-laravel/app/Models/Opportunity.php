@@ -47,7 +47,7 @@ class Opportunity extends Model
      */
     public function cliente(): BelongsTo
     {
-        return $this->belongsTo(\App\Cliente::class, 'cliente_id');
+        return $this->belongsTo(\App\Models\Customer::class, 'cliente_id');
     }
 
     /**
