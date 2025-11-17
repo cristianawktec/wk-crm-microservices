@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Domain\Customer\CustomerRepositoryInterface;
 use App\Domain\Lead\LeadRepositoryInterface;
+use App\Domain\Opportunity\OpportunityRepositoryInterface;
 use App\Infrastructure\Repositories\CustomerRepositoryEloquent;
 use App\Infrastructure\Repositories\LeadRepositoryEloquent;
+use App\Infrastructure\Repositories\OpportunityRepositoryEloquent;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -29,6 +31,12 @@ class RepositoryServiceProvider extends ServiceProvider
             $this->app->bind(
                 LeadRepositoryInterface::class,
                 LeadRepositoryEloquent::class
+            );
+
+            // Bind OpportunityRepository
+            $this->app->bind(
+                OpportunityRepositoryInterface::class,
+                OpportunityRepositoryEloquent::class
             );
     }
 

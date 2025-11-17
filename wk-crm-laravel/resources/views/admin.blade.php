@@ -136,9 +136,9 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="/api/oportunidades" class="nav-link" target="_blank">
-              <i class="nav-icon fas fa-chart-line"></i>
-              <p>API Oportunidades</p>
+            <a href="/admin/oportunidades" class="nav-link">
+              <i class="nav-icon fas fa-briefcase"></i>
+              <p>Oportunidades (CRUD)</p>
             </a>
           </li>
         </ul>

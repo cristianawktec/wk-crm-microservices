@@ -28,3 +28,13 @@ Route::get('/admin/clientes', function () {
 Route::get('/admin/leads', function () {
     return view('leads');
 });
+
+// Página de CRUD de Oportunidades
+Route::get('/admin/oportunidades', function () {
+    return view('oportunidades');
+});
+
+// Página de CRUD de Oportunidades
+Route::get('/admin/oportunidades', function () {
+    return view('oportunidades');
+});
