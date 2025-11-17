@@ -161,7 +161,9 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="lead_id">Lead</label>
-                                <input type="text" class="form-control" id="lead_id" name="lead_id" placeholder="ID do Lead (opcional)">
+                                <select class="form-control" id="lead_id" name="lead_id">
+                                    <option value="">Selecione um Lead (opcional)</option>
+                                </select>
                                 <small class="form-text text-muted">Informe Lead OU Cliente</small>
                             </div>
                         </div>
@@ -169,7 +171,9 @@
 
                     <div class="form-group">
                         <label for="cliente_id">Cliente</label>
-                        <input type="text" class="form-control" id="cliente_id" name="cliente_id" placeholder="ID do Cliente (opcional)">
+                        <select class="form-control" id="cliente_id" name="cliente_id">
+                            <option value="">Selecione um Cliente (opcional)</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -190,6 +194,8 @@
 <script>
 $(document).ready(function() {
     const API_URL = '/api/oportunidades';
+    const API_LEADS = '/api/leads';
+    const API_CLIENTES = '/api/clientes';
     let table;
 
     // Inicializar DataTable
@@ -355,7 +361,41 @@ $(document).ready(function() {
         $('#opportunityForm')[0].reset();
         $('#opportunityId').val('');
         $('#status').val('open');
+        // Recarregar combos ao abrir modal
+        loadCombos();
     };
+
+    // Carregar opções de Leads e Clientes
+    function loadCombos() {
+        // Leads (usa paginação da API, pega primeiro page 1)
+        $.get(API_LEADS, function(resp) {
+            const items = resp.data || resp || [];
+            const $lead = $('#lead_id');
+            const current = $lead.val();
+            $lead.empty().append('<option value="">Selecione um Lead (opcional)</option>');
+            items.forEach(function(x) {
+                $lead.append(`<option value="${x.id}">${x.name} (${x.email || ''})</option>`);
+            });
+            if (current) $lead.val(current);
+        });
+
+        // Clientes (sem paginação customizada aqui; se api for paginada, ajuste conforme retorno)
+        $.get(API_CLIENTES, function(resp) {
+            const items = resp.data || resp || [];
+            const $cli = $('#cliente_id');
+            const current = $cli.val();
+            $cli.empty().append('<option value="">Selecione um Cliente (opcional)</option>');
+            items.forEach(function(x) {
+                // suporta tanto name quanto nome
+                const nome = x.name || x.nome || 'Cliente';
+                $cli.append(`<option value="${x.id}">${nome} (${x.email || ''})</option>`);
+            });
+            if (current) $cli.val(current);
+        });
+    }
+
+    // Prepara os combos já ao carregar a página
+    loadCombos();
 });
 </script>
 </body>
