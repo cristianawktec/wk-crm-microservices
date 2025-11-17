@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(remove: [
             \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
         ]);
+        
+        // Enable CORS for API routes
+        $middleware->api(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
