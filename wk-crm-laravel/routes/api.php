@@ -2,6 +2,7 @@
 
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\OpportunityController;
@@ -41,11 +42,21 @@ Route::get('/info', function () {
     ]);
 });
 
+// Rotas públicas de autenticação
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
-// Rotas RESTful em Português
-Route::apiResource('clientes', CustomerController::class);
-Route::apiResource('leads', LeadController::class);
-Route::apiResource('oportunidades', OpportunityController::class);
+// Rotas protegidas por autenticação Sanctum
+Route::middleware('auth:sanctum')->group(function () {
+    // Auth endpoints
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
+    
+    // Rotas RESTful CRM em Português
+    Route::apiResource('clientes', CustomerController::class);
+    Route::apiResource('leads', LeadController::class);
+    Route::apiResource('oportunidades', OpportunityController::class);
+});
 
 // Endpoint para estatísticas do dashboard - agora com dados reais
 Route::get('/dashboard', [App\Http\Controllers\Api\DashboardController::class, 'index']);
