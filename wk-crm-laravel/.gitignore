@@ -6,6 +6,14 @@
 .env
 .env.*
 .phpunit.result.cache
+# Laravel runtime
+/storage/logs/*.log
+/storage/framework/views/
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/testing/
+/storage/app/public/*
+!/storage/app/public/.gitignore
 Homestead.json
 Homestead.yaml
 npm-debug.log
@@ -29,6 +37,9 @@ Thumbs.db
 
 # Composer
 composer.phar
+# Bootstrap cache (não versionar arquivos compilados)
+/bootstrap/cache/*.php
+!/bootstrap/cache/.gitignore
 
 # Coverage
 coverage/
