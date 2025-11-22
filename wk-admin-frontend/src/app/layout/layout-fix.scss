@@ -1,0 +1,6 @@
+/* Fix para garantir margem do conteúdo quando sidebar está aberta */
+@media (min-width: 769px) {
+  :host ::ng-deep mat-sidenav-content[style*="250"] {
+    margin-left: 250px !important;
+  }
+}

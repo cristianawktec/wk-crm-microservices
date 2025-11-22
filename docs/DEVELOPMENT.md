@@ -134,6 +134,95 @@ npm run dev          # http://localhost:3001
 ### Frontend Development
 ```bash
 # Angular Admin Panel
+
+---
+
+## 🧩 UI Components & Theming (Admin Frontend)
+
+### ThemeService
+- Centraliza controle de tema claro/escuro usando CSS variables aplicadas em `:root`.
+- Arquivo: `src/app/core/services/theme.service.ts`.
+- Variáveis principais de cor: `--color-primary`, `--color-accent`, `--color-success`, `--color-warning`, `--color-danger`.
+- Persistência: chave `wkcrm_theme` no `localStorage`.
+- Uso rápido:
+```ts
+constructor(private theme: ThemeService) {}
+this.theme.toggleTheme(); // alterna entre light/dark
+```
+
+### SmallBoxComponent
+- Componente para métricas principais (cards destacados do dashboard).
+- Arquivo: `src/app/components/small-box/*`.
+- Inputs:
+  - `title: string`
+  - `value: string | number`
+  - `icon: string` (classes Font Awesome)
+  - `color: 'info' | 'warning' | 'success' | 'danger'`
+- Exemplo:
+```html
+<app-small-box title="Vendas" [value]="42" icon="fas fa-shopping-cart" color="success"></app-small-box>
+```
+
+### InfoBoxComponent
+- Métricas secundárias e informações detalhadas (texto + progresso opcional).
+- Arquivo: `src/app/components/info-box/*`.
+- Inputs:
+  - `title`, `value`, `icon`, `color` (inclui 'primary'), `subtitle?`, `progressPercent?` (0–100)
+- Exemplo:
+```html
+<app-info-box title="Conversão" [value]="taxa + '%'" icon="fas fa-percentage" color="success" [progressPercent]="taxa"></app-info-box>
+```
+
+### Cores de Gráficos (Chart.js via ng2-charts)
+- As cores dos gráficos são recalculadas a cada mudança de tema lendo as CSS vars.
+- Lógica em `dashboard.component.ts` (`updateCharts`).
+- Para adicionar nova cor temática, inclua a var em `ThemeService` e utilize em `updateCharts`.
+
+### Boas Práticas de Estilo
+- Evitar dependência de CSS global legado do AdminLTE: usamos componentes isolados.
+- Preferir gradientes definidos via CSS vars para consistência entre light/dark.
+- Não usar jQuery: toda interação deve ser Angular (bindings / services / RxJS).
+
+### Extensão Futura
+- Criar `KpiCardComponent` para métricas com comparação (ex: variação mês anterior).
+- Criar `ThemePickerComponent` para seleção visual de paletas adicionais.
+- Internacionalização de labels (Angular i18n ou ngx-translate).
+
+---
+
+## 📐 Responsividade & Sidebar
+- Sidebar fixa: largura 250px (desktop) e colapsa para 64px.
+- Wrapper ajusta margens automaticamente via classes (`collapsed`).
+- Componentes (`SmallBox`, `InfoBox`) utilizam grid responsivo `repeat(auto-fit, minmax(220px, 1fr))`.
+- Em telas < 768px as colunas tornam-se 100%.
+
+Para garantir que novos componentes se adaptem:
+```scss
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+@media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr; } }
+```
+
+---
+
+## 🛠️ Extensão dos Temas
+- Adicionar novo tema: incluir objeto em `themes` no `ThemeService`.
+- Nome deve ser único e seguir tipo `AppTheme` se ampliado.
+- Variáveis mínimas recomendadas: `--app-bg`, `--card-bg`, `--text-*`, `--border-color`, `--hover-bg`, paleta `--color-*`.
+
+---
+
+## ✅ Checklist ao Criar Novo Componente UI
+- Definir inputs claros (sem lógica de formatação escondida).
+- Usar `ChangeDetectionStrategy.OnPush` para performance.
+- Aplicar cores via CSS vars (nunca valores fixos hardcoded se já existir uma var equivalente).
+- Testar em tema claro e escuro.
+- Validar responsividade (desktop, mobile, sidebar colapsada).
+- Documentar no `DEVELOPMENT.md` se for componente reutilizável.
+
 cd wk-admin-frontend
 npm install
 ng serve --port=4200  # http://localhost:4200
@@ -367,3 +456,39 @@ php artisan migrate:fresh --seed
 ---
 
 **Happy Coding! 🚀**
+
+---
+## Sidebar Flex Shell Migration
+Para eliminar a sobreposição do dashboard sob o menu lateral, migramos de `mat-sidenav-container` para uma abordagem flex pura.
+
+Estrutura:
+```html
+<div class="app-shell" [class.collapsed]="!sidenavOpened" [class.mobile]="isMobile" [class.mobile-open]="isMobile && sidenavOpened">
+  <aside class="sidebar"> ... </aside>
+  <main class="main-area"> ... </main>
+</div>
+```
+
+Principais pontos:
+- Sidebar fixa 250px em desktop; futura opção de colapso para 64px.
+- Mobile overlay usa translateX (sem empurrar conteúdo) e classe `mobile-open`.
+- Conteúdo não depende mais de `margin-left` ou transforms internas.
+- Removidos hacks `body.sidebar-open` / `body.sidebar-collapsed`.
+- Classe legado `.shifted` removida.
+- Método `applySidebarBodyClass()` vazio, preservado apenas até refactor final.
+
+Benefícios:
+- Layout previsível e sem flash.
+- Facilita ajuste de largura/temas sem conflito com Angular Material.
+- Código de estilo mais simples e rastreável.
+
+Checklist pós-migração:
+- Verificar que `.app-shell` aparece no DOM.
+- Confirmar que `.sidebar` tem largura correta em desktop.
+- Inspecionar ausência de margin-left artificiais no `.main-area`.
+- Testar toggle em mobile: abrir/fechar sem deslocar conteúdo.
+
+Próximos aprimoramentos sugeridos:
+- Ocultar texto em modo colapsado (mostrar apenas ícones).
+- Animação suave para transição de largura (width + opacity labels).
+- Preferir CSS container queries para refinamentos de layout.

@@ -1,0 +1,53 @@
+.info-box-wrapper {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+  gap: 16px;
+  background: var(--card-bg,#fff);
+  padding: 16px 18px;
+  border: 1px solid var(--border-color,#e2e5e9);
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(0,0,0,.06);
+  transition: box-shadow .25s ease, transform .25s ease, border-color .25s;
+  overflow: hidden;
+  isolation: isolate;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  }
+
+  .icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: #fff; font-weight: 500;
+    position: relative; box-shadow: 0 4px 10px -2px rgba(0,0,0,.25);
+  }
+
+  .content { display: flex; flex-direction: column; gap: 4px; }
+  .title { font-size: .70rem; font-weight: 700; text-transform: uppercase; letter-spacing: .65px; opacity:.65; }
+  .value { font-size: 1.25rem; font-weight: 700; letter-spacing: -.25px; color: var(--text-primary,#222); }
+  .subtitle { font-size: .65rem; font-weight: 600; letter-spacing: .5px; opacity:.55; }
+  .progress { position: relative; height: 8px; background: var(--hover-bg,#f4f4f4); border-radius: 6px; overflow: hidden; margin-top: 4px; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg,var(--color-primary,#3c8dbc),var(--color-accent,#5c6bc0)); transition: width .5s ease; }
+}
+
+.info-box-wrapper:before {
+  content:""; position:absolute; inset:0; background: radial-gradient(ellipse at top left, rgba(255,255,255,.35), transparent 60%); opacity:0; transition:opacity .35s; z-index:1;
+}
+.info-box-wrapper:hover:before { opacity:.6; }
+
+// Color variants icon backgrounds
+.color-info .icon    { background: linear-gradient(145deg,var(--color-primary,#3c8dbc),var(--color-accent,#5c6bc0)); }
+.color-success .icon { background: linear-gradient(145deg,var(--color-success,#28a745),#20c997); }
+.color-warning .icon { background: linear-gradient(145deg,var(--color-warning,#f39c12),#ffb648); }
+.color-danger .icon  { background: linear-gradient(145deg,var(--color-danger,#dc3545),#e66a5a); }
+.color-primary .icon { background: linear-gradient(145deg,var(--color-primary,#3c8dbc),#5fa2cc); }
+
+body.theme-dark .info-box-wrapper {
+  background: var(--card-bg,#1a1b21);
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 4px 18px rgba(0,0,0,.55);
+}
+body.theme-dark .info-box-wrapper:hover { box-shadow: 0 10px 34px rgba(0,0,0,.75); }

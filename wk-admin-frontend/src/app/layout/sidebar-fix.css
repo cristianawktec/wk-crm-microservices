@@ -1,0 +1,12 @@
+/* Fix definitivo para margem do sidebar */
+@media (min-width: 769px) {
+  mat-sidenav-content {
+    margin-left: 250px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  mat-sidenav-content {
+    margin-left: 0 !important;
+  }
+}

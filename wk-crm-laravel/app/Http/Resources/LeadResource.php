@@ -15,24 +15,37 @@ class LeadResource extends JsonResource
     {
         // Se for Domain Entity, usa getters
         if (method_exists($this->resource, 'toArray')) {
-            return $this->resource->toArray();
+            $data = $this->resource->toArray();
+        } else {
+            // Se for Eloquent Model, acessa propriedades direto
+            $data = [
+                'id' => $this->id,
+                'name' => $this->name,
+                'email' => $this->email,
+                'phone' => $this->phone,
+                'company' => $this->company,
+                'source' => $this->source,
+                'status' => $this->status,
+                'interest' => $this->interest,
+                'city' => $this->city,
+                'state' => $this->state,
+                'notes' => $this->notes,
+                'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+                'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
+            ];
         }
         
-        // Se for Eloquent Model, acessa propriedades direto
+        // Retorna campos em PT-BR para compatibilidade com frontend Angular
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'company' => $this->company,
-            'source' => $this->source,
-            'status' => $this->status,
-            'interest' => $this->interest,
-            'city' => $this->city,
-            'state' => $this->state,
-            'notes' => $this->notes,
-            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
-            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
+            'id' => $data['id'] ?? $this->id,
+            'nome' => $data['name'] ?? $this->name ?? $this->nome,
+            'email' => $data['email'] ?? $this->email,
+            'telefone' => $data['phone'] ?? $this->phone ?? $this->telefone,
+            'empresa' => $data['company'] ?? $this->company ?? $this->empresa,
+            'origem' => $data['source'] ?? $this->source ?? $this->origem,
+            'status' => $data['status'] ?? $this->status,
+            'created_at' => $data['created_at'] ?? $this->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $data['updated_at'] ?? $this->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
 }

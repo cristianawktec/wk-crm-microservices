@@ -63,12 +63,12 @@ class DashboardController extends Controller
 
     private function obterResumo(array $filters = []): array
     {
-        // Dados reais do banco
-        $total_clientes = \App\Domain\Customer\Customer::count();
-        $novos_clientes_mes = \App\Domain\Customer\Customer::where('created_at', '>=', now()->subMonth())->count();
-        $leads_ativos = \App\Domain\Lead\Lead::where('status', 'new')->count();
-        $vendas_mes = \App\Domain\Opportunity\Opportunity::where('created_at', '>=', now()->subMonth())->count();
-        $receita_mes = \App\Domain\Opportunity\Opportunity::where('created_at', '>=', now()->subMonth())->sum('value');
+        // Dados reais do banco (via Eloquent Models)
+        $total_clientes = \App\Models\Customer::count();
+        $novos_clientes_mes = \App\Models\Customer::where('created_at', '>=', now()->subMonth())->count();
+        $leads_ativos = \App\Models\Lead::where('status', 'new')->count();
+        $vendas_mes = \App\Models\Opportunity::where('created_at', '>=', now()->subMonth())->count();
+        $receita_mes = \App\Models\Opportunity::where('created_at', '>=', now()->subMonth())->sum('amount');
         $meta_mes = 250000; // valor fixo ou buscar de config
         $percentual_meta = $meta_mes > 0 ? round(($receita_mes / $meta_mes) * 100) : 0;
 
@@ -85,17 +85,17 @@ class DashboardController extends Controller
 
     private function obterMetricas(array $filters = []): array
     {
-        $total_leads = \App\Domain\Lead\Lead::count();
-        $convertidos = \App\Domain\Lead\Lead::where('status', 'converted')->count();
-        $em_andamento = \App\Domain\Lead\Lead::where('status', 'new')->count();
+        $total_leads = \App\Models\Lead::count();
+        $convertidos = \App\Models\Lead::where('status', 'converted')->count();
+        $em_andamento = \App\Models\Lead::where('status', 'new')->count();
         $taxa_conversao = $total_leads > 0 ? round(($convertidos / $total_leads) * 100, 2) : 0;
 
-        $hoje = \App\Domain\Opportunity\Opportunity::whereDate('created_at', now()->toDateString())->count();
-        $semana = \App\Domain\Opportunity\Opportunity::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
-        $mes = \App\Domain\Opportunity\Opportunity::whereMonth('created_at', now()->month)->count();
-        $trimestre = \App\Domain\Opportunity\Opportunity::whereBetween('created_at', [now()->subMonths(3), now()])->count();
+        $hoje = \App\Models\Opportunity::whereDate('created_at', now()->toDateString())->count();
+        $semana = \App\Models\Opportunity::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
+        $mes = \App\Models\Opportunity::whereMonth('created_at', now()->month)->count();
+        $trimestre = \App\Models\Opportunity::whereBetween('created_at', [now()->subMonths(3), now()])->count();
 
-        $valor_ticket_medio = $mes > 0 ? \App\Domain\Opportunity\Opportunity::whereMonth('created_at', now()->month)->sum('value') / $mes : 0;
+        $valor_ticket_medio = $mes > 0 ? \App\Models\Opportunity::whereMonth('created_at', now()->month)->sum('amount') / $mes : 0;
         $variacao_ticket = '+0%'; // Implementar cálculo de variação se necessário
 
         return [
@@ -123,7 +123,7 @@ class DashboardController extends Controller
         $atividadesFormatadas = [];
 
         // Últimos clientes
-        $clientes = \App\Domain\Customer\Customer::orderByDesc('created_at')->take(2)->get();
+        $clientes = \App\Models\Customer::orderByDesc('created_at')->take(2)->get();
         foreach ($clientes as $c) {
             $atividadesFormatadas[] = [
                 'id' => $c->id,
@@ -134,7 +134,7 @@ class DashboardController extends Controller
         }
 
         // Últimos leads
-        $leads = \App\Domain\Lead\Lead::orderByDesc('created_at')->take(2)->get();
+        $leads = \App\Models\Lead::orderByDesc('created_at')->take(2)->get();
         foreach ($leads as $l) {
             $atividadesFormatadas[] = [
                 'id' => $l->id,
@@ -145,11 +145,11 @@ class DashboardController extends Controller
         }
 
         // Últimas oportunidades
-        $opps = \App\Domain\Opportunity\Opportunity::orderByDesc('created_at')->take(1)->get();
+        $opps = \App\Models\Opportunity::orderByDesc('created_at')->take(1)->get();
         foreach ($opps as $o) {
             $atividadesFormatadas[] = [
                 'id' => $o->id,
-                'descricao' => 'Venda finalizada: R$ ' . number_format($o->value, 2, ',', '.') . ' - ' . $o->title,
+                'descricao' => 'Venda finalizada: R$ ' . number_format($o->amount, 2, ',', '.') . ' - ' . $o->title,
                 'tempo' => Carbon::parse($o->created_at)->diffForHumans(),
                 'tipo' => 'venda'
             ];
@@ -165,9 +165,9 @@ class DashboardController extends Controller
         $leads_diarios = [];
         for ($i = 29; $i >= 0; $i--) {
             $data = Carbon::now()->subDays($i)->format('Y-m-d');
-            $vendas_count = \App\Domain\Opportunity\Opportunity::whereDate('created_at', $data)->count();
-            $vendas_valor = \App\Domain\Opportunity\Opportunity::whereDate('created_at', $data)->sum('value');
-            $leads_count = \App\Domain\Lead\Lead::whereDate('created_at', $data)->count();
+            $vendas_count = \App\Models\Opportunity::whereDate('created_at', $data)->count();
+            $vendas_valor = \App\Models\Opportunity::whereDate('created_at', $data)->sum('amount');
+            $leads_count = \App\Models\Lead::whereDate('created_at', $data)->count();
             $vendas_diarias[] = [
                 'data' => $data,
                 'vendas' => $vendas_count,
@@ -183,18 +183,18 @@ class DashboardController extends Controller
         $pipeline = [
             [
                 'etapa' => 'Leads',
-                'quantidade' => \App\Domain\Lead\Lead::count(),
-                'valor' => 'R$ ' . number_format(\App\Domain\Opportunity\Opportunity::sum('value'), 2, ',', '.')
+                'quantidade' => \App\Models\Lead::count(),
+                'valor' => 'R$ ' . number_format(\App\Models\Opportunity::sum('amount'), 2, ',', '.')
             ],
             [
                 'etapa' => 'Negociação',
-                'quantidade' => \App\Domain\Opportunity\Opportunity::where('status', 'open')->count(),
-                'valor' => 'R$ ' . number_format(\App\Domain\Opportunity\Opportunity::where('status', 'open')->sum('value'), 2, ',', '.')
+                'quantidade' => \App\Models\Opportunity::where('status', 'open')->count(),
+                'valor' => 'R$ ' . number_format(\App\Models\Opportunity::where('status', 'open')->sum('amount'), 2, ',', '.')
             ],
             [
                 'etapa' => 'Fechamento',
-                'quantidade' => \App\Domain\Opportunity\Opportunity::where('status', 'closed')->count(),
-                'valor' => 'R$ ' . number_format(\App\Domain\Opportunity\Opportunity::where('status', 'closed')->sum('value'), 2, ',', '.')
+                'quantidade' => \App\Models\Opportunity::where('status', 'closed')->count(),
+                'valor' => 'R$ ' . number_format(\App\Models\Opportunity::where('status', 'closed')->sum('amount'), 2, ',', '.')
             ]
         ];
 

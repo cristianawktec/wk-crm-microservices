@@ -47,6 +47,11 @@ Route::get('/info', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Rotas RESTful CRM em Português - TEMPORARIAMENTE SEM AUTH para testes
+Route::apiResource('clientes', CustomerController::class);
+Route::apiResource('leads', LeadController::class);
+Route::apiResource('oportunidades', OpportunityController::class);
+
 // Rotas protegidas por autenticação Sanctum
 Route::middleware('auth:sanctum')->group(function () {
     // Auth endpoints
@@ -56,11 +61,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dashboard e Relatórios
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
     Route::get('/dashboard/charts', [DashboardController::class, 'charts']);
-    
-    // Rotas RESTful CRM em Português
-    Route::apiResource('clientes', CustomerController::class);
-    Route::apiResource('leads', LeadController::class);
-    Route::apiResource('oportunidades', OpportunityController::class);
 });
 
 // Endpoint para estatísticas do dashboard - agora com dados reais

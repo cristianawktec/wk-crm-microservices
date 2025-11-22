@@ -1,0 +1,103 @@
+<section class="content-header">
+	<div class="container-fluid">
+		<div class="row mb-2">
+			<div class="col-sm-6">
+				<h1>Clientes</h1>
+			</div>
+			<div class="col-sm-6">
+				<button class="btn btn-primary float-right" (click)="toggleCreate()" *ngIf="!creating">
+					<i class="fas fa-plus"></i> Novo Cliente
+				</button>
+				<button class="btn btn-secondary float-right" (click)="toggleCreate()" *ngIf="creating">
+					<i class="fas fa-times"></i> Cancelar
+				</button>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<!-- Formulário de Criação -->
+		<div class="card mb-3" *ngIf="creating">
+			<div class="card-header">
+				<h3 class="card-title"><i class="fas fa-user-plus"></i> Novo Cliente</h3>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-md-4">
+						<div class="form-group">
+							<label>Nome *</label>
+							<input type="text" class="form-control" [(ngModel)]="newCliente.nome" placeholder="Nome completo">
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group">
+							<label>E-mail</label>
+							<input type="email" class="form-control" [(ngModel)]="newCliente.email" placeholder="email@exemplo.com">
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group">
+							<label>Telefone</label>
+							<input type="text" class="form-control" [(ngModel)]="newCliente.telefone" placeholder="(11) 99999-9999">
+						</div>
+					</div>
+				</div>
+				<button class="btn btn-success" (click)="salvarNovo()">
+					<i class="fas fa-save"></i> Salvar
+				</button>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Lista de Clientes</h3>
+			</div>
+			<div class="card-body">
+				<div *ngIf="loading" class="text-center">
+					<i class="fas fa-spinner fa-spin fa-3x"></i>
+					<p>Carregando...</p>
+				</div>
+        
+				<div *ngIf="error" class="alert alert-danger">
+					<i class="fas fa-exclamation-triangle"></i> {{ error }}
+				</div>
+        
+				<div *ngIf="!loading && !error">
+					<table class="table table-bordered table-striped" *ngIf="clientes.length > 0; else emptyState">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Nome</th>
+								<th>E-mail</th>
+								<th>Telefone</th>
+								<th>Ações</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let cliente of clientes">
+								<td>{{ cliente.id }}</td>
+								<td>{{ cliente.nome }}</td>
+								<td>{{ cliente.email }}</td>
+								<td>{{ cliente.telefone }}</td>
+								<td>
+									<button class="btn btn-sm btn-primary" (click)="editarCliente(cliente)" title="Editar">
+										<i class="fas fa-edit"></i>
+									</button>
+									<button class="btn btn-sm btn-danger ml-1" (click)="deletarCliente(cliente)" title="Excluir">
+										<i class="fas fa-trash"></i>
+									</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<ng-template #emptyState>
+						<div class="alert alert-info">
+							<i class="fas fa-info-circle"></i> Nenhum cliente encontrado. Clique em "Novo Cliente" para cadastrar.
+						</div>
+					</ng-template>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>WK CRM - Dashboard</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Anti-cache to evitar carregamento de scripts antigos (CardRefresh etc.) -->
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="description" content="Sistema de CRM para gestão de clientes, leads e oportunidades">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- AdminLTE CSS removido para usar design próprio -->
+</head>
+<body class="theme-light">
+  <app-root></app-root>
+  
+  <!-- Bootstrap JS (mantido) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Guard para neutralizar vestígios de CardRefresh/jQuery -->
+  <script>
+    (function(){
+      // Se alguma extensão ou cache injetar CardRefresh tentando usar $.fn, neutralizamos.
+      var globalAny = window;
+      if(globalAny.CardRefresh && !globalAny.$){
+        try { delete globalAny.CardRefresh; console.warn('[WKCRM] CardRefresh removido.'); } catch(e){ globalAny.CardRefresh = function(){}; }
+      }
+      // Marcar que guard rodou
+      globalAny.__wkcrmGuardLoaded = true;
+    })();
+  </script>
+</body>
+</html>

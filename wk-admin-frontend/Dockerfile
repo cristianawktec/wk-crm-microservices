@@ -20,7 +20,7 @@ RUN npm run build:prod
 FROM nginx:alpine
 
 # Copy built application
-COPY --from=build /app/dist/wk-admin-frontend /usr/share/nginx/html
+COPY --from=build /app/dist/wk-admin-temp/browser /usr/share/nginx/html
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf

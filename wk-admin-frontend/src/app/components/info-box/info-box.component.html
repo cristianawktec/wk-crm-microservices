@@ -1,0 +1,13 @@
+<div class="info-box-wrapper" [ngClass]="'color-' + color">
+  <div class="icon">
+    <i [class]="icon"></i>
+  </div>
+  <div class="content">
+    <span class="title">{{ title }}</span>
+    <span class="value">{{ value }}</span>
+    <span *ngIf="subtitle" class="subtitle">{{ subtitle }}</span>
+    <div *ngIf="progressPercent !== undefined" class="progress">
+      <div class="progress-bar" [style.width.%]="progressPercent"></div>
+    </div>
+  </div>
+</div>

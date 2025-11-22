@@ -17,46 +17,26 @@ class OpportunityResource extends JsonResource
         // Se for Domain Entity, converter para array
         if ($this->resource instanceof \App\Domain\Opportunity\Opportunity) {
             $data = $this->resource->toArray();
-            return [
-                'id' => $data['id'],
-                'title' => $data['title'],
-                'description' => $data['description'],
-                'amount' => $data['amount'],
-                'expected_close_date' => $data['expected_close_date'],
-                'status' => $data['status'],
-                'lead_id' => $data['lead_id'],
-                'cliente_id' => $data['cliente_id'],
-                'created_at' => $data['created_at'],
-                'updated_at' => $data['updated_at'],
+        } else {
+            // Se for Model Eloquent
+            $data = [
+                'id' => $this->id,
+                'title' => $this->title ?? $this->titulo,
+                'amount' => $this->amount ?? $this->valor,
+                'status' => $this->status ?? $this->etapa,
+                'created_at' => $this->created_at?->toIso8601String(),
+                'updated_at' => $this->updated_at?->toIso8601String(),
             ];
         }
         
-        // Se for Model Eloquent
+        // Retorna campos em PT-BR para compatibilidade com frontend Angular
         return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'description' => $this->description,
-            'amount' => $this->amount,
-            'expected_close_date' => $this->expected_close_date?->format('Y-m-d'),
-            'status' => $this->status,
-            'lead_id' => $this->lead_id,
-            'cliente_id' => $this->cliente_id,
-            'lead' => $this->whenLoaded('lead', function () {
-                return [
-                    'id' => $this->lead->id,
-                    'name' => $this->lead->name,
-                    'email' => $this->lead->email,
-                ];
-            }),
-            'cliente' => $this->whenLoaded('cliente', function () {
-                return [
-                    'id' => $this->cliente->id,
-                    'name' => $this->cliente->name ?? $this->cliente->nome,
-                    'email' => $this->cliente->email,
-                ];
-            }),
-            'created_at' => $this->created_at?->toIso8601String(),
-            'updated_at' => $this->updated_at?->toIso8601String(),
+            'id' => $data['id'] ?? $this->id,
+            'titulo' => $data['title'] ?? $this->title ?? $this->titulo,
+            'valor' => $data['amount'] ?? $this->amount ?? $this->valor,
+            'etapa' => $data['status'] ?? $this->status ?? $this->etapa,
+            'created_at' => $data['created_at'] ?? $this->created_at?->toIso8601String(),
+            'updated_at' => $data['updated_at'] ?? $this->updated_at?->toIso8601String(),
         ];
     }
 }

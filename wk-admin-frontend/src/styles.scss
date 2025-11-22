@@ -1,0 +1,181 @@
+/* Tema Material predefinido + ajustes light/dark por classe */
+@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--app-bg,#f6f7f9) !important;
+  transition: background-color 0.35s ease, color 0.35s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Variáveis CSS light (padrão) - AdminLTE style */
+.theme-light {
+  --app-bg: #ecf0f5;
+  --card-bg: #ffffff;
+  --text-primary: #444444;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --border-color: #d2d6de;
+  --hover-bg: #f4f4f4;
+  color-scheme: light;
+}
+
+/* Estilo AdminLTE para content sections */
+.content-header {
+  padding: 15px 15px 0;
+  h1 {
+    font-size: 24px;
+    margin: 0;
+  }
+}
+
+.content {
+  padding: 15px;
+}
+
+/* Remove padding/margin extras */
+.sidenav-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.content-wrapper {
+  padding: 0 !important; /* padding controlado por .content/.content-header */
+  margin: 0 !important;
+  min-height: calc(100vh - 64px);
+  background-color: #ecf0f5;
+}
+
+/* Harmonização de cores estilo AdminLTE */
+.toolbar {
+  background: linear-gradient(90deg,var(--color-primary,#3c8dbc),var(--color-accent,#5c6bc0)) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
+.sidenav {
+  background: linear-gradient(180deg,#2b3035,#202226) !important;
+  color: #cfd3d8;
+}
+.sidenav .mat-nav-list a { color: #cfd3d8; font-weight:500; letter-spacing:.25px; }
+.sidenav .mat-nav-list a.active,
+.sidenav .mat-nav-list a:hover {
+  background: rgba(255,255,255,0.08) !important;
+  color: #fff !important;
+}
+
+/* Pequenos ajustes nas small-box para seguir paleta AdminLTE */
+.small-box.bg-info { background-color: #17a2b8 !important; }
+.small-box.bg-success { background-color: #28a745 !important; }
+.small-box.bg-warning { background-color: #ffc107 !important; color: #1f2d3d; }
+.small-box.bg-danger { background-color: #dc3545 !important; }
+
+/* Cartões e bordas mais suaves */
+.card { border-color: var(--border-color); }
+
+/* Sidenav content background and spacing */
+.mat-sidenav-content {
+  background: #ecf0f5;
+}
+
+
+/* Removidos hacks de margin-left: deixar Angular Material controlar offset */
+mat-sidenav-container, mat-sidenav-content { overflow: hidden; }
+
+/* Variáveis CSS dark */
+.theme-dark {
+  --app-bg: #0d0f13;
+  --card-bg: #171a21;
+  --text-primary: rgba(255,255,255,0.90);
+  --text-secondary: rgba(255,255,255,0.70);
+  --text-muted: rgba(255,255,255,0.50);
+  --border-color: rgba(255,255,255,0.10);
+  --hover-bg: rgba(255,255,255,0.06);
+  color-scheme: dark;
+}
+
+/* Utilitários globais */
+.container {
+  padding: 16px;
+}
+
+mat-card {
+  background: var(--card-bg) !important;
+  transition: background-color 0.3s ease;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* Dark mode overrides para componentes Material */
+body.theme-dark {
+  background: radial-gradient(circle at 20% 20%, #12161d, #0d0f13 60%) fixed;
+  color: var(--text-primary);
+  
+  .mat-mdc-card,
+  mat-card {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary);
+  }
+  
+  .mat-mdc-card-title,
+  .mat-mdc-card-subtitle,
+  .mat-mdc-card-content,
+  .mat-mdc-table,
+  .mat-mdc-form-field-label,
+  .mat-mdc-select-value,
+  .mat-mdc-option,
+  .mat-mdc-paginator {
+    color: var(--text-primary) !important;
+  }
+  
+  .mat-mdc-form-field {
+    .mat-mdc-text-field-wrapper {
+      background-color: rgba(255,255,255,0.05);
+    }
+  }
+  
+  .mat-mdc-table {
+    background-color: var(--card-bg);
+    
+    .mat-mdc-header-cell {
+      color: var(--text-primary);
+      border-bottom-color: var(--border-color);
+    }
+    
+    .mat-mdc-cell {
+      color: var(--text-secondary);
+      border-bottom-color: var(--border-color);
+    }
+    
+    .mat-mdc-row:hover {
+      background-color: var(--hover-bg);
+    }
+  }
+  
+  .mat-mdc-progress-bar {
+    --mdc-linear-progress-active-indicator-color: #5c6bc0;
+    --mdc-linear-progress-track-color: rgba(92, 107, 192, 0.2);
+  }
+
+  .toolbar { box-shadow: 0 6px 18px rgba(0,0,0,.55); }
+  .sidenav { background: linear-gradient(180deg,#1f2227,#14161a) !important; }
+}
+
+/* Fade-in animation for dashboard root sections */
+.fade-in { animation: fadeIn .6s ease forwards; opacity:0; }
+@keyframes fadeIn { to { opacity:1; transform:translateY(0); } from { opacity:0; transform:translateY(8px); } }
+
