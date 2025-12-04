@@ -1,0 +1,3 @@
+CACHE_STORE=file 
+SESSION_DRIVER=file 
+QUEUE_CONNECTION=database 

@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "vite": "^7.2.4",
+    "vue": "^3.5.25",
+    "vue-tsc": "^3.1.5"
+  },
+  "dependencies": {
+    "playwright-core": "^1.57.0"
+  }
+}

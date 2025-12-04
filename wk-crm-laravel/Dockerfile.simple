@@ -1,0 +1,55 @@
+FROM php:8.2-cli-alpine
+
+# Install system dependencies
+RUN apk add --no-cache \
+    git \
+    curl \
+    libpng-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    postgresql-dev \
+    sqlite-dev
+
+# Install PHP extensions
+RUN docker-php-ext-install \
+    pdo \
+    pdo_pgsql \
+    pdo_sqlite \
+    gd \
+    xml \
+    bcmath \
+    pcntl
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy entire project
+COPY . .
+
+# Create required directories
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache
+
+# Set permissions
+RUN chmod -R 755 storage bootstrap/cache
+
+# Create a simple bootstrap for the application
+RUN echo '#!/bin/sh' > /entrypoint.sh && \
+    echo 'if [ ! -f .env ]; then' >> /entrypoint.sh && \
+    echo '  cp .env.example .env || echo "APP_NAME=\"WK CRM Brasil\"" > .env' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo 'if [ ! -f artisan ]; then' >> /entrypoint.sh && \
+    echo '  touch artisan' >> /entrypoint.sh && \
+    echo '  chmod +x artisan' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo 'exec php -S 0.0.0.0:8000 -t public' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
+# Expose port
+EXPOSE 8000
+
+# Start command
+CMD ["/entrypoint.sh"]

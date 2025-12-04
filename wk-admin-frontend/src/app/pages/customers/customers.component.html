@@ -1,0 +1,62 @@
+  <div class="content-header">
+    <div class="container-fluid">
+        <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+      <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Clientes</h1></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="content">
+    <div class="container-fluid">
+
+      <div *ngIf="loading" class="text-center py-4">
+        <div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>
+      </div>
+
+      <div *ngIf="error && !loading" class="alert alert-danger">
+        <strong>Erro:</strong> {{ error }}
+        <div class="mt-2">
+          <button class="btn btn-sm btn-secondary" (click)="loadCustomers()">Tentar novamente</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h3 class="card-title mb-0">Lista de Clientes</h3>
+          <div>
+            <a class="btn btn-sm btn-success" (click)="goNew()">Novo Cliente</a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div *ngIf="!loading && !error" class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Telefone</th>
+                  <th class="text-end">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let c of customers">
+                  <td class="align-middle">{{ c.name || '—' }}</td>
+                  <td class="align-middle text-truncate" style="max-width:220px;">{{ c.email || '—' }}</td>
+                  <td class="align-middle">{{ c.phone || 'N/A' }}</td>
+                  <td class="text-end align-middle">
+                    <button class="btn btn-sm btn-primary me-1" (click)="editCustomer(c.id)">Editar</button>
+                    <button class="btn btn-sm btn-danger" (click)="deleteCustomer(c.id)">Excluir</button>
+                  </td>
+                </tr>
+                <tr *ngIf="customers.length === 0">
+                  <td colspan="4" class="text-center text-muted py-3">Nenhum cliente encontrado.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    </section>

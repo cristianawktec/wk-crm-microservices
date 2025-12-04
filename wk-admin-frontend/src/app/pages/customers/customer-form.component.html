@@ -1,0 +1,53 @@
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">{{ isEdit ? 'Editar' : 'Novo' }} Cliente</h1></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div *ngIf="loading" class="text-center py-3"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
+
+      <div class="card">
+        <div class="card-body">
+          <form [formGroup]="form" *ngIf="!loading" (ngSubmit)="save()" novalidate>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Nome <span class="text-danger">*</span></label>
+                <input class="form-control" formControlName="name" />
+                <div *ngIf="name?.touched && name?.invalid" class="form-text text-danger">
+                  <div *ngIf="name?.errors?.['required']">Nome é obrigatório</div>
+                  <div *ngIf="name?.errors?.['maxlength']">Nome é muito longo</div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Email</label>
+                <input class="form-control" formControlName="email" type="email" />
+                <div *ngIf="email?.touched && email?.invalid" class="form-text text-danger">
+                  <div *ngIf="email?.errors?.['email']">Email inválido</div>
+                  <div *ngIf="email?.errors?.['maxlength']">Email é muito longo</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Telefone</label>
+                <input class="form-control" formControlName="phone" />
+                <div *ngIf="phone?.touched && phone?.invalid" class="form-text text-danger">
+                  <div *ngIf="phone?.errors?.['maxlength']">Telefone é muito longo</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <button class="btn btn-primary" type="submit" [disabled]="form.invalid || loading">Salvar</button>
+              <button class="btn btn-secondary ms-2" type="button" (click)="cancel()">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>

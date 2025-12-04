@@ -1,0 +1,87 @@
+<script>
+// Initialize missing components
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Line Chart for Performance de Vendas
+    const lineCtx = document.getElementById('line-chart');
+    if (lineCtx) {
+        window.lineChart = new Chart(lineCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+                datasets: [{
+                    label: 'Performance (%)',
+                    data: [65, 78, 85, 92],
+                    borderColor: '#fff',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 2,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                }
+            }
+        });
+    }
+
+    // Initialize Calendar (simple placeholder)
+    const calendarElement = document.getElementById('calendar');
+    if (calendarElement) {
+        const today = new Date();
+        const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        calendarElement.innerHTML = `
+            <div style="text-align: center; color: white; padding: 20px;">
+                <h4>${monthNames[today.getMonth()]} ${today.getFullYear()}</h4>
+                <div style="font-size: 2em; margin: 10px 0;">${today.getDate()}</div>
+                <div>Hoje</div>
+            </div>
+        `;
+    }
+
+    // Initialize Knob widgets using CSS-only solution
+    document.querySelectorAll('.knob').forEach(function(knob) {
+        const value = knob.getAttribute('value') || 50;
+        const color = knob.getAttribute('data-fgColor') || '#39CCCC';
+        
+        // Replace input with CSS circle
+        const circle = document.createElement('div');
+        circle.style.cssText = `
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(${color} 0deg ${value * 3.6}deg, #e0e0e0 ${value * 3.6}deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            margin: 0 auto;
+        `;
+        
+        const innerCircle = document.createElement('div');
+        innerCircle.style.cssText = `
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        `;
+        innerCircle.textContent = value + '%';
+        
+        circle.appendChild(innerCircle);
+        knob.parentNode.replaceChild(circle, knob);
+    });
+});
+</script>

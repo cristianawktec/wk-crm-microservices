@@ -1,0 +1,6 @@
+Using browser executable: C:\Program Files\Google\Chrome\Application\chrome.exe
+Navigating to http://localhost:8081/admin/
+Navigation status: 200
+---PAGE HTML START---
+<html><head><meta name="color-scheme" content="light dark"></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">WK CRM Microservices Platform is running!</pre></body></html>
+---PAGE HTML END---
