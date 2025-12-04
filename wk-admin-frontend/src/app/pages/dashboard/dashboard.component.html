@@ -1,0 +1,138 @@
+  <div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="card card-filter">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title"><i class="fas fa-filter mr-1"></i>Filtros Dinâmicos</h3>
+                <div>
+                  <button class="btn btn-sm btn-outline-secondary mr-2" (click)="resetFilters()">Limpar</button>
+                  <button class="btn btn-sm btn-primary" (click)="applyFilters()">Aplicar Filtros</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group"><label>Período:</label>
+                      <select class="form-control" [(ngModel)]="filters.period">
+                        <option value="7">Últimos 7 dias</option>
+                        <option value="30">Últimos 30 dias</option>
+                        <option value="90">Últimos 90 dias</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group"><label>Vendedor:</label>
+                      <select class="form-control" [(ngModel)]="filters.seller">
+                        <option value="">Todos os vendedores</option>
+                        <option *ngFor="let s of sellers" [value]="s.id || s._id || s.uuid">{{ s.nome || s.name || s.full_name || s.email || ('Vendedor ' + (s.id || s._id || s.uuid)) }}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group"><label>Status:</label>
+                      <select class="form-control" [(ngModel)]="filters.status">
+                        <option value="">Todos os status</option>
+                        <option value="open">Aberto</option>
+                        <option value="won">Ganho</option>
+                        <option value="lost">Perdido</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Dashboard</h1></div>
+        <div class="col-sm-6"><ol class="breadcrumb float-sm-right"><li class="breadcrumb-item"><a href="#">Home</a></li><li class="breadcrumb-item active">Dashboard</li></ol></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div id="alert-container"></div>
+      <div id="stats-loading" class="text-center" *ngIf="loading"><i class="fas fa-spinner fa-spin"></i> Carregando dados...</div>
+      <div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+
+      <div class="row" id="dashboard-container" *ngIf="!loading">
+        <div class="col-lg-3 col-6">
+          <div class="small-box bg-info" data-card="total-customers">
+            <div class="inner"><h3 class="card-value">{{ (stats.total_clientes ?? stats.total_customers ?? 0) | number }}</h3><p class="card-label">Total Clientes</p></div>
+            <div class="icon"><i class="fas fa-users"></i></div>
+            <a href="#/customers" class="small-box-footer">Mais info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="small-box bg-success" data-card="monthly-sales">
+            <div class="inner"><h3 class="card-value">{{ (stats.receita_mes ?? stats.salesThisMonth ?? 0) | currency:'BRL':'symbol':'1.2-2' }}</h3><p class="card-label">Vendas do Mês</p></div>
+            <div class="icon"><i class="fas fa-chart-line"></i></div>
+            <a href="#/sales" class="small-box-footer">Mais info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="small-box bg-warning" data-card="active-opportunities">
+            <div class="inner"><h3 class="card-value">{{ (stats.leads_ativos ?? stats.activeOpportunities ?? 0) | number }}</h3><p class="card-label">Oportunidades Ativas</p></div>
+            <div class="icon"><i class="fas fa-handshake"></i></div>
+            <a href="#/opportunities" class="small-box-footer">Mais info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="small-box bg-danger" data-card="support-tickets">
+            <div class="inner"><h3 class="card-value">{{ (stats.tickets_abertos ?? stats.supportTickets ?? 0) | number }}</h3><p class="card-label">Tickets Abertos</p></div>
+            <div class="icon"><i class="fas fa-ticket-alt"></i></div>
+            <a href="#/support" class="small-box-footer">Mais info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="!loading">
+        <section class="col-lg-7 connectedSortable">
+          <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-chart-pie mr-1"></i>Vendas Mensais</h3></div>
+            <div class="card-body"><div class="tab-content p-0"><div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 300px;"><canvas id="revenue-chart-canvas" height="300" style="height:300px;"></canvas></div></div></div></div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-clock mr-1"></i>Atividade Recente</h3></div>
+            <div class="card-body">
+              <div *ngIf="!activityFeed || activityFeed.length === 0" class="text-center"><i class="fas fa-spinner fa-spin"></i> Carregando atividades...</div>
+              <div class="activity-feed" *ngIf="activityFeed && activityFeed.length">
+                <div class="activity-item" *ngFor="let atividade of activityFeed">
+                  <i class="fas activity-icon" [ngClass]="'fa-' + (atividade.tipo || 'info-circle')"></i>
+                  <div class="activity-content">
+                    <p class="activity-text">{{ atividade.descricao || atividade.title || '' }}</p>
+                    <small class="activity-time text-muted">{{ atividade.tempo || atividade.time || '' }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="col-lg-5 connectedSortable">
+          <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-trophy mr-1"></i>Performance de Vendedores</h3></div>
+            <div class="card-body">
+              <div *ngIf="!performanceData || performanceData.length === 0" class="text-center"><i class="fas fa-spinner fa-spin"></i> Carregando performance...</div>
+              <div id="performance-table" *ngIf="performanceData && performanceData.length">
+                <table class="table table-striped">
+                  <thead><tr><th>Vendedor</th><th>Vendas</th><th>Leads</th><th>Conversão</th><th>Meta</th><th>Atingimento</th></tr></thead>
+                  <tbody>
+                    <tr *ngFor="let v of performanceData">
+                      <td>{{ v.nome }}</td>
+                      <td>{{ v.vendas | number }}</td>
+                      <td>{{ v.leads | number }}</td>
+                      <td>{{ v.conversao ? (v.conversao | number:'1.1-1') + '%' : '0%' }}</td>
+                      <td>{{ v.meta ? (v.meta | currency:'BRL') : '-' }}</td>
+                      <td><span class="badge" [ngClass]="v.atingimento >= 90 ? 'bg-success' : v.atingimento >= 70 ? 'bg-warning' : 'bg-danger'">{{ v.atingimento ? (v.atingimento | number:'1.1-1') + '%' : '0%' }}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </section>

@@ -44,9 +44,11 @@ server {
     # Main location
     location / {
         # CORS headers
-        add_header 'Access-Control-Allow-Origin' '*' always;
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
-        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+        # Commented because CORS is handled by the centralized reverse proxy in this setup.
+        # If deploying this site standalone, uncomment and adapt the lines below.
+        # add_header 'Access-Control-Allow-Origin' '*' always;
+        # add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+        # add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
         
         # Security headers
         add_header X-Frame-Options "SAMEORIGIN" always;
@@ -87,10 +89,7 @@ server {
     
     # Handle preflight requests
     if ($request_method = 'OPTIONS') {
-        add_header 'Access-Control-Allow-Origin' '*';
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS';
-        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization';
-        add_header 'Access-Control-Max-Age' 1728000;
+        # Preflight handling retained; centralized proxy will provide CORS headers.
         add_header 'Content-Type' 'text/plain; charset=utf-8';
         add_header 'Content-Length' 0;
         return 204;
@@ -99,9 +98,10 @@ server {
     # Laravel routing
     location / {
         # CORS headers for API
-        add_header 'Access-Control-Allow-Origin' '*' always;
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
-        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+        # Commented to avoid duplication when a centralized proxy handles CORS.
+        # add_header 'Access-Control-Allow-Origin' '*' always;
+        # add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+        # add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
         
         # Security headers
         add_header X-Frame-Options "SAMEORIGIN" always;

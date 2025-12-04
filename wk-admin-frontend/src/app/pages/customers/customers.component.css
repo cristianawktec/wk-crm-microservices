@@ -1,0 +1,7 @@
+/* customers layout tweaks */
+.content-wrapper { padding: 1rem; }
+.card { box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.card-header .card-title { font-weight: 600; }
+.table-responsive { font-size: 0.95rem; }
+.text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.btn-sm { padding: 0.35rem 0.6rem; }

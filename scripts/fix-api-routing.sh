@@ -129,16 +129,16 @@ server {
         fastcgi_param HTTP_PROXY "";
         
         # CORS headers
-        add_header Access-Control-Allow-Origin * always;
-        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
-        add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With" always;
+        # NOTE: In this repo CORS is centralized at the reverse proxy (infrastructure/nginx/nginx.conf).
+        # If running this site standalone, uncomment/adapt the lines below to enable CORS at site level:
+        # add_header Access-Control-Allow-Origin * always;
+        # add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+        # add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With" always;
     }
 
     # Handle OPTIONS requests for CORS
     if ($request_method = OPTIONS) {
-        add_header Access-Control-Allow-Origin * always;
-        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
-        add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With" always;
+        # Preflight handling retained; centralized proxy will provide CORS headers.
         add_header Content-Length 0;
         add_header Content-Type text/plain;
         return 200;

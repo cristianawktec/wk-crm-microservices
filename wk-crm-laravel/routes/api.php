@@ -44,63 +44,23 @@ Route::get('/info', function () {
 
 // Rotas RESTful para Customers, Leads e Opportunities
 Route::apiResource('customers', CustomerController::class);
-Route::apiResource('leads', LeadController::class);
-Route::apiResource('opportunities', OpportunityController::class);
+Route::apiResource('leads', \App\Http\Controllers\Api\LeadController::class);
+Route::apiResource('sellers', \App\Http\Controllers\Api\SellerController::class);
+Route::apiResource('opportunities', \App\Http\Controllers\Api\OpportunityController::class);
 
-// Endpoint de leads
-Route::get('/leads', function () {
-    return response()->json([
-        'dados' => [
-            [
-                'id' => 1,
-                'nome' => 'Ana Oliveira',
-                'email' => 'ana.oliveira@prospects.com.br',
-                'telefone' => '(21) 96666-6666',
-                'empresa' => 'Prospectiva Negócios',
-                'fonte' => 'Site',
-                'status' => 'novo',
-                'interesse' => 'CRM',
-                'data_criacao' => '2025-10-17T14:30:00-03:00',
-                'cidade' => 'Brasília',
-                'estado' => 'DF'
-            ]
-        ],
-        'mensagem' => 'Endpoint de Leads - Implementação DDD pendente',
-        'arquitetura' => [
-            'padrao' => 'Design Orientado ao Domínio',
-            'principios' => ['SOLID', 'TDD'],
-            'status' => 'a_ser_implementado',
-            'idioma' => 'Português Brasil'
-        ]
-    ]);
-});
+// metadata endpoints used by frontend comboboxes
+Route::get('leads/sources', [\App\Http\Controllers\Api\LeadController::class, 'sources']);
+Route::get('sellers/roles', [\App\Http\Controllers\Api\SellerController::class, 'roles']);
 
-// Endpoint de oportunidades
-Route::get('/oportunidades', function () {
-    return response()->json([
-        'dados' => [
-            [
-                'id' => 1,
-                'titulo' => 'Implementação Sistema CRM - Tech Corp',
-                'cliente_id' => 1,
-                'valor' => 150000.00,
-                'moeda' => 'BRL',
-                'probabilidade' => 75,
-                'status' => 'negociacao',
-                'data_fechamento_prevista' => '2025-11-30',
-                'vendedor' => 'Carlos Mendes',
-                'data_criacao' => '2025-10-15T11:00:00-03:00'
-            ]
-        ],
-        'mensagem' => 'Endpoint de Oportunidades - Implementação DDD pendente', 
-        'arquitetura' => [
-            'padrao' => 'Design Orientado ao Domínio',
-            'principios' => ['SOLID', 'TDD'],
-            'status' => 'a_ser_implementado',
-            'idioma' => 'Português Brasil'
-        ]
-    ]);
-});
+// Endpoint de leads (static placeholder removed - resource controller used)
+// Route::get('/leads', function () {
+//     // placeholder response removed to allow Api\LeadController@index to handle this route
+// });
+
+// Endpoint de oportunidades (static placeholder removed - resource controller used)
+// Route::get('/oportunidades', function () {
+//     // placeholder removed
+// });
 
 // Endpoint para estatísticas do dashboard - agora com dados reais
 Route::get('/dashboard', [App\Http\Controllers\Api\DashboardController::class, 'index']);
@@ -112,13 +72,10 @@ Route::get('/vendedores', [App\Http\Controllers\Api\DashboardController::class, 
 Route::post('/simulate-update', [App\Http\Controllers\Api\DashboardController::class, 'simulateUpdate']);
 
 // Endpoint SSE para updates em tempo real
-Route::get('/dashboard/stream', [App\Http\Controllers\Api\DashboardController::class, 'streamUpdates']);
+// Temporarily disabled during local development because long-lived SSE
+// connections block the single-threaded `php artisan serve` server and
+// can cause timeouts for normal API requests. Re-enable when using a
+// multi-worker server or moving SSE to a separate process.
+// Route::get('/dashboard/stream', [App\Http\Controllers\Api\DashboardController::class, 'streamUpdates']);
 
-// Mantendo endpoints em inglês para compatibilidade
-Route::get('/customers', function () {
-    return redirect('/api/clientes');
-});
-
-Route::get('/opportunities', function () {
-    return redirect('/api/oportunidades');
-});
+// (Removed legacy redirects that caused /api/customers to redirect to /api/clientes)

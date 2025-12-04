@@ -1,18 +1,19 @@
-FROM php:8.2-cli-alpine
+FROM php:8.2-cli
 
 # Install system dependencies
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     git \
     curl \
     libpng-dev \
     libxml2-dev \
     zip \
     unzip \
-    postgresql-dev \
+    libpq-dev \
     autoconf \
     gcc \
     g++ \
-    make
+    make \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install \

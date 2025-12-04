@@ -21,7 +21,7 @@ namespace App\Http\Controllers;
  */
 
 use Illuminate\Http\Request;
-use App\Domain\Customer\Customer;
+use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
 
 /**

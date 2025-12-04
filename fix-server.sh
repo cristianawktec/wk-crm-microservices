@@ -143,9 +143,11 @@ server {
     index index.html index.htm index.php;
 
     # Configurações de cabeçalhos para CORS
-    add_header 'Access-Control-Allow-Origin' '*' always;
-    add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
-    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+    # These headers are commented out because CORS is centralized in the reverse proxy.
+    # If deploying without a reverse proxy, uncomment and adapt the lines below.
+    # add_header 'Access-Control-Allow-Origin' '*' always;
+    # add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+    # add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
 
     # Arquivos estáticos
     location / {
@@ -177,16 +179,14 @@ server {
     index index.php;
 
     # Configurações CORS para API
-    add_header 'Access-Control-Allow-Origin' '*' always;
-    add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
-    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+    # Commented since the central reverse proxy handles CORS headers.
+    # add_header 'Access-Control-Allow-Origin' '*' always;
+    # add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+    # add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
 
     # Handle preflight requests
     if ($request_method = 'OPTIONS') {
-        add_header 'Access-Control-Allow-Origin' '*';
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS';
-        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization';
-        add_header 'Access-Control-Max-Age' 1728000;
+        # Preflight handling retained; CORS headers are provided by the reverse proxy.
         add_header 'Content-Type' 'text/plain; charset=utf-8';
         add_header 'Content-Length' 0;
         return 204;
@@ -203,16 +203,15 @@ server {
         include fastcgi_params;
         
         # CORS headers
-        add_header Access-Control-Allow-Origin "*" always;
-        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
-        add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept" always;
+        # Commented because the upstream reverse proxy supplies CORS headers centrally.
+        # add_header Access-Control-Allow-Origin "*" always;
+        # add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+        # add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept" always;
     }
 
     # Handle OPTIONS requests
     if ($request_method = OPTIONS) {
-        add_header Access-Control-Allow-Origin "*";
-        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
-        add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept";
+        # Preflight response kept; reverse proxy will add CORS headers.
         add_header Content-Length 0;
         add_header Content-Type text/plain;
         return 200;

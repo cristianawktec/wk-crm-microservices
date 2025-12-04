@@ -39,10 +39,13 @@ server {
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
         
-        # CORS headers configurados
-        add_header Access-Control-Allow-Origin * always;
-        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
-        add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With" always;
+           # CORS headers configurados
+           # NOTE: In this repository we centralize CORS at the reverse proxy (infrastructure/nginx/nginx.conf).
+           # If you deploy this site independently (without the centralized proxy), uncomment and adapt
+           # the following lines to enable CORS at the site level:
+           # add_header Access-Control-Allow-Origin * always;
+           # add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+           # add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With" always;
     }
 }
 ```

@@ -6,69 +6,72 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\Customer;
+use App\Domain\Lead\Lead;
+use App\Domain\Opportunity\Opportunity;
+use Illuminate\Support\Facades\DB;
 
+/**
+ * @OA\Get(
+ *     path="/api/dashboard",
+ *     summary="Retorna os dados do dashboard",
+ *     operationId="dashboard_index",
+ *     tags={"Dashboard"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Dados do dashboard retornados com sucesso"
+ *     )
+ * )
+ */
 class DashboardController extends Controller
-    /**
-     * @OA\Get(
-     *     path="/api/dashboard",
-     *     summary="Retorna os dados do dashboard",
-     *     operationId="dashboard_index",
-     *     tags={"Dashboard"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Dados do dashboard retornados com sucesso"
-     *     )
-     * )
-     */
 {
     // ...existing code...
     public function index(Request $request): JsonResponse
     {
-        try {
-            // Extrair filtros da request
-            $filters = [
-                'periodo' => $request->get('periodo', '30'),
-                'vendedor' => $request->get('vendedor', 'all'),
-                'status' => $request->get('status', 'all')
-            ];
-            
-            $data = [
-                'resumo' => $this->obterResumo($filters),
-                'metricas' => $this->obterMetricas($filters),
-                'atividade_recente' => $this->obterAtividadeRecente($filters),
-                'dados_graficos' => $this->obterDadosGraficos($filters),
-                'performance_vendedores' => $this->gerarPerformanceVendedores($filters),
-                'fontes_leads' => $this->gerarFontesLeads($filters),
-                'filtros_aplicados' => $filters,
-                'sistema' => [
-                    'nome' => 'WK CRM Laravel Enhanced',
-                    'versao' => '2.0.0',  
-                    'ultimo_update' => Carbon::now()->format('d/m/Y H:i:s')
-                ]
-            ];
+        // Mocked dashboard response for local development and frontend integration tests
+        $filters = [
+            'periodo' => (int) $request->get('periodo', 30),
+            'vendedor' => $request->get('vendedor', 'all'),
+            'status' => $request->get('status', 'all')
+        ];
 
-            return response()->json($data);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Erro interno do servidor',
-                'message' => 'Dashboard temporariamente indisponível',
-                'sistema' => [
-                    'nome' => 'WK CRM Laravel Enhanced',
-                    'versao' => '2.0.0',  
-                    'status' => 'error'
-                ]
-            ], 500);
-        }
+        // Use optimized aggregate queries
+        $resumo = $this->obterResumo($filters);
+        $metricas = $this->obterMetricas($filters);
+        $atividade = $this->obterAtividadeRecente($filters);
+        $graficos = $this->obterDadosGraficos($filters);
+
+        $data = [
+            'resumo' => $resumo,
+            'metricas' => $metricas,
+            'atividade_recente' => $atividade,
+            'dados_graficos' => $graficos,
+            'performance_vendedores' => $this->gerarPerformanceVendedores($filters),
+            'fontes_leads' => $this->gerarFontesLeads($filters),
+            'filtros_aplicados' => $filters,
+            'sistema' => [
+                'nome' => 'WK CRM Laravel',
+                'versao' => 'dev',
+                'ultimo_update' => Carbon::now()->format('d/m/Y H:i:s')
+            ]
+        ];
+
+        return response()->json($data);
     }
 
     private function obterResumo(array $filters = []): array
     {
-        // Dados reais do banco
-        $total_clientes = \App\Domain\Customer\Customer::count();
-        $novos_clientes_mes = \App\Domain\Customer\Customer::where('created_at', '>=', now()->subMonth())->count();
-        $leads_ativos = \App\Domain\Lead\Lead::where('status', 'new')->count();
-        $vendas_mes = \App\Domain\Opportunity\Opportunity::where('created_at', '>=', now()->subMonth())->count();
-        $receita_mes = \App\Domain\Opportunity\Opportunity::where('created_at', '>=', now()->subMonth())->sum('value');
+        // Dados reais do banco (otimizados)
+        $total_clientes = Customer::count();
+        $novos_clientes_mes = Customer::where('created_at', '>=', now()->subMonth())->count();
+        $leads_ativos = Lead::where('status', 'new')->count();
+
+        $vendasAgg = Opportunity::selectRaw('COUNT(*) as cnt, COALESCE(SUM(value),0) as total')
+            ->where('created_at', '>=', now()->subMonth())
+            ->first();
+
+        $vendas_mes = $vendasAgg->cnt ?? 0;
+        $receita_mes = $vendasAgg->total ?? 0;
         $meta_mes = 250000; // valor fixo ou buscar de config
         $percentual_meta = $meta_mes > 0 ? round(($receita_mes / $meta_mes) * 100) : 0;
 
@@ -85,17 +88,17 @@ class DashboardController extends Controller
 
     private function obterMetricas(array $filters = []): array
     {
-        $total_leads = \App\Domain\Lead\Lead::count();
-        $convertidos = \App\Domain\Lead\Lead::where('status', 'converted')->count();
-        $em_andamento = \App\Domain\Lead\Lead::where('status', 'new')->count();
+        $total_leads = Lead::count();
+        $convertidos = Lead::where('status', 'converted')->count();
+        $em_andamento = Lead::where('status', 'new')->count();
         $taxa_conversao = $total_leads > 0 ? round(($convertidos / $total_leads) * 100, 2) : 0;
 
-        $hoje = \App\Domain\Opportunity\Opportunity::whereDate('created_at', now()->toDateString())->count();
-        $semana = \App\Domain\Opportunity\Opportunity::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
-        $mes = \App\Domain\Opportunity\Opportunity::whereMonth('created_at', now()->month)->count();
-        $trimestre = \App\Domain\Opportunity\Opportunity::whereBetween('created_at', [now()->subMonths(3), now()])->count();
+        $hoje = Opportunity::whereDate('created_at', now()->toDateString())->count();
+        $semana = Opportunity::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
+        $mes = Opportunity::whereMonth('created_at', now()->month)->count();
+        $trimestre = Opportunity::whereBetween('created_at', [now()->subMonths(3), now()])->count();
 
-        $valor_ticket_medio = $mes > 0 ? \App\Domain\Opportunity\Opportunity::whereMonth('created_at', now()->month)->sum('value') / $mes : 0;
+        $valor_ticket_medio = $mes > 0 ? Opportunity::whereMonth('created_at', now()->month)->sum('value') / $mes : 0;
         $variacao_ticket = '+0%'; // Implementar cálculo de variação se necessário
 
         return [
@@ -123,7 +126,7 @@ class DashboardController extends Controller
         $atividadesFormatadas = [];
 
         // Últimos clientes
-        $clientes = \App\Domain\Customer\Customer::orderByDesc('created_at')->take(2)->get();
+        $clientes = Customer::orderByDesc('created_at')->take(2)->get();
         foreach ($clientes as $c) {
             $atividadesFormatadas[] = [
                 'id' => $c->id,
@@ -160,41 +163,64 @@ class DashboardController extends Controller
 
     private function obterDadosGraficos(array $filters = []): array
     {
-        // Gráficos reais dos últimos 30 dias
+        // Optimized queries for last N days
+        $days = $filters['periodo'] ?? 30;
+        $start = Carbon::now()->subDays($days - 1)->startOfDay();
+        $end = Carbon::now()->endOfDay();
+
+        // Opportunities grouped by date (count and sum)
+        $oppsByDate = Opportunity::selectRaw("DATE(created_at) as day, COUNT(*) as count, COALESCE(SUM(value),0) as total")
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get()
+            ->keyBy('day');
+
+        // Leads grouped by date
+        $leadsByDate = Lead::selectRaw("DATE(created_at) as day, COUNT(*) as count")
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get()
+            ->keyBy('day');
+
         $vendas_diarias = [];
         $leads_diarios = [];
-        for ($i = 29; $i >= 0; $i--) {
-            $data = Carbon::now()->subDays($i)->format('Y-m-d');
-            $vendas_count = \App\Domain\Opportunity\Opportunity::whereDate('created_at', $data)->count();
-            $vendas_valor = \App\Domain\Opportunity\Opportunity::whereDate('created_at', $data)->sum('value');
-            $leads_count = \App\Domain\Lead\Lead::whereDate('created_at', $data)->count();
+        for ($i = 0; $i < $days; $i++) {
+            $date = $start->copy()->addDays($i)->format('Y-m-d');
+            $op = $oppsByDate->has($date) ? $oppsByDate->get($date) : null;
+            $ld = $leadsByDate->has($date) ? $leadsByDate->get($date) : null;
+
             $vendas_diarias[] = [
-                'data' => $data,
-                'vendas' => $vendas_count,
-                'valor' => $vendas_valor
+                'data' => $date,
+                'vendas' => $op ? (int) $op->count : 0,
+                'valor' => (float) ($op ? $op->total : 0)
             ];
+
             $leads_diarios[] = [
-                'data' => $data,
-                'leads' => $leads_count
+                'data' => $date,
+                'leads' => $ld ? (int) $ld->count : 0
             ];
         }
 
-        // Pipeline simplificado
+        // Pipeline aggregates
+        $totalLeads = Lead::count();
+        $totalOppValue = Opportunity::sum('value') ?? 0;
         $pipeline = [
             [
                 'etapa' => 'Leads',
-                'quantidade' => \App\Domain\Lead\Lead::count(),
-                'valor' => 'R$ ' . number_format(\App\Domain\Opportunity\Opportunity::sum('value'), 2, ',', '.')
+                'quantidade' => $totalLeads,
+                'valor' => 'R$ ' . number_format($totalOppValue, 2, ',', '.')
             ],
             [
                 'etapa' => 'Negociação',
-                'quantidade' => \App\Domain\Opportunity\Opportunity::where('status', 'open')->count(),
-                'valor' => 'R$ ' . number_format(\App\Domain\Opportunity\Opportunity::where('status', 'open')->sum('value'), 2, ',', '.')
+                'quantidade' => Opportunity::where('status', 'open')->count(),
+                'valor' => 'R$ ' . number_format(Opportunity::where('status', 'open')->sum('value'), 2, ',', '.')
             ],
             [
                 'etapa' => 'Fechamento',
-                'quantidade' => \App\Domain\Opportunity\Opportunity::where('status', 'closed')->count(),
-                'valor' => 'R$ ' . number_format(\App\Domain\Opportunity\Opportunity::where('status', 'closed')->sum('value'), 2, ',', '.')
+                'quantidade' => Opportunity::where('status', 'closed')->count(),
+                'valor' => 'R$ ' . number_format(Opportunity::where('status', 'closed')->sum('value'), 2, ',', '.')
             ]
         ];
 
@@ -234,6 +260,13 @@ class DashboardController extends Controller
     public function vendedores(): JsonResponse
     {
         try {
+            // Use database-backed sellers when available
+            if (class_exists(\App\Models\Seller::class)) {
+                $sellers = \App\Models\Seller::select(['id', 'name'])->orderBy('name')->get();
+                return response()->json($sellers);
+            }
+
+            // Fallback to static list for compatibility
             $vendedores = [
                 ['id' => 1, 'nome' => 'João Silva'],
                 ['id' => 2, 'nome' => 'Maria Santos'],
@@ -359,10 +392,7 @@ class DashboardController extends Controller
         }, 200, [
             'Content-Type' => 'text/event-stream',
             'Cache-Control' => 'no-cache',
-            'Connection' => 'keep-alive',
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Methods' => 'GET',
-            'Access-Control-Allow-Headers' => 'Cache-Control'
+            'Connection' => 'keep-alive'
         ]);
     }
 }

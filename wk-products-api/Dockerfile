@@ -23,6 +23,11 @@ USER products
 # Expose port
 EXPOSE 3001
 
+# Ensure curl is available for healthcheck
+USER root
+RUN apk add --no-cache curl ca-certificates || true
+USER products
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:3001/health || exit 1

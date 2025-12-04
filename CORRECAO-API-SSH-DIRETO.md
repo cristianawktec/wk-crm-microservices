@@ -75,15 +75,19 @@ server {
         fastcgi_param PATH_TRANSLATED $document_root$fastcgi_path_info;
         fastcgi_param HTTP_PROXY "";
         
-        add_header Access-Control-Allow-Origin * always;
-        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
-        add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With" always;
+        # NOTE: CORS headers are centralized in the repository's reverse proxy (infrastructure/nginx/nginx.conf).
+        # If you are deploying this site standalone, uncomment/adapt the lines below to enable CORS:
+        # add_header Access-Control-Allow-Origin * always;
+        # add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+        # add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With" always;
     }
 
     if ($request_method = OPTIONS) {
-        add_header Access-Control-Allow-Origin * always;
-        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
-        add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With" always;
+        # NOTE: CORS headers are centralized in the repository's reverse proxy (infrastructure/nginx/nginx.conf).
+        # If you are deploying this site standalone, uncomment/adapt the lines below to enable CORS:
+        # add_header Access-Control-Allow-Origin * always;
+        # add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+        # add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With" always;
         add_header Content-Length 0;
         add_header Content-Type text/plain;
         return 200;

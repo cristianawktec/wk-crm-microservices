@@ -1,0 +1,54 @@
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Vendedor</h1></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="content">
+    <div class="container-fluid">
+
+      <div *ngIf="loading" class="text-center py-4">
+        <div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>
+      </div>
+
+      <div *ngIf="!loading">
+        <form (ngSubmit)="save()" [formGroup]="form">
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">Informações do Vendedor</h3></div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label">Nome</label>
+                <input class="form-control" formControlName="name">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input class="form-control" formControlName="email">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Telefone</label>
+                <input class="form-control" formControlName="phone">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Cargo</label>
+                <select class="form-control" formControlName="role">
+                  <option value="">— Selecionar cargo —</option>
+                  <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+                  <option value="other">Outro...</option>
+                </select>
+                <div *ngIf="form.get('role')?.value === 'other'" class="mt-2">
+                  <input class="form-control" formControlName="role_custom" placeholder="Digite o cargo">
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-primary" type="submit">Salvar</button>
+              <a class="btn btn-secondary ms-2" [routerLink]="['/sellers']">Cancelar</a>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </section>
