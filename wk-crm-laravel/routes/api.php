@@ -44,13 +44,18 @@ Route::get('/info', function () {
 
 // Rotas RESTful para Customers, Leads e Opportunities
 Route::apiResource('customers', CustomerController::class);
+
+// metadata endpoints used by frontend comboboxes
+// Define these specific routes before the resource declaration so
+// fixed path segments (e.g. /api/leads/sources) are not captured by
+// the resource parameter (`/api/leads/{lead}`) which would attempt
+// to treat 'sources' as a UUID and cause a 500 error.
+Route::get('leads/sources', [\App\Http\Controllers\Api\LeadController::class, 'sources']);
+Route::get('sellers/roles', [\App\Http\Controllers\Api\SellerController::class, 'roles']);
+
 Route::apiResource('leads', \App\Http\Controllers\Api\LeadController::class);
 Route::apiResource('sellers', \App\Http\Controllers\Api\SellerController::class);
 Route::apiResource('opportunities', \App\Http\Controllers\Api\OpportunityController::class);
-
-// metadata endpoints used by frontend comboboxes
-Route::get('leads/sources', [\App\Http\Controllers\Api\LeadController::class, 'sources']);
-Route::get('sellers/roles', [\App\Http\Controllers\Api\SellerController::class, 'roles']);
 
 // Endpoint de leads (static placeholder removed - resource controller used)
 // Route::get('/leads', function () {
