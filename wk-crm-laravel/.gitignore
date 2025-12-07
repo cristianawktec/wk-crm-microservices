@@ -4,7 +4,10 @@
 /public/storage
 /storage/*.key
 .env
-.env.*
+.env.local
+.env.*.backup
+.env.backup
+.env.xampp
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
