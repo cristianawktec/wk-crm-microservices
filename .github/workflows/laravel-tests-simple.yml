@@ -20,10 +20,16 @@ jobs:
           extensions: mbstring, dom, pdo, sqlite, curl, openssl, zip
           coverage: none
 
+      - name: Prepare Environment
+        working-directory: wk-crm-laravel
+        run: |
+          cp .env.example .env || echo "APP_KEY=" > .env
+          php artisan key:generate --ansi
+
       - name: Install Dependencies
         working-directory: wk-crm-laravel
         run: composer install --no-interaction --prefer-dist
 
       - name: Run Tests
         working-directory: wk-crm-laravel
-        run: php artisan test --env=testing
+        run: php artisan test
