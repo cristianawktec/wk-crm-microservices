@@ -1,0 +1,29 @@
+name: laravel-tests-simple
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, pdo, sqlite, curl, openssl, zip
+          coverage: none
+
+      - name: Install Dependencies
+        working-directory: wk-crm-laravel
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run Tests
+        working-directory: wk-crm-laravel
+        run: php artisan test --env=testing
