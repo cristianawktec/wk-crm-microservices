@@ -52,7 +52,9 @@ jobs:
 
       - name: Install Composer dependencies
         working-directory: wk-crm-laravel
-        run: composer install --no-interaction --no-progress --prefer-dist
+        run: |
+          composer config --no-plugins --no-scripts allow-plugins true
+          composer install --no-interaction --no-progress --prefer-dist
 
       - name: Run tests
         working-directory: wk-crm-laravel
