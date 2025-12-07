@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Opportunity extends Model
 {
+    use HasFactory;
+
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 'title', 'client_id', 'seller_id', 'value', 'currency', 'probability', 'status', 'close_date'
+        'id', 'title', 'customer_id', 'seller_id', 'value', 'currency', 'probability', 'status', 'close_date'
     ];
 
     protected static function boot()
@@ -26,7 +29,7 @@ class Opportunity extends Model
 
     public function client()
     {
-        return $this->belongsTo(\App\Models\Customer::class, 'client_id');
+        return $this->belongsTo(\App\Models\Customer::class, 'customer_id');
     }
 
     public function seller()

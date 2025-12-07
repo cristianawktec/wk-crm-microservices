@@ -19,6 +19,7 @@ class OpportunityController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
+            'customer_id' => 'nullable|string',
             'client_id' => 'nullable|string',
             'seller_id' => 'nullable|string',
             'value' => 'nullable|numeric',
@@ -27,6 +28,10 @@ class OpportunityController extends Controller
             'status' => 'nullable|string',
             'close_date' => 'nullable|date'
         ]);
+
+        // Backward compatibility: accept either client_id or customer_id
+        $data['customer_id'] = $data['customer_id'] ?? $data['client_id'] ?? null;
+        unset($data['client_id']);
 
         $opp = Opportunity::create($data);
         return response()->json($opp, 201);
@@ -43,6 +48,7 @@ class OpportunityController extends Controller
         $opp = Opportunity::findOrFail($id);
         $data = $request->validate([
             'title' => 'required|string|max:255',
+            'customer_id' => 'nullable|string',
             'client_id' => 'nullable|string',
             'seller_id' => 'nullable|string',
             'value' => 'nullable|numeric',
@@ -51,6 +57,10 @@ class OpportunityController extends Controller
             'status' => 'nullable|string',
             'close_date' => 'nullable|date'
         ]);
+
+        // Backward compatibility: accept either client_id or customer_id
+        $data['customer_id'] = $data['customer_id'] ?? $data['client_id'] ?? $opp->customer_id;
+        unset($data['client_id']);
 
         $opp->update($data);
         return response()->json($opp);

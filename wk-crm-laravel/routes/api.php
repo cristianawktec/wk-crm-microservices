@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\OpportunityController;
+use App\Http\Controllers\AuthController;
 
 Route::get('/health', function () {
     return response()->json([
@@ -41,21 +42,28 @@ Route::get('/info', function () {
     ]);
 });
 
+// Autenticação
+Route::post('/login', [AuthController::class, 'login']);
 
-// Rotas RESTful para Customers, Leads e Opportunities
-Route::apiResource('customers', CustomerController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
 
-// metadata endpoints used by frontend comboboxes
-// Define these specific routes before the resource declaration so
-// fixed path segments (e.g. /api/leads/sources) are not captured by
-// the resource parameter (`/api/leads/{lead}`) which would attempt
-// to treat 'sources' as a UUID and cause a 500 error.
-Route::get('leads/sources', [\App\Http\Controllers\Api\LeadController::class, 'sources']);
-Route::get('sellers/roles', [\App\Http\Controllers\Api\SellerController::class, 'roles']);
 
-Route::apiResource('leads', \App\Http\Controllers\Api\LeadController::class);
-Route::apiResource('sellers', \App\Http\Controllers\Api\SellerController::class);
-Route::apiResource('opportunities', \App\Http\Controllers\Api\OpportunityController::class);
+    // Rotas RESTful para Customers, Leads e Opportunities
+    Route::apiResource('customers', CustomerController::class);
+
+    // metadata endpoints used by frontend comboboxes
+    // Define these specific routes before the resource declaration so
+    // fixed path segments (e.g. /api/leads/sources) are not captured by
+    // the resource parameter (`/api/leads/{lead}`) which would attempt
+    // to treat 'sources' as a UUID and cause a 500 error.
+    Route::get('leads/sources', [\App\Http\Controllers\Api\LeadController::class, 'sources']);
+    Route::get('sellers/roles', [\App\Http\Controllers\Api\SellerController::class, 'roles']);
+
+    Route::apiResource('leads', \App\Http\Controllers\Api\LeadController::class);
+    Route::apiResource('sellers', \App\Http\Controllers\Api\SellerController::class);
+    Route::apiResource('opportunities', \App\Http\Controllers\Api\OpportunityController::class);
 
 // Endpoint de leads (static placeholder removed - resource controller used)
 // Route::get('/leads', function () {
@@ -68,13 +76,15 @@ Route::apiResource('opportunities', \App\Http\Controllers\Api\OpportunityControl
 // });
 
 // Endpoint para estatísticas do dashboard - agora com dados reais
-Route::get('/dashboard', [App\Http\Controllers\Api\DashboardController::class, 'index']);
+    Route::get('/dashboard', [App\Http\Controllers\Api\DashboardController::class, 'index']);
 
-// Endpoint para carregar vendedores nos filtros
-Route::get('/vendedores', [App\Http\Controllers\Api\DashboardController::class, 'vendedores']);
+    // Endpoint para carregar vendedores nos filtros
+    Route::get('/vendedores', [App\Http\Controllers\Api\DashboardController::class, 'vendedores']);
 
-// Endpoint para simular atualizações WebSocket (desenvolvimento)
-Route::post('/simulate-update', [App\Http\Controllers\Api\DashboardController::class, 'simulateUpdate']);
+    // Endpoint para simular atualizações WebSocket (desenvolvimento)
+    Route::post('/simulate-update', [App\Http\Controllers\Api\DashboardController::class, 'simulateUpdate']);
+
+});
 
 // Endpoint SSE para updates em tempo real
 // Temporarily disabled during local development because long-lived SSE
