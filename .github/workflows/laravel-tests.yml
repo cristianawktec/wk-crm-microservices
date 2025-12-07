@@ -51,9 +51,11 @@ jobs:
         run: npm ci
 
       - name: Install Composer dependencies
+        working-directory: wk-crm-laravel
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Prepare environment
+        working-directory: wk-crm-laravel
         run: |
           cp .env.example .env
           php artisan key:generate
@@ -63,6 +65,7 @@ jobs:
           DB_DATABASE: ":memory:"
 
       - name: Run tests
+        working-directory: wk-crm-laravel
         run: php artisan test
         env:
           APP_ENV: testing
