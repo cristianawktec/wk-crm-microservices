@@ -395,4 +395,198 @@ class DashboardController extends Controller
             'Connection' => 'keep-alive'
         ]);
     }
+
+    /**
+     * Get dashboard statistics (Phase 3 Auth Integration)
+     * 
+     * Retorna KPIs principais com suporte a role-based filtering
+     * 
+     * @authenticated
+     * @queryParam start_date string Data inicial (YYYY-MM-DD). Opcional
+     * @queryParam end_date string Data final (YYYY-MM-DD). Opcional
+     * @queryParam status string Filtrar por status. Opcional
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "leads": {"total": 150, "open": 75},
+     *     "opportunities": {"total": 45, "won": 15}
+     *   }
+     * }
+     */
+    public function stats(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $startDate = $request->query('start_date');
+            $endDate = $request->query('end_date');
+
+            // Build lead stats
+            $leadQuery = $this->getLeadQuery($startDate, $endDate);
+            $this->applyUserFilter($leadQuery, $user, 'seller_id');
+
+            $leads = [
+                'total' => $leadQuery->count(),
+                'open' => (clone $leadQuery)->where('status', 'open')->count(),
+                'closed' => (clone $leadQuery)->where('status', 'closed')->count(),
+                'converted' => (clone $leadQuery)->where('status', 'converted')->count(),
+            ];
+
+            // Build opportunity stats
+            $oppQuery = $this->getOpportunityQuery($startDate, $endDate);
+            $this->applyUserFilter($oppQuery, $user, 'seller_id');
+
+            $opportunities = [
+                'total' => $oppQuery->count(),
+                'won' => (clone $oppQuery)->where('status', 'won')->count(),
+                'lost' => (clone $oppQuery)->where('status', 'lost')->count(),
+                'pending' => (clone $oppQuery)->where('status', 'pending')->count(),
+                'total_value' => (float) ($oppQuery->sum('value') ?? 0),
+            ];
+
+            // Build customer stats
+            $customerQuery = $this->getCustomerQuery();
+            $this->applyUserFilter($customerQuery, $user, 'seller_id');
+
+            $customers = [
+                'total' => $customerQuery->count(),
+                'active' => (clone $customerQuery)->where('status', 'active')->count(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'leads' => $leads,
+                    'opportunities' => $opportunities,
+                    'customers' => $customers,
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching dashboard stats',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get sales pipeline
+     * 
+     * Retorna funil de vendas com oportunidades por estágio
+     *
+     * @authenticated
+     * @queryParam start_date string Data inicial (YYYY-MM-DD). Opcional
+     * @queryParam end_date string Data final (YYYY-MM-DD). Opcional
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {"stage": "pending", "count": 20, "total_value": 150000}
+     *   ]
+     * }
+     */
+    public function salesPipeline(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $startDate = $request->query('start_date');
+            $endDate = $request->query('end_date');
+
+            $query = $this->getOpportunityQuery($startDate, $endDate);
+            $this->applyUserFilter($query, $user, 'seller_id');
+
+            $totalValue = $query->sum('value') ?? 0;
+
+            if ($totalValue === 0) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [],
+                ], 200);
+            }
+
+            $pipeline = $query
+                ->select('status', DB::raw('COUNT(*) as count'), DB::raw('SUM(value) as total_value'))
+                ->groupBy('status')
+                ->orderByDesc('total_value')
+                ->get()
+                ->map(fn($item) => [
+                    'stage' => $item->status,
+                    'count' => $item->count,
+                    'total_value' => (float) ($item->total_value ?? 0),
+                ])
+                ->values();
+
+            return response()->json([
+                'success' => true,
+                'data' => $pipeline,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching sales pipeline',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Apply user-based filter (role permissions)
+     */
+    private function applyUserFilter(&$query, $user, string $column): void
+    {
+        // Admin sees all data
+        if ($user->hasRole('admin')) {
+            return;
+        }
+
+        // Seller sees only their data
+        if ($user->hasRole('seller')) {
+            $query->where($column, $user->id);
+        }
+    }
+
+    /**
+     * Get lead query base
+     */
+    private function getLeadQuery(?string $startDate, ?string $endDate)
+    {
+        $query = is_string('App\Domain\Lead\Lead') 
+            ? app('App\Domain\Lead\Lead')::query()
+            : \App\Models\Lead::query();
+            
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+        return $query;
+    }
+
+    /**
+     * Get opportunity query base
+     */
+    private function getOpportunityQuery(?string $startDate, ?string $endDate)
+    {
+        $query = is_string('App\Domain\Opportunity\Opportunity')
+            ? app('App\Domain\Opportunity\Opportunity')::query()
+            : \App\Models\Opportunity::query();
+            
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+        return $query;
+    }
+
+    /**
+     * Get customer query base
+     */
+    private function getCustomerQuery()
+    {
+        return Customer::query();
+    }
 }

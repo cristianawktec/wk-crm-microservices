@@ -57,6 +57,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard - Readable by all authenticated users
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:view_dashboard');
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats'])->middleware('permission:view_dashboard');
+    Route::get('/dashboard/sales-pipeline', [DashboardController::class, 'salesPipeline'])->middleware('permission:view_dashboard');
     Route::get('/vendedores', [DashboardController::class, 'vendedores']);
     Route::post('/simulate-update', [DashboardController::class, 'simulateUpdate'])->middleware('permission:view_dashboard');
 
