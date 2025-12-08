@@ -49,52 +49,50 @@ Route::get('/info', function () {
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-// TEMPORARY: CRUD routes without authentication for frontend testing
-// TODO: Re-add auth:sanctum middleware after implementing auth in Angular frontend
-
-// Customers CRUD - PUBLIC ACCESS (temporary)
-Route::get('customers', [CustomerController::class, 'index']);
-Route::get('customers/{customer}', [CustomerController::class, 'show']);
-Route::post('customers', [CustomerController::class, 'store']);
-Route::put('customers/{customer}', [CustomerController::class, 'update']);
-Route::delete('customers/{customer}', [CustomerController::class, 'destroy']);
-
-// Leads CRUD - PUBLIC ACCESS (temporary)
-Route::get('leads/sources', [LeadController::class, 'sources']);
-Route::get('leads', [LeadController::class, 'index']);
-Route::get('leads/{lead}', [LeadController::class, 'show']);
-Route::post('leads', [LeadController::class, 'store']);
-Route::put('leads/{lead}', [LeadController::class, 'update']);
-Route::delete('leads/{lead}', [LeadController::class, 'destroy']);
-
-// Sellers CRUD - PUBLIC ACCESS (temporary)
-Route::get('sellers/roles', [SellerController::class, 'roles']);
-Route::get('sellers', [SellerController::class, 'index']);
-Route::get('sellers/{seller}', [SellerController::class, 'show']);
-Route::post('sellers', [SellerController::class, 'store']);
-Route::put('sellers/{seller}', [SellerController::class, 'update']);
-Route::delete('sellers/{seller}', [SellerController::class, 'destroy']);
-
-// Opportunities CRUD - PUBLIC ACCESS (temporary)
-Route::get('opportunities', [OpportunityController::class, 'index']);
-Route::get('opportunities/{opportunity}', [OpportunityController::class, 'show']);
-Route::post('opportunities', [OpportunityController::class, 'store']);
-Route::put('opportunities/{opportunity}', [OpportunityController::class, 'update']);
-Route::delete('opportunities/{opportunity}', [OpportunityController::class, 'destroy']);
-
-// Dashboard - PUBLIC ACCESS (temporary)
-Route::get('/dashboard', [DashboardController::class, 'index']);
-Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
-Route::get('/dashboard/sales-pipeline', [DashboardController::class, 'salesPipeline']);
-Route::get('/vendedores', [DashboardController::class, 'vendedores']);
-Route::post('/simulate-update', [DashboardController::class, 'simulateUpdate']);
-
-// Reports - PUBLIC ACCESS (temporary)
-Route::get('/reports/sales', [ReportController::class, 'salesReport']);
-Route::get('/reports/leads', [ReportController::class, 'leadsReport']);
-
-// Autenticação - Endpoints Protegidos
+// CRUD routes with authentication - Protegido com auth:sanctum
 Route::middleware('auth:sanctum')->group(function () {
+    // Customers CRUD
+    Route::get('customers', [CustomerController::class, 'index']);
+    Route::get('customers/{customer}', [CustomerController::class, 'show']);
+    Route::post('customers', [CustomerController::class, 'store']);
+    Route::put('customers/{customer}', [CustomerController::class, 'update']);
+    Route::delete('customers/{customer}', [CustomerController::class, 'destroy']);
+
+    // Leads CRUD
+    Route::get('leads/sources', [LeadController::class, 'sources']);
+    Route::get('leads', [LeadController::class, 'index']);
+    Route::get('leads/{lead}', [LeadController::class, 'show']);
+    Route::post('leads', [LeadController::class, 'store']);
+    Route::put('leads/{lead}', [LeadController::class, 'update']);
+    Route::delete('leads/{lead}', [LeadController::class, 'destroy']);
+
+    // Sellers CRUD
+    Route::get('sellers/roles', [SellerController::class, 'roles']);
+    Route::get('sellers', [SellerController::class, 'index']);
+    Route::get('sellers/{seller}', [SellerController::class, 'show']);
+    Route::post('sellers', [SellerController::class, 'store']);
+    Route::put('sellers/{seller}', [SellerController::class, 'update']);
+    Route::delete('sellers/{seller}', [SellerController::class, 'destroy']);
+
+    // Opportunities CRUD
+    Route::get('opportunities', [OpportunityController::class, 'index']);
+    Route::get('opportunities/{opportunity}', [OpportunityController::class, 'show']);
+    Route::post('opportunities', [OpportunityController::class, 'store']);
+    Route::put('opportunities/{opportunity}', [OpportunityController::class, 'update']);
+    Route::delete('opportunities/{opportunity}', [OpportunityController::class, 'destroy']);
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+    Route::get('/dashboard/sales-pipeline', [DashboardController::class, 'salesPipeline']);
+    Route::get('/vendedores', [DashboardController::class, 'vendedores']);
+    Route::post('/simulate-update', [DashboardController::class, 'simulateUpdate']);
+
+    // Reports
+    Route::get('/reports/sales', [ReportController::class, 'salesReport']);
+    Route::get('/reports/leads', [ReportController::class, 'leadsReport']);
+
+    // Autenticação - Endpoints Protegidos
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/logout-all', [AuthController::class, 'logoutAll']);
     Route::get('/auth/me', [AuthController::class, 'me']);

@@ -32,7 +32,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Se não está autenticado e não está na tela de login, redireciona
+    // Se usuário não está autenticado e não está na tela de login, redireciona
     if (!this.authService.isAuthenticated() && !this.router.url.includes('login')) {
       this.router.navigate(['/login']);
     }
