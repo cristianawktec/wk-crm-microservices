@@ -59,12 +59,10 @@ class DashboardTest extends TestCase
                         'won' => 1,
                         'pending' => 1,
                     ],
-                    'customers' => [
-                        'total' => 2,
-                        'active' => 2,
-                    ],
                 ],
-            ]);
+            ])
+            ->assertJsonPath('data.customers.total', 2)
+            ->assertJsonPath('data.customers.active', 2);
     }
 
     /**
