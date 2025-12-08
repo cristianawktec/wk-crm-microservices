@@ -75,6 +75,37 @@ echo '✅ Teste concluído!'
 } else {
     Write-Step "Executando deploy completo na VPS..."
     
+    # Build Angular production locally and upload to VPS
+    Write-Step "📦 Building Angular production (local)..."
+    Push-Location "wk-admin-frontend"
+    try {
+        npm run build:prod
+    } catch {
+        Write-Error "Falha ao executar 'npm run build:prod'. Verifique dependências e tente novamente."
+        Pop-Location
+        exit 1
+    }
+    Pop-Location
+
+    Write-Step "📤 Limpando /var/www/html/admin no VPS e enviando build..."
+    # Remove arquivos antigos no VPS
+    ssh $VPS_USER@$VPS_IP "rm -rf /var/www/html/admin/* || true"
+
+    # Envia build (usa dist/admin-frontend)
+    Push-Location "wk-admin-frontend"
+    try {
+        $dest = $VPS_USER + '@' + $VPS_IP + ':/var/www/html/admin/'
+        & scp -r .\dist\admin-frontend\* $dest
+    } catch {
+        Write-Error "Falha ao enviar arquivos via scp: $_"
+        Pop-Location
+        exit 1
+    }
+    Pop-Location
+
+    # Ajustar permissões no VPS
+    ssh $VPS_USER@$VPS_IP "chown -R www-data:www-data /var/www/html/admin && chmod -R 755 /var/www/html/admin"
+
     $DeployCommands = @"
 echo '🚀 Iniciando deploy do WK CRM...'
 
@@ -98,31 +129,34 @@ git log --oneline -3
 echo '⚙️ Atualizando Laravel...'
 cd /opt/wk-crm/wk-crm-laravel
 
-# Limpar caches
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-php artisan cache:clear
+# Garantir que os containers estão rodando e executar comandos dentro do container
+cd /opt/wk-crm
+echo '🔁 Garantindo que containers Docker estejam ativos...'
+docker compose up -d
 
-# Instalar dependências
-composer install --optimize-autoloader --no-dev
+echo '🔧 Executando comandos Laravel dentro do container wk-crm-laravel'
+docker compose exec -T wk-crm-laravel php artisan config:clear || true
+docker compose exec -T wk-crm-laravel php artisan route:clear || true
+docker compose exec -T wk-crm-laravel php artisan view:clear || true
+docker compose exec -T wk-crm-laravel php artisan cache:clear || true
 
-# Migrações
-php artisan migrate --force
+echo '📦 Instalando dependências via composer dentro do container'
+docker compose exec -T wk-crm-laravel composer install --optimize-autoloader --no-dev || true
 
-# Recriar caches
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+echo '🗃️ Aplicando migrations dentro do container'
+docker compose exec -T wk-crm-laravel php artisan migrate --force || true
+
+echo '⚡ Recriando caches dentro do container'
+docker compose exec -T wk-crm-laravel php artisan config:cache || true
+docker compose exec -T wk-crm-laravel php artisan route:cache || true
+docker compose exec -T wk-crm-laravel php artisan view:cache || true
 
 # Permissões
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
 echo '🎨 Atualizando AdminLTE...'
-cp -r /opt/wk-crm/wk-admin-simple/* /var/www/html/admin/
-chown -R www-data:www-data /var/www/html/admin
-chmod -R 755 /var/www/html/admin
+echo '🎨 Admin build enviado (via scp). Permissões atualizadas.'
 
 echo '🔄 Reiniciando serviços...'
 systemctl restart php8.2-fpm

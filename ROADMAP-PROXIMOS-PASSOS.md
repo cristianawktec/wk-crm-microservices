@@ -213,3 +213,82 @@ git checkout -b feature/api-routing-fix
 - 📊 **Analisar outro aspecto**
 
 **Qual sua preferência?** 🎯
+
+**Correções e Testes — 05/12/2025**
+
+- **Resumo das correções aplicadas:**
+  - Removido `add_header Access-Control-*` do host Nginx para evitar duplicação de CORS (agora o Laravel gerencia CORS via middleware).
+  - Corrigida ordem de rotas em `routes/api.php` (ex.: `Route::get('leads/sources', ...)` movida antes de `Route::apiResource('leads', ...)`) para evitar captura do literal `sources` como `{lead}`.
+  - Aplicada migration corretiva para garantir que `opportunities.value` exista quando necessário (migration idempotente criada).
+  - Inserção temporária de seeds de teste (apenas para validação UI) — backup do DB criado antes de qualquer alteração.
+
+- **Arquivos adicionados/alterados para verificação e testes:**
+  - `wk-crm-laravel/tests/Feature/LeadsRoutesTest.php` — PHPUnit / Laravel Feature test que valida:
+    - `GET /api/leads/sources` retorna 200
+    - tabela `opportunities` contém a coluna `value`
+  - `scripts/verify-fix.sh` — script rápido para checar endpoints (curl) e executar `artisan test` / `phpunit` quando disponível.
+
+- **Como rodar as verificações (exemplos):**
+
+  - Via SSH na VPS (bash):
+
+    ```bash
+    # entre no repositório
+    cd /opt/wk-crm
+
+    # executar script de verificação (faz curl nos endpoints e tenta rodar tests)
+    bash scripts/verify-fix.sh
+    ```
+
+  - Executando apenas os testes Laravel (dentro do container ou host):
+
+    ```bash
+    # dentro do container app (exemplo: serviço "app")
+    docker compose exec -T app php artisan test --filter=LeadsRoutesTest
+
+    # ou localmente no diretório do app
+    cd wk-crm-laravel
+    php artisan test --filter=LeadsRoutesTest
+    # ou
+    ./vendor/bin/phpunit tests/Feature/LeadsRoutesTest.php
+    ```
+
+  - Comandos em PowerShell (se preferir executar localmente em devbox Windows):
+
+    ```powershell
+    cd C:\xampp\htdocs\crm
+    bash .\scripts\verify-fix.sh
+    # ou entrar no diretório do app e executar artisan/phpunit
+    cd .\wk-crm-laravel
+    php artisan test --filter=LeadsRoutesTest
+    ```
+
+- **Como reverter ou limpar seeds temporários (opções):**
+  - Preferível: restaurar o dump de backup gerado antes das alterações.
+    - Exemplo de restauração (FAÇA APENAS SE TIVER BACKUP E PERMISSÃO):
+
+      ```bash
+      # Exemplo - RESTAURAR (atenção: isso substitui os dados atuais)
+      pg_restore --clean --no-owner --dbname=wk_main /opt/wk-crm/backups/wk_main_backup_YYYYmmdd_HHMMSS.dump
+      ```
+
+  - Se preferir apenas remover linhas de teste, ajuste a cláusula WHERE conforme os dados inseridos. Exemplo:
+
+    ```sql
+    -- conectar com psql e executar (modifique WHERE para corresponder aos registros de teste inseridos)
+    DELETE FROM opportunities WHERE title ILIKE 'TEST %' OR created_at >= '2025-12-05';
+    DELETE FROM leads WHERE email ILIKE 'dev-test@%';
+    DELETE FROM sellers WHERE email ILIKE 'dev-test@%';
+    ```
+
+- **Observações e recomendações:**
+  - Backups foram criados antes das migrações/seed.
+  - O script `scripts/verify-fix.sh` é uma verificação rápida e não substitui uma suíte de integração completa em CI.
+  - Recomendo adicionar um job de CI (GitHub Actions) que rode `php artisan test` após cada PR para evitar regressões de rota/middleware.
+  - Se quiser, eu removo os seeds temporários agora ou executo o tail dos logs enquanto você replica fluxos no frontend — diga qual prefere.
+
+**Arquivos adicionados nesta alteração:**
+- `wk-crm-laravel/tests/Feature/LeadsRoutesTest.php`
+- `scripts/verify-fix.sh`
+
+---
