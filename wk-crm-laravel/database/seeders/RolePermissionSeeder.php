@@ -62,22 +62,22 @@ class RolePermissionSeeder extends Seeder
         foreach ($permissions as $permission) {
             Permission::updateOrCreate(
                 ['name' => $permission, 'guard_name' => 'web'],
-                ['id' => Str::uuid()]
+                ['id' => (string) Str::uuid()]
             );
         }
 
         // Create Roles
         $adminRole = Role::updateOrCreate(
             ['name' => 'admin', 'guard_name' => 'web'],
-            ['id' => Str::uuid()]
+            ['id' => (string) Str::uuid()]
         );
         $sellerRole = Role::updateOrCreate(
             ['name' => 'seller', 'guard_name' => 'web'],
-            ['id' => Str::uuid()]
+            ['id' => (string) Str::uuid()]
         );
         $customerRole = Role::updateOrCreate(
             ['name' => 'customer', 'guard_name' => 'web'],
-            ['id' => Str::uuid()]
+            ['id' => (string) Str::uuid()]
         );
 
         // Assign all permissions to Admin
