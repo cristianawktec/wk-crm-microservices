@@ -1,15 +1,43 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { AuthService } from './app/services/auth.service';
 
 @Component({
   selector: 'app-root',
   template: `
-    <app-header></app-header>
-    <div class="wrapper">
-      <app-sidebar></app-sidebar>
-      <div class="content-wrapper">
-        <router-outlet></router-outlet>
+    <ng-container *ngIf="!isLoginPage">
+      <app-header></app-header>
+      <div class="wrapper">
+        <app-sidebar></app-sidebar>
+        <div class="content-wrapper">
+          <router-outlet></router-outlet>
+        </div>
       </div>
-    </div>
+    </ng-container>
+    <ng-container *ngIf="isLoginPage">
+      <router-outlet></router-outlet>
+    </ng-container>
   `
 })
-export class AppComponent {}
+export class AppComponent implements OnInit {
+  isLoginPage = true; // Start with login page hidden until auth is checked
+
+  constructor(private router: Router, private authService: AuthService) {
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.isLoginPage = event.url.includes('login');
+      });
+  }
+
+  ngOnInit(): void {
+    // If user is authenticated and not on login page, hide login page
+    if (this.authService.isAuthenticated() && !this.router.url.includes('login')) {
+      this.isLoginPage = false;
+    } else if (!this.authService.isAuthenticated()) {
+      // If not authenticated, redirect to login
+      this.router.navigate(['/login']);
+    }
+  }
+}
