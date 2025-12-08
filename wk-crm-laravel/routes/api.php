@@ -2,10 +2,12 @@
 
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\LeadController;
-use App\Http\Controllers\OpportunityController;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CustomerController;
+use App\Http\Controllers\Api\LeadController;
+use App\Http\Controllers\Api\OpportunityController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\SellerController;
 
 Route::get('/health', function () {
     return response()->json([
@@ -42,55 +44,59 @@ Route::get('/info', function () {
     ]);
 });
 
-// Autenticação
-Route::post('/login', [AuthController::class, 'login']);
+// Autenticação - Endpoints Públicos
+Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/login', [AuthController::class, 'login']);
 
+// Autenticação - Endpoints Protegidos
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::post('/auth/logout-all', [AuthController::class, 'logoutAll']);
+    Route::get('/auth/me', [AuthController::class, 'me']);
+    Route::post('/auth/refresh', [AuthController::class, 'refresh']);
 
+    // Dashboard - Readable by all authenticated users
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:view_dashboard');
+    Route::get('/vendedores', [DashboardController::class, 'vendedores']);
+    Route::post('/simulate-update', [DashboardController::class, 'simulateUpdate'])->middleware('permission:view_dashboard');
 
-    // Rotas RESTful para Customers, Leads e Opportunities
-    Route::apiResource('customers', CustomerController::class);
+    // Customers CRUD with permission checks
+    Route::middleware('permission:read_customers')->group(function () {
+        Route::get('customers', [CustomerController::class, 'index']);
+        Route::get('customers/{customer}', [CustomerController::class, 'show']);
+    });
+    Route::post('customers', [CustomerController::class, 'store'])->middleware('permission:create_customers');
+    Route::put('customers/{customer}', [CustomerController::class, 'update'])->middleware('permission:update_customers');
+    Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->middleware('permission:delete_customers');
 
-    // metadata endpoints used by frontend comboboxes
-    // Define these specific routes before the resource declaration so
-    // fixed path segments (e.g. /api/leads/sources) are not captured by
-    // the resource parameter (`/api/leads/{lead}`) which would attempt
-    // to treat 'sources' as a UUID and cause a 500 error.
-    Route::get('leads/sources', [\App\Http\Controllers\Api\LeadController::class, 'sources']);
-    Route::get('sellers/roles', [\App\Http\Controllers\Api\SellerController::class, 'roles']);
+    // Leads metadata endpoint (no auth required within protected group)
+    Route::get('leads/sources', [LeadController::class, 'sources']);
 
-    Route::apiResource('leads', \App\Http\Controllers\Api\LeadController::class);
-    Route::apiResource('sellers', \App\Http\Controllers\Api\SellerController::class);
-    Route::apiResource('opportunities', \App\Http\Controllers\Api\OpportunityController::class);
+    // Leads CRUD with permission checks
+    Route::middleware('permission:read_leads')->group(function () {
+        Route::get('leads', [LeadController::class, 'index']);
+        Route::get('leads/{lead}', [LeadController::class, 'show']);
+    });
+    Route::post('leads', [LeadController::class, 'store'])->middleware('permission:create_leads');
+    Route::put('leads/{lead}', [LeadController::class, 'update'])->middleware('permission:update_leads');
+    Route::delete('leads/{lead}', [LeadController::class, 'destroy'])->middleware('permission:delete_leads');
 
-// Endpoint de leads (static placeholder removed - resource controller used)
-// Route::get('/leads', function () {
-//     // placeholder response removed to allow Api\LeadController@index to handle this route
-// });
+    // Sellers metadata and CRUD
+    Route::get('sellers/roles', [SellerController::class, 'roles']);
+    Route::middleware('permission:read_sellers')->group(function () {
+        Route::get('sellers', [SellerController::class, 'index']);
+        Route::get('sellers/{seller}', [SellerController::class, 'show']);
+    });
+    Route::post('sellers', [SellerController::class, 'store'])->middleware('permission:manage_sellers');
+    Route::put('sellers/{seller}', [SellerController::class, 'update'])->middleware('permission:manage_sellers');
+    Route::delete('sellers/{seller}', [SellerController::class, 'destroy'])->middleware('permission:manage_sellers');
 
-// Endpoint de oportunidades (static placeholder removed - resource controller used)
-// Route::get('/oportunidades', function () {
-//     // placeholder removed
-// });
-
-// Endpoint para estatísticas do dashboard - agora com dados reais
-    Route::get('/dashboard', [App\Http\Controllers\Api\DashboardController::class, 'index']);
-
-    // Endpoint para carregar vendedores nos filtros
-    Route::get('/vendedores', [App\Http\Controllers\Api\DashboardController::class, 'vendedores']);
-
-    // Endpoint para simular atualizações WebSocket (desenvolvimento)
-    Route::post('/simulate-update', [App\Http\Controllers\Api\DashboardController::class, 'simulateUpdate']);
-
+    // Opportunities CRUD with permission checks
+    Route::middleware('permission:read_opportunities')->group(function () {
+        Route::get('opportunities', [OpportunityController::class, 'index']);
+        Route::get('opportunities/{opportunity}', [OpportunityController::class, 'show']);
+    });
+    Route::post('opportunities', [OpportunityController::class, 'store'])->middleware('permission:create_opportunities');
+    Route::put('opportunities/{opportunity}', [OpportunityController::class, 'update'])->middleware('permission:update_opportunities');
+    Route::delete('opportunities/{opportunity}', [OpportunityController::class, 'destroy'])->middleware('permission:delete_opportunities');
 });
-
-// Endpoint SSE para updates em tempo real
-// Temporarily disabled during local development because long-lived SSE
-// connections block the single-threaded `php artisan serve` server and
-// can cause timeouts for normal API requests. Re-enable when using a
-// multi-worker server or moving SSE to a separate process.
-// Route::get('/dashboard/stream', [App\Http\Controllers\Api\DashboardController::class, 'streamUpdates']);
-
-// (Removed legacy redirects that caused /api/customers to redirect to /api/clientes)
