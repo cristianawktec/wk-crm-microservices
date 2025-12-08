@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -46,6 +47,7 @@ class RolePermissionSeeder extends Seeder
             // Sellers (Admin only)
             'manage_sellers',
             'view_sellers_performance',
+            'read_sellers',
 
             // Users & Access Control
             'manage_users',
@@ -58,13 +60,25 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::updateOrCreate(['name' => $permission]);
+            Permission::updateOrCreate(
+                ['name' => $permission, 'guard_name' => 'web'],
+                ['id' => Str::uuid()]
+            );
         }
 
         // Create Roles
-        $adminRole = Role::updateOrCreate(['name' => 'admin']);
-        $sellerRole = Role::updateOrCreate(['name' => 'seller']);
-        $customerRole = Role::updateOrCreate(['name' => 'customer']);
+        $adminRole = Role::updateOrCreate(
+            ['name' => 'admin', 'guard_name' => 'web'],
+            ['id' => Str::uuid()]
+        );
+        $sellerRole = Role::updateOrCreate(
+            ['name' => 'seller', 'guard_name' => 'web'],
+            ['id' => Str::uuid()]
+        );
+        $customerRole = Role::updateOrCreate(
+            ['name' => 'customer', 'guard_name' => 'web'],
+            ['id' => Str::uuid()]
+        );
 
         // Assign all permissions to Admin
         $adminRole->syncPermissions(Permission::all());
@@ -79,6 +93,7 @@ class RolePermissionSeeder extends Seeder
             'read_opportunities',
             'update_opportunities',
             'read_customers',
+            'read_sellers',
             'export_leads',
             'export_opportunities',
         ];
