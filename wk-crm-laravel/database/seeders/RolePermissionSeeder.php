@@ -9,9 +9,6 @@ use Spatie\Permission\Models\Permission;
 
 class RolePermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         // Reset cached roles and permissions
@@ -59,26 +56,34 @@ class RolePermissionSeeder extends Seeder
             'manage_system_settings',
         ];
 
+        // Clear any existing permissions and roles
+        Permission::query()->delete();
+        Role::query()->delete();
+
         foreach ($permissions as $permission) {
-            Permission::updateOrCreate(
-                ['name' => $permission, 'guard_name' => 'web'],
-                ['id' => (string) Str::uuid()]
-            );
+            Permission::create([
+                'id' => (string) Str::uuid(),
+                'name' => $permission,
+                'guard_name' => 'web',
+            ]);
         }
 
         // Create Roles
-        $adminRole = Role::updateOrCreate(
-            ['name' => 'admin', 'guard_name' => 'web'],
-            ['id' => (string) Str::uuid()]
-        );
-        $sellerRole = Role::updateOrCreate(
-            ['name' => 'seller', 'guard_name' => 'web'],
-            ['id' => (string) Str::uuid()]
-        );
-        $customerRole = Role::updateOrCreate(
-            ['name' => 'customer', 'guard_name' => 'web'],
-            ['id' => (string) Str::uuid()]
-        );
+        $adminRole = Role::create([
+            'id' => (string) Str::uuid(),
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
+        $sellerRole = Role::create([
+            'id' => (string) Str::uuid(),
+            'name' => 'seller',
+            'guard_name' => 'web',
+        ]);
+        $customerRole = Role::create([
+            'id' => (string) Str::uuid(),
+            'name' => 'customer',
+            'guard_name' => 'web',
+        ]);
 
         // Assign all permissions to Admin
         $adminRole->syncPermissions(Permission::all());
