@@ -12,33 +12,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup PHP for Build
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: mbstring, dom, pdo, pdo_pgsql, curl, openssl, zip
-          coverage: none
-
-      - name: Install Composer Dependencies
-        working-directory: wk-crm-laravel
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-      - name: Create Deployment Package
-        run: |
-          cd wk-crm-laravel
-          tar --exclude='node_modules' --exclude='.git' --exclude='tests' --exclude='.env*' -czf ../wk-crm-laravel.tar.gz .
-          mv ../wk-crm-laravel.tar.gz .
-
-      - name: Copy Package to VPS
+      - name: Copy code to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          sudo apt-get update && sudo apt-get install -y sshpass
-          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no wk-crm-laravel/wk-crm-laravel.tar.gz $VPS_USER@$VPS_HOST:/tmp/
+          sudo apt-get update && sudo apt-get install -y sshpass rsync
+          sshpass -p "$VPS_PASSWORD" rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='tests' \
+            --exclude='.env' \
+            --exclude='storage/logs/*' \
+            --exclude='bootstrap/cache/*' \
+            wk-crm-laravel/ $VPS_USER@$VPS_HOST:/opt/wk-crm/wk-crm-laravel/
 
-      - name: Deploy on VPS
+      - name: Run migrations on VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -46,47 +37,13 @@ jobs:
         run: |
           sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'ENDSSH'
             set -e
-            
-            # Extract application
             cd /opt/wk-crm
-            mkdir -p wk-crm-laravel-new
-            cd wk-crm-laravel-new
-            tar -xzf /tmp/wk-crm-laravel.tar.gz
-            
-            # Copy env and storage from current
-            if [ -d ../wk-crm-laravel ]; then
-              cp ../wk-crm-laravel/.env . 2>/dev/null || true
-              cp -r ../wk-crm-laravel/storage/* storage/ 2>/dev/null || true
-            fi
-            
-            # Replace old version
-            cd /opt/wk-crm
-            rm -rf wk-crm-laravel-old
-            mv wk-crm-laravel wk-crm-laravel-old 2>/dev/null || true
-            mv wk-crm-laravel-new wk-crm-laravel
-            
-            # Run migrations
+            docker-compose exec -T wk-crm-laravel composer install --no-dev --optimize-autoloader
             docker-compose exec -T wk-crm-laravel php artisan migrate --force
             docker-compose exec -T wk-crm-laravel php artisan config:cache
             docker-compose exec -T wk-crm-laravel php artisan route:cache
-            
-            # Health check
-            sleep 5
-            if ! curl -f http://localhost:8000/api/health > /dev/null 2>&1; then
-              echo "Health check failed, rolling back..."
-              rm -rf wk-crm-laravel
-              mv wk-crm-laravel-old wk-crm-laravel
-              exit 1
-            fi
-            
-            rm -rf wk-crm-laravel-old
             echo "Deploy successful!"
           ENDSSH
-
-      - name: Notify deployment status
-        if: always()
-        run: |
-          if [ "${{ job.status }}" = "success" ]; then
             echo "✅ Deploy completed successfully"
           else
             echo "❌ Deploy failed - check logs and rollback if needed"
