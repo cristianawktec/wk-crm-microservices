@@ -446,7 +446,7 @@ class DashboardController extends Controller
 
             // Build customer stats
             $customerQuery = $this->getCustomerQuery();
-            $this->applyUserFilter($customerQuery, $user, 'seller_id');
+            // Customers don't have seller_id, so we don't filter by user
 
             $customers = [
                 'total' => $customerQuery->count(),

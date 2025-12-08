@@ -269,9 +269,8 @@ class DashboardTest extends TestCase
             'value' => 50000,
         ]);
 
-        // Create customers
+        // Create customers (without seller_id - customers may not have this relationship)
         Customer::factory()->count(2)->create([
-            'seller_id' => $seller->id,
             'status' => 'active',
         ]);
     }

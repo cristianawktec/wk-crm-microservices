@@ -56,11 +56,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
 
     // Dashboard - Readable by all authenticated users
-    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:view_dashboard');
-    Route::get('/dashboard/stats', [DashboardController::class, 'stats'])->middleware('permission:view_dashboard');
-    Route::get('/dashboard/sales-pipeline', [DashboardController::class, 'salesPipeline'])->middleware('permission:view_dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+    Route::get('/dashboard/sales-pipeline', [DashboardController::class, 'salesPipeline']);
     Route::get('/vendedores', [DashboardController::class, 'vendedores']);
-    Route::post('/simulate-update', [DashboardController::class, 'simulateUpdate'])->middleware('permission:view_dashboard');
+    Route::post('/simulate-update', [DashboardController::class, 'simulateUpdate']);
 
     // Customers CRUD with permission checks
     Route::middleware('permission:read_customers')->group(function () {
