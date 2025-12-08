@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\LeadController;
 use App\Http\Controllers\Api\OpportunityController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SellerController;
 
 Route::get('/health', function () {
@@ -61,6 +62,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/sales-pipeline', [DashboardController::class, 'salesPipeline']);
     Route::get('/vendedores', [DashboardController::class, 'vendedores']);
     Route::post('/simulate-update', [DashboardController::class, 'simulateUpdate']);
+
+    // Reports - Sales & Leads with export support
+    Route::get('/reports/sales', [ReportController::class, 'salesReport']);
+    Route::get('/reports/leads', [ReportController::class, 'leadsReport']);
 
     // Customers CRUD with permission checks
     Route::middleware('permission:read_customers')->group(function () {
