@@ -21,7 +21,7 @@ import { AuthService } from './app/services/auth.service';
   `
 })
 export class AppComponent implements OnInit {
-  isLoginPage = true; // Start with login page hidden until auth is checked
+  isLoginPage = false;
 
   constructor(private router: Router, private authService: AuthService) {
     this.router.events
@@ -32,11 +32,8 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // If user is authenticated and not on login page, hide login page
-    if (this.authService.isAuthenticated() && !this.router.url.includes('login')) {
-      this.isLoginPage = false;
-    } else if (!this.authService.isAuthenticated()) {
-      // If not authenticated, redirect to login
+    // Se não está autenticado e não está na tela de login, redireciona
+    if (!this.authService.isAuthenticated() && !this.router.url.includes('login')) {
       this.router.navigate(['/login']);
     }
   }
