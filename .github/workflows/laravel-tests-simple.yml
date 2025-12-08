@@ -28,7 +28,10 @@ jobs:
 
       - name: Install Dependencies
         working-directory: wk-crm-laravel
-        run: composer install --no-interaction --prefer-dist
+        run: |
+          mkdir -p bootstrap/cache
+          chmod -R 777 bootstrap/cache
+          composer install --no-interaction --prefer-dist
 
       - name: Run Tests
         working-directory: wk-crm-laravel

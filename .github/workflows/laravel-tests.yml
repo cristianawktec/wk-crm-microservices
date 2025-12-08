@@ -53,6 +53,8 @@ jobs:
       - name: Install Composer dependencies
         working-directory: wk-crm-laravel
         run: |
+          mkdir -p bootstrap/cache
+          chmod -R 777 bootstrap/cache
           composer config --no-plugins --no-scripts allow-plugins true
           composer install --no-interaction --no-progress --prefer-dist
 
