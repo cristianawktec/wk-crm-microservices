@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\Opportunity;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
