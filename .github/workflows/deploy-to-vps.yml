@@ -12,26 +12,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Setup PHP for Build
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, pdo, pdo_pgsql, curl, openssl, zip
+          coverage: none
 
-      - name: Build Laravel Docker image
+      - name: Install Composer Dependencies
+        working-directory: wk-crm-laravel
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Create Deployment Package
         run: |
           cd wk-crm-laravel
-          docker build -t wk-crm-laravel:${{ github.sha }} -t wk-crm-laravel:latest .
+          tar --exclude='node_modules' --exclude='.git' --exclude='tests' --exclude='.env*' -czf ../wk-crm-laravel.tar.gz .
+          mv ../wk-crm-laravel.tar.gz .
 
-      - name: Save Docker image
-        run: |
-          docker save wk-crm-laravel:${{ github.sha }} | gzip > wk-crm-laravel.tar.gz
-
-      - name: Copy image to VPS
+      - name: Copy Package to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
           sudo apt-get update && sudo apt-get install -y sshpass
-          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no wk-crm-laravel.tar.gz $VPS_USER@$VPS_HOST:/tmp/
+          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no wk-crm-laravel/wk-crm-laravel.tar.gz $VPS_USER@$VPS_HOST:/tmp/
 
       - name: Deploy on VPS
         env:
@@ -42,20 +47,25 @@ jobs:
           sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'ENDSSH'
             set -e
             
-            # Backup current state
+            # Extract application
             cd /opt/wk-crm
-            docker-compose ps > /tmp/docker-state-backup.txt
+            mkdir -p wk-crm-laravel-new
+            cd wk-crm-laravel-new
+            tar -xzf /tmp/wk-crm-laravel.tar.gz
             
-            # Load new image
-            docker load < /tmp/wk-crm-laravel.tar.gz
-            rm /tmp/wk-crm-laravel.tar.gz
+            # Copy env and storage from current
+            if [ -d ../wk-crm-laravel ]; then
+              cp ../wk-crm-laravel/.env . 2>/dev/null || true
+              cp -r ../wk-crm-laravel/storage/* storage/ 2>/dev/null || true
+            fi
             
-            # Update docker-compose with new image tag
+            # Replace old version
             cd /opt/wk-crm
-            sed -i 's/image: wk-crm-laravel:.*/image: wk-crm-laravel:${{ github.sha }}/' docker-compose.yml || true
+            rm -rf wk-crm-laravel-old
+            mv wk-crm-laravel wk-crm-laravel-old 2>/dev/null || true
+            mv wk-crm-laravel-new wk-crm-laravel
             
-            # Run migrations and restart
-            docker-compose up -d --no-deps wk-crm-laravel
+            # Run migrations
             docker-compose exec -T wk-crm-laravel php artisan migrate --force
             docker-compose exec -T wk-crm-laravel php artisan config:cache
             docker-compose exec -T wk-crm-laravel php artisan route:cache
@@ -64,23 +74,13 @@ jobs:
             sleep 5
             if ! curl -f http://localhost:8000/api/health > /dev/null 2>&1; then
               echo "Health check failed, rolling back..."
-              docker-compose down wk-crm-laravel
-              docker-compose up -d wk-crm-laravel
+              rm -rf wk-crm-laravel
+              mv wk-crm-laravel-old wk-crm-laravel
               exit 1
             fi
             
+            rm -rf wk-crm-laravel-old
             echo "Deploy successful!"
-          ENDSSH
-
-      - name: Cleanup old images on VPS
-        if: success()
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
-        run: |
-          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'ENDSSH'
-            docker image prune -f --filter "label!=keep"
           ENDSSH
 
       - name: Notify deployment status
