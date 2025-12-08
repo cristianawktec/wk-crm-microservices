@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\Opportunity;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -56,7 +57,7 @@ class ReportController extends Controller
      *   ]
      * }
      */
-    public function salesReport(Request $request): JsonResponse
+    public function salesReport(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         try {
             $user = $request->user();
@@ -163,7 +164,7 @@ class ReportController extends Controller
      *   ]
      * }
      */
-    public function leadsReport(Request $request): JsonResponse
+    public function leadsReport(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         try {
             $user = $request->user();
@@ -362,10 +363,19 @@ class ReportController extends Controller
     {
         $convertedLeads = (clone $query)
             ->where('status', 'converted')
-            ->select(DB::raw('AVG(EXTRACT(DAY FROM updated_at - created_at)) as avg_days'))
-            ->first();
+            ->get(['created_at', 'updated_at']);
 
-        return $convertedLeads ? round($convertedLeads->avg_days ?? 0, 2) : 0;
+        if ($convertedLeads->isEmpty()) {
+            return 0;
+        }
+
+        $totalDays = 0;
+        foreach ($convertedLeads as $lead) {
+            $days = $lead->updated_at->diffInDays($lead->created_at);
+            $totalDays += $days;
+        }
+
+        return round($totalDays / $convertedLeads->count(), 2);
     }
 
     /**
