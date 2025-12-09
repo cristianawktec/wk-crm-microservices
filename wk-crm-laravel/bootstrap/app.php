@@ -16,11 +16,6 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
         ]);
 
-        // Enable CORS for API routes
-        $middleware->api(append: [
-            \Illuminate\Http\Middleware\HandleCors::class,
-        ]);
-
         // Register custom middlewares
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckPermission::class,
