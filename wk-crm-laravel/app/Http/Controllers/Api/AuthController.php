@@ -114,6 +114,14 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
+        \Log::debug('Login request', [
+            'method' => $request->method(),
+            'content-type' => $request->header('Content-Type'),
+            'all' => $request->all(),
+            'input' => $request->input(),
+            'json' => $request->json()->all(),
+        ]);
+
         $validated = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
