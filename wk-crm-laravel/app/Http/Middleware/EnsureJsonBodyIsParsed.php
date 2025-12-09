@@ -22,23 +22,15 @@ class EnsureJsonBodyIsParsed
                 // getContent() is from Symfony\HttpFoundation\Request
                 $rawContent = $request->getContent();
                 
-                \Log::debug('EnsureJsonBodyIsParsed middleware', [
-                    'isJson' => $request->isJson(),
-                    'isEmpty' => empty($request->all()),
-                    'rawContent' => $rawContent,
-                    'rawContentLength' => strlen($rawContent),
-                ]);
-                
                 if (!empty($rawContent)) {
                     $data = json_decode($rawContent, true, 512, JSON_THROW_ON_ERROR);
                     if (is_array($data)) {
                         // Use replace to fully replace request data
                         $request->replace($data);
-                        \Log::debug('Replaced request data', ['data' => $data]);
                     }
                 }
             } catch (\JsonException $e) {
-                \Log::error('JSON parse error', ['error' => $e->getMessage()]);
+                // Continue with empty request - validation will handle it
             }
         }
 
