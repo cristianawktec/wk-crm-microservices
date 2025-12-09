@@ -10,6 +10,8 @@ export class SellersComponent implements OnInit {
   loading = true;
   sellers: any[] = [];
   error: string | null = null;
+  searchTerm: string = '';
+  searchTimeout: any;
 
   constructor(private api: ApiService, private router: Router) {}
 
@@ -20,7 +22,7 @@ export class SellersComponent implements OnInit {
   loadSellers() {
     this.loading = true;
     this.error = null;
-    this.api.getSellers().subscribe({
+    this.api.getSellers(this.searchTerm).subscribe({
       next: (res: any) => {
         if (Array.isArray(res)) {
           this.sellers = res;
@@ -35,6 +37,20 @@ export class SellersComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  onSearchChange() {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    this.searchTimeout = setTimeout(() => {
+      this.loadSellers();
+    }, 500);
+  }
+
+  clearSearch() {
+    this.searchTerm = '';
+    this.loadSellers();
   }
 
   goNew() {

@@ -12,6 +12,8 @@ export class CustomersComponent implements OnInit {
   customers: any[] = [];
   error: string | null = null;
   successMessage: string | null = null;
+  searchTerm: string = '';
+  searchTimeout: any;
 
   constructor(private api: ApiService, public router: Router) {}
 
@@ -38,7 +40,7 @@ export class CustomersComponent implements OnInit {
   loadCustomers() {
     this.loading = true;
     this.error = null;
-    this.api.getCustomers().subscribe({
+    this.api.getCustomers(this.searchTerm).subscribe({
       next: (res: any) => {
         // backend returns either an array (Customer::all()) or an object with data[], handle both
         if (Array.isArray(res)) {
@@ -54,6 +56,23 @@ export class CustomersComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  onSearchChange() {
+    // Clear previous timeout
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    
+    // Wait 500ms after user stops typing before searching
+    this.searchTimeout = setTimeout(() => {
+      this.loadCustomers();
+    }, 500);
+  }
+
+  clearSearch() {
+    this.searchTerm = '';
+    this.loadCustomers();
   }
 
   editCustomer(id: any) {

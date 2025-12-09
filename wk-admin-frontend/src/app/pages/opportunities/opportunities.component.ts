@@ -10,6 +10,17 @@ export class OpportunitiesComponent implements OnInit {
   loading = true;
   opportunities: any[] = [];
   error: string | null = null;
+  searchTerm: string = '';
+  statusFilter: string = '';
+  searchTimeout: any;
+
+  statusMap: { [key: string]: string } = {
+    'open': 'Aberto',
+    'won': 'Ganho',
+    'lost': 'Perdido',
+    'pending': 'Pendente',
+    'closed': 'Fechado'
+  };
 
   constructor(private api: ApiService, private router: Router) {}
 
@@ -20,7 +31,14 @@ export class OpportunitiesComponent implements OnInit {
   load() {
     this.loading = true;
     this.error = null;
-    this.api.getOpportunities().subscribe({
+    const params: any = {};
+    if (this.searchTerm) {
+      params.search = this.searchTerm;
+    }
+    if (this.statusFilter) {
+      params.status = this.statusFilter;
+    }
+    this.api.getOpportunities(params).subscribe({
       next: (res: any) => {
         // handle both paginated and array responses
         if (Array.isArray(res)) this.opportunities = res;
@@ -34,6 +52,24 @@ export class OpportunitiesComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  onSearchChange() {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    this.searchTimeout = setTimeout(() => {
+      this.load();
+    }, 500);
+  }
+
+  clearSearch() {
+    this.searchTerm = '';
+    this.load();
+  }
+
+  onStatusChange() {
+    this.load();
   }
 
   goNew() {

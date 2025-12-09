@@ -11,6 +11,8 @@ export class LeadsComponent implements OnInit {
   leads: any[] = [];
   error: string | null = null;
   sellers: any[] = [];
+  searchTerm: string = '';
+  searchTimeout: any;
 
   constructor(private api: ApiService, private router: Router) {}
 
@@ -22,7 +24,7 @@ export class LeadsComponent implements OnInit {
   loadLeads() {
     this.loading = true;
     this.error = null;
-    this.api.getLeads().subscribe({
+    this.api.getLeads(this.searchTerm).subscribe({
       next: (res: any) => {
         if (Array.isArray(res)) {
           this.leads = res;
@@ -37,6 +39,20 @@ export class LeadsComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  onSearchChange() {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    this.searchTimeout = setTimeout(() => {
+      this.loadLeads();
+    }, 500);
+  }
+
+  clearSearch() {
+    this.searchTerm = '';
+    this.loadLeads();
   }
 
   loadSellers() {

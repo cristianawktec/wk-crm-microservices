@@ -18,7 +18,13 @@ export class CustomerFormComponent implements OnInit {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(120)]],
       email: ['', [Validators.email, Validators.maxLength(180)]],
-      phone: ['', [Validators.maxLength(40)]]
+      phone: ['', [Validators.maxLength(40)]],
+      company: ['', [Validators.maxLength(120)]],
+      address: ['', [Validators.maxLength(255)]],
+      city: ['', [Validators.maxLength(100)]],
+      state: ['', [Validators.maxLength(2)]],
+      zipcode: ['', [Validators.maxLength(10)]],
+      notes: ['', [Validators.maxLength(500)]]
     });
   }
 
@@ -32,7 +38,17 @@ export class CustomerFormComponent implements OnInit {
       console.log('[CustomerForm] loading customer', this.currentId);
       this.api.getCustomer(this.currentId).subscribe({ next: (res: any) => {
         const data = res?.data || res || {};
-        this.form.patchValue({ name: data.name || '', email: data.email || '', phone: data.phone || '' });
+        this.form.patchValue({
+          name: data.name || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          company: data.company || '',
+          address: data.address || '',
+          city: data.city || '',
+          state: data.state || '',
+          zipcode: data.zipcode || '',
+          notes: data.notes || ''
+        });
         this.loading = false;
       }, error: () => { this.loading = false; alert('Erro ao carregar cliente'); } });
     }
@@ -55,4 +71,10 @@ export class CustomerFormComponent implements OnInit {
   get name() { return this.form.get('name'); }
   get email() { return this.form.get('email'); }
   get phone() { return this.form.get('phone'); }
+  get company() { return this.form.get('company'); }
+  get address() { return this.form.get('address'); }
+  get city() { return this.form.get('city'); }
+  get state() { return this.form.get('state'); }
+  get zipcode() { return this.form.get('zipcode'); }
+  get notes() { return this.form.get('notes'); }
 }

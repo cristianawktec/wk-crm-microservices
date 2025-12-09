@@ -22,8 +22,21 @@ export class ApiService {
     }));
   }
 
-  getCustomers(): Observable<any> {
-    return this.http.get(`${this.base}/customers`).pipe(catchError(err => {
+  getDashboardStats(params: any = {}): Observable<any> {
+    const qp = new URLSearchParams();
+    Object.keys(params || {}).forEach(k => {
+      if (params[k] !== undefined && params[k] !== null && params[k] !== '') qp.set(k, params[k]);
+    });
+    const url = `${this.base}/dashboard/stats` + (qp.toString() ? `?${qp.toString()}` : '');
+    return this.http.get(url).pipe(catchError(err => {
+      console.warn('Dashboard stats API failed', err);
+      return throwError(() => err);
+    }));
+  }
+
+  getCustomers(search?: string): Observable<any> {
+    const params = search ? `?search=${encodeURIComponent(search)}` : '';
+    return this.http.get(`${this.base}/customers${params}`).pipe(catchError(err => {
       console.warn('Customers API failed', err);
       return throwError(() => err);
     }));
@@ -62,8 +75,9 @@ export class ApiService {
   }
 
   /* Leads */
-  getLeads(): Observable<any> {
-    return this.http.get(`${this.base}/leads`).pipe(catchError(err => {
+  getLeads(search?: string): Observable<any> {
+    const params = search ? `?search=${encodeURIComponent(search)}` : '';
+    return this.http.get(`${this.base}/leads${params}`).pipe(catchError(err => {
       console.warn('Leads API failed', err);
       return throwError(() => err);
     }));
@@ -110,8 +124,9 @@ export class ApiService {
   }
 
   /* Sellers */
-  getSellers(): Observable<any> {
-    return this.http.get(`${this.base}/sellers`).pipe(catchError(err => {
+  getSellers(search?: string): Observable<any> {
+    const params = search ? `?search=${encodeURIComponent(search)}` : '';
+    return this.http.get(`${this.base}/sellers${params}`).pipe(catchError(err => {
       console.warn('Sellers API failed', err);
       return throwError(() => err);
     }));

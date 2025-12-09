@@ -5,8 +5,35 @@
         <div class="card">
           <div class="card-header"><h3 class="card-title">Oportunidades</h3></div>
           <div class="card-body">
-            <div class="mb-3">
-              <button class="btn btn-primary" (click)="goNew()">Nova Oportunidade</button>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <div class="input-group">
+                  <input type="text" class="form-control" 
+                         placeholder="Buscar por título, cliente ou vendedor..."
+                         [(ngModel)]="searchTerm"
+                         (input)="onSearchChange()" />
+                  <button class="btn btn-outline-secondary" type="button"
+                          (click)="clearSearch()" *ngIf="searchTerm">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <button class="btn btn-primary" type="button">
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <select class="form-control" [(ngModel)]="statusFilter" (change)="onStatusChange()">
+                  <option value="">Todos os Status</option>
+                  <option value="open">Aberto</option>
+                  <option value="won">Ganho</option>
+                  <option value="lost">Perdido</option>
+                  <option value="pending">Pendente</option>
+                  <option value="closed">Fechado</option>
+                </select>
+              </div>
+              <div class="col-md-5 text-right">
+                <button class="btn btn-primary" (click)="goNew()">Nova Oportunidade</button>
+              </div>
             </div>
 
             <div *ngIf="loading" class="text-center">Carregando...</div>
@@ -29,7 +56,7 @@
                   <td>{{ o.client?.name || o.client?.title || o.client_id || '-' }}</td>
                   <td>{{ o.seller?.name || o.seller?.title || o.seller_id || '-' }}</td>
                   <td>{{ o.value | currency:'BRL' }}</td>
-                  <td>{{ o.status }}</td>
+                  <td>{{ statusMap[o.status] || o.status }}</td>
                   <td class="text-right">
                     <button class="btn btn-sm btn-secondary" (click)="edit(o.id)">Editar</button>
                     <button class="btn btn-sm btn-danger ml-2" (click)="delete(o.id)">Excluir</button>

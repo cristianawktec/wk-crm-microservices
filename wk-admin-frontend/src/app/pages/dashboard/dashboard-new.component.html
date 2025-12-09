@@ -121,55 +121,5 @@
       </div>
     </div>
 
-    <div *ngIf="!loading" class="row mt-4">
-      <div class="col-lg-8">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-chart-line"></i> Vendas dos Últimos 14 Dias</h3>
-          </div>
-          <div class="card-body">
-            <div class="chart" style="position: relative; height: 300px;">
-              <canvas id="revenue-chart-canvas" height="300"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-4">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-clock"></i> Atividades Recentes</h3>
-          </div>
-          <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-            <div *ngIf="activityFeed.length === 0" class="text-center text-muted py-4">
-              <i class="fas fa-inbox fa-2x mb-2"></i>
-              <p>Nenhuma atividade recente</p>
-            </div>
-            <div class="timeline" *ngIf="activityFeed.length > 0">
-              <div *ngFor="let atividade of activityFeed" class="mb-3">
-                <div class="d-flex">
-                  <div class="mr-3">
-                    <i class="fas fa-circle text-sm" 
-                       [ngClass]="{
-                         'text-success': atividade.tipo === 'venda',
-                         'text-info': atividade.tipo === 'cliente',
-                         'text-warning': atividade.tipo === 'lead'
-                       }"></i>
-                  </div>
-                  <div class="flex-grow-1">
-                    <p class="mb-1" style="font-size: 0.9rem;">{{ atividade.descricao }}</p>
-                    <small class="text-muted">
-                      <i class="far fa-clock"></i> {{ atividade.tempo }}
-                    </small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </section>
-
