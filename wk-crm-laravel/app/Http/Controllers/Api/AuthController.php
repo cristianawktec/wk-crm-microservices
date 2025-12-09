@@ -114,12 +114,16 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
+        // Debug: try reading the raw input
+        $rawInput = file_get_contents('php://input');
+        
         \Log::debug('Login request', [
             'method' => $request->method(),
             'content-type' => $request->header('Content-Type'),
             'all' => $request->all(),
             'input' => $request->input(),
             'json' => $request->json()->all(),
+            'raw_input' => $rawInput,
         ]);
 
         $validated = $request->validate([
