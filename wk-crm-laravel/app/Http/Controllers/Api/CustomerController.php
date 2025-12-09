@@ -49,7 +49,20 @@ class CustomerController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $customers = Customer::all();
+            $query = Customer::query();
+            
+            // Search functionality
+            if ($request->has('search') && !empty($request->search)) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'ILIKE', "%{$search}%")
+                      ->orWhere('email', 'ILIKE', "%{$search}%")
+                      ->orWhere('phone', 'ILIKE', "%{$search}%")
+                      ->orWhere('company', 'ILIKE', "%{$search}%");
+                });
+            }
+            
+            $customers = $query->orderBy('created_at', 'desc')->get();
             return response()->json([
                 'success' => true,
                 'data' => $customers

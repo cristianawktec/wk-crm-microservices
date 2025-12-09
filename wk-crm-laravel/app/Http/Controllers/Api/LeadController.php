@@ -9,9 +9,23 @@ use Illuminate\Validation\Rule;
 
 class LeadController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $leads = Lead::orderBy('created_at', 'desc')->paginate(25);
+        $query = Lead::query();
+        
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'ILIKE', "%{$search}%")
+                  ->orWhere('email', 'ILIKE', "%{$search}%")
+                  ->orWhere('phone', 'ILIKE', "%{$search}%")
+                  ->orWhere('source', 'ILIKE', "%{$search}%")
+                  ->orWhere('status', 'ILIKE', "%{$search}%");
+            });
+        }
+        
+        $leads = $query->orderBy('created_at', 'desc')->paginate(25);
         return response()->json($leads);
     }
 

@@ -9,9 +9,22 @@ use Illuminate\Validation\Rule;
 
 class SellerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $sellers = Seller::orderBy('name')->paginate(25);
+        $query = Seller::query();
+        
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'ILIKE', "%{$search}%")
+                  ->orWhere('email', 'ILIKE', "%{$search}%")
+                  ->orWhere('phone', 'ILIKE', "%{$search}%")
+                  ->orWhere('role', 'ILIKE', "%{$search}%");
+            });
+        }
+        
+        $sellers = $query->orderBy('name')->paginate(25);
         return response()->json($sellers);
     }
 

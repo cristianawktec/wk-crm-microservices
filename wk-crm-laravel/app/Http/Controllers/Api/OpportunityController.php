@@ -9,9 +9,30 @@ use Illuminate\Validation\Rule;
 
 class OpportunityController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $opps = Opportunity::with(['client','seller'])->orderByDesc('created_at')->paginate(25);
+        $query = Opportunity::with(['client','seller']);
+        
+        // Status filter
+        if ($request->has('status') && !empty($request->status)) {
+            $query->where('status', $request->status);
+        }
+        
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'ILIKE', "%{$search}%")
+                  ->orWhereHas('client', function($query) use ($search) {
+                      $query->where('name', 'ILIKE', "%{$search}%");
+                  })
+                  ->orWhereHas('seller', function($query) use ($search) {
+                      $query->where('name', 'ILIKE', "%{$search}%");
+                  });
+            });
+        }
+        
+        $opps = $query->orderByDesc('created_at')->paginate(25);
         return response()->json($opps);
     }
 
