@@ -18,20 +18,24 @@ class EnsureJsonBodyIsParsed
     {
         // If request claims to be JSON but has no data, try reading raw input
         if ($request->isJson() && empty($request->all())) {
-            $rawInput = file_get_contents('php://input');
-            if (!empty($rawInput)) {
-                try {
-                    $data = json_decode($rawInput, true, 512, JSON_THROW_ON_ERROR);
+            try {
+                // Get the Symfony request from Laravel request
+                $symRequest = $request->getSymfonyRequest();
+                $rawContent = $symRequest->getContent();
+                
+                if (!empty($rawContent)) {
+                    $data = json_decode($rawContent, true, 512, JSON_THROW_ON_ERROR);
                     if (is_array($data)) {
-                        // Replace request data with parsed JSON
+                        // Use replace instead of merge to fully replace request data
                         $request->replace($data);
                     }
-                } catch (\JsonException $e) {
-                    // Continue with empty request
                 }
+            } catch (\JsonException $e) {
+                // Continue with empty request - validation will handle it
             }
         }
 
         return $next($request);
     }
 }
+
