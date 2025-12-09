@@ -47,22 +47,49 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'nullable|in:admin,seller,customer',
-        ]);
+        // Accept both JSON and form-urlencoded data
+        $name = $request->input('name');
+        $email = $request->input('email');
+        $password = $request->input('password');
+        $passwordConfirmation = $request->input('password_confirmation');
+        $role = $request->input('role', 'customer');
 
+        // Manual validation
+        if (empty($name)) {
+            throw ValidationException::withMessages([
+                'name' => ['The name field is required.'],
+            ]);
+        }
+        if (empty($email)) {
+            throw ValidationException::withMessages([
+                'email' => ['The email field is required.'],
+            ]);
+        }
+        if (empty($password)) {
+            throw ValidationException::withMessages([
+                'password' => ['The password field is required.'],
+            ]);
+        }
+        if ($password !== $passwordConfirmation) {
+            throw ValidationException::withMessages([
+                'password' => ['The password confirmation does not match.'],
+            ]);
+        }
+
+        // Check if email already exists
+        if (User::where('email', $email)->exists()) {
+            throw ValidationException::withMessages([
+                'email' => ['The email has already been taken.'],
+            ]);
+        }
         try {
             $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                'name' => $name,
+                'email' => $email,
+                'password' => Hash::make($password),
             ]);
 
             // Assign role (default: customer)
-            $role = $validated['role'] ?? 'customer';
             $user->assignRole($role);
 
             $token = $user->createToken('auth_token')->plainTextToken;
@@ -114,14 +141,20 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+        // Accept both JSON and form-urlencoded data
+        $email = $request->input('email');
+        $password = $request->input('password');
 
-        $user = User::where('email', $validated['email'])->first();
+        if (empty($email) || empty($password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The email field is required.'],
+                'password' => ['The password field is required.'],
+            ]);
+        }
 
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
+        $user = User::where('email', $email)->first();
+
+        if (!$user || !Hash::check($password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
