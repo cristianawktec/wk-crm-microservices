@@ -47,22 +47,12 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
-        // Try to get data from request, fallback to raw php://input
-        $data = $request->all();
-        if (empty($data)) {
-            $rawInput = file_get_contents('php://input');
-            if (!empty($rawInput)) {
-                $data = json_decode($rawInput, true) ?? [];
-            }
-        }
-
-        // Create a validator with the data
-        $validated = \Illuminate\Support\Facades\Validator::make($data, [
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'nullable|in:admin,seller,customer',
-        ])->validate();
+        ]);
 
         try {
             $user = User::create([
@@ -124,20 +114,10 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        // Try to get data from request, fallback to raw php://input
-        $data = $request->all();
-        if (empty($data)) {
-            $rawInput = file_get_contents('php://input');
-            if (!empty($rawInput)) {
-                $data = json_decode($rawInput, true) ?? [];
-            }
-        }
-
-        // Create a validator with the data
-        $validated = \Illuminate\Support\Facades\Validator::make($data, [
+        $validated = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
-        ])->validate();
+        ]);
 
         $user = User::where('email', $validated['email'])->first();
 

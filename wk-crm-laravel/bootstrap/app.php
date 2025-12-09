@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
         ]);
 
+        // Ensure JSON bodies are parsed for all API requests
+        $middleware->api(prepend: [
+            \App\Http\Middleware\EnsureJsonBodyIsParsed::class,
+        ]);
+
         // Register custom middlewares
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckPermission::class,
