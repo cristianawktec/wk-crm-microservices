@@ -102,7 +102,7 @@ export class AuthService {
   }
 
   verifyToken(): Observable<boolean> {
-    return this.http.get<any>(`${this.apiUrl}/auth/user`)
+    return this.http.get<any>(`${this.apiUrl}/auth/me`)
       .pipe(
         tap(response => {
           if (!response || response.error) {
