@@ -48,7 +48,7 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         // Read raw input if request body is empty
-        if ($request->isEmpty()) {
+        if (empty($request->all())) {
             $rawInput = file_get_contents('php://input');
             $data = json_decode($rawInput, true) ?? [];
             
@@ -126,7 +126,7 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         // Read raw input if request body is empty
-        if ($request->isEmpty()) {
+        if (empty($request->all())) {
             $rawInput = file_get_contents('php://input');
             $data = json_decode($rawInput, true) ?? [];
             
