@@ -21,9 +21,18 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private authService: AuthService
   ) {
-    // Se já está logado, redireciona para dashboard
+    // Se já está logado, verifica se o token ainda é válido
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/']);
+      this.authService.verifyToken().subscribe({
+        next: () => {
+          // Token válido, vai para dashboard
+          this.router.navigate(['/']);
+        },
+        error: () => {
+          // Token inválido/expirado, força logout
+          this.authService.logout();
+        }
+      });
     }
   }
 

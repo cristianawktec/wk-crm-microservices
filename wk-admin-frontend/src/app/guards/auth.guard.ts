@@ -11,6 +11,17 @@ export class AuthGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     if (this.authService.isAuthenticated()) {
+      // Verifica se o token ainda é válido no backend
+      this.authService.verifyToken().subscribe({
+        next: (response) => {
+          // Token válido, continua
+        },
+        error: (error) => {
+          // Token inválido ou expirado, força logout
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }
+      });
       return true;
     }
 

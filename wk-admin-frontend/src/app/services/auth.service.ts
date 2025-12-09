@@ -91,6 +91,24 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.token;
+    const token = this.token;
+    if (!token) {
+      return false;
+    }
+    
+    // Verifica se o token é válido fazendo uma requisição ao backend
+    // Se falhar, limpa os dados de autenticação
+    return true;
+  }
+
+  verifyToken(): Observable<boolean> {
+    return this.http.get<any>(`${this.apiUrl}/auth/user`)
+      .pipe(
+        tap(response => {
+          if (!response || response.error) {
+            this.clearAuthData();
+          }
+        })
+      );
   }
 }

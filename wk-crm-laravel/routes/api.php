@@ -51,7 +51,9 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 
 // CRUD routes with authentication - Protegido com auth:sanctum
 Route::middleware('auth:sanctum')->group(function () {
-    // Customers CRUD
+    // Auth - Verificação de token
+    Route::get('/auth/user', [AuthController::class, 'me']);
+    Route::get('/auth/me', [AuthController::class, 'me']);
     Route::get('customers', [CustomerController::class, 'index']);
     Route::get('customers/{customer}', [CustomerController::class, 'show']);
     Route::post('customers', [CustomerController::class, 'store']);
@@ -95,6 +97,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // Autenticação - Endpoints Protegidos
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/logout-all', [AuthController::class, 'logoutAll']);
-    Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
 });
