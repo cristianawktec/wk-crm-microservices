@@ -19,14 +19,13 @@ class EnsureJsonBodyIsParsed
         // If request claims to be JSON but has no data, try reading raw input
         if ($request->isJson() && empty($request->all())) {
             try {
-                // Get the Symfony request from Laravel request
-                $symRequest = $request->getSymfonyRequest();
-                $rawContent = $symRequest->getContent();
+                // getContent() is from Symfony\HttpFoundation\Request
+                $rawContent = $request->getContent();
                 
                 if (!empty($rawContent)) {
                     $data = json_decode($rawContent, true, 512, JSON_THROW_ON_ERROR);
                     if (is_array($data)) {
-                        // Use replace instead of merge to fully replace request data
+                        // Use replace to fully replace request data
                         $request->replace($data);
                     }
                 }
@@ -38,4 +37,5 @@ class EnsureJsonBodyIsParsed
         return $next($request);
     }
 }
+
 
