@@ -47,6 +47,17 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
+        // Read raw input if request body is empty
+        if ($request->isEmpty()) {
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true) ?? [];
+            
+            // Inject data into request
+            foreach ($data as $key => $value) {
+                $request->merge([$key => $value]);
+            }
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
@@ -114,17 +125,16 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        // Debug: try reading the raw input
-        $rawInput = file_get_contents('php://input');
-        
-        \Log::debug('Login request', [
-            'method' => $request->method(),
-            'content-type' => $request->header('Content-Type'),
-            'all' => $request->all(),
-            'input' => $request->input(),
-            'json' => $request->json()->all(),
-            'raw_input' => $rawInput,
-        ]);
+        // Read raw input if request body is empty
+        if ($request->isEmpty()) {
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true) ?? [];
+            
+            // Inject data into request
+            foreach ($data as $key => $value) {
+                $request->merge([$key => $value]);
+            }
+        }
 
         $validated = $request->validate([
             'email' => 'required|email',
