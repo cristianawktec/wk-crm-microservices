@@ -16,6 +16,7 @@ import { SellerFormComponent } from './app/pages/sellers/seller-form.component';
 import { SalesComponent } from './app/pages/sales/sales.component';
 import { OpportunitiesComponent } from './app/pages/opportunities/opportunities.component';
 import { OpportunitiesFormComponent } from './app/pages/opportunities/opportunities-form.component';
+import { ReportsComponent } from './app/pages/reports/reports.component';
 import { LoginComponent } from './app/components/login/login.component';
 import { ToastContainerComponent } from './app/components/toast-container/toast-container.component';
 import { AuthInterceptor } from './app/interceptors/auth.interceptor';
@@ -99,6 +100,16 @@ import { RouterModule } from '@angular/router';
       { 
         path: 'opportunities/:id', 
         component: OpportunitiesFormComponent,
+        canActivate: [AuthGuard]
+      },
+      { 
+        path: 'reports', 
+        component: ReportsComponent,
+        canActivate: [AuthGuard]
+      },
+      { 
+        path: 'reports', 
+        component: ReportsComponent,
         canActivate: [AuthGuard]
       }
     ], { useHash: true })

@@ -65,6 +65,30 @@ export const api = {
       data: Array.isArray(data) ? data : []
     }
   },
+  createOpportunity: async (payload: {
+    title: string
+    value?: number
+    status?: string
+    probability?: number
+    notes?: string
+  }) => {
+    const response = await apiClient.post('/api/customer-opportunities', payload)
+    return response.data.data
+  },
+  updateOpportunity: async (id: string, payload: {
+    title: string
+    value?: number
+    status?: string
+    probability?: number
+    notes?: string
+  }) => {
+    const response = await apiClient.put(`/api/customer-opportunities/${id}`, payload)
+    return response.data.data
+  },
+  deleteOpportunity: async (id: string) => {
+    const response = await apiClient.delete(`/api/customer-opportunities/${id}`)
+    return response.data
+  },
   getOpportunity: (id: string) => apiClient.get(`/api/opportunities/${id}`),
   
   // Profile

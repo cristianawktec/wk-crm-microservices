@@ -1,0 +1,66 @@
+/* Reports Component Styles */
+
+:host {
+  display: block;
+  background-color: #f3f4f6;
+  min-height: 100vh;
+}
+
+.container-fluid {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bg-white {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Loading animation */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Status colors */
+.border-indigo-500 {
+  border-color: #6366f1;
+}
+
+.border-green-500 {
+  border-color: #10b981;
+}
+
+.border-blue-500 {
+  border-color: #3b82f6;
+}
+
+.border-purple-500 {
+  border-color: #a855f7;
+}
+
+/* Chart containers */
+.chart-container {
+  position: relative;
+  height: 400px;
+  margin-top: 20px;
+}

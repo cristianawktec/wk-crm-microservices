@@ -205,4 +205,77 @@ export class ApiService {
       return throwError(() => err);
     }));
   }
+
+  // Analytics / Reports endpoints
+  getAnalyticsKpis(params: any = {}): Observable<any> {
+    const qp = new URLSearchParams();
+    Object.keys(params || {}).forEach(k => {
+      if (params[k] !== undefined && params[k] !== null && params[k] !== '') qp.set(k, params[k]);
+    });
+    const url = `${this.base}/analytics/kpis` + (qp.toString() ? `?${qp.toString()}` : '');
+    return this.http.get(url).pipe(catchError(err => {
+      console.warn('Analytics KPIs API failed', err);
+      return throwError(() => err);
+    }));
+  }
+
+  getMonthlySalesTrend(params: any = {}): Observable<any> {
+    const qp = new URLSearchParams();
+    Object.keys(params || {}).forEach(k => {
+      if (params[k] !== undefined && params[k] !== null && params[k] !== '') qp.set(k, params[k]);
+    });
+    const url = `${this.base}/analytics/monthly-sales` + (qp.toString() ? `?${qp.toString()}` : '');
+    return this.http.get(url).pipe(catchError(err => {
+      console.warn('Monthly sales API failed', err);
+      return throwError(() => err);
+    }));
+  }
+
+  getStatusDistribution(params: any = {}): Observable<any> {
+    const qp = new URLSearchParams();
+    Object.keys(params || {}).forEach(k => {
+      if (params[k] !== undefined && params[k] !== null && params[k] !== '') qp.set(k, params[k]);
+    });
+    const url = `${this.base}/analytics/status-distribution` + (qp.toString() ? `?${qp.toString()}` : '');
+    return this.http.get(url).pipe(catchError(err => {
+      console.warn('Status distribution API failed', err);
+      return throwError(() => err);
+    }));
+  }
+
+  getTopSellers(params: any = {}): Observable<any> {
+    const qp = new URLSearchParams();
+    Object.keys(params || {}).forEach(k => {
+      if (params[k] !== undefined && params[k] !== null && params[k] !== '') qp.set(k, params[k]);
+    });
+    const url = `${this.base}/analytics/top-sellers` + (qp.toString() ? `?${qp.toString()}` : '');
+    return this.http.get(url).pipe(catchError(err => {
+      console.warn('Top sellers API failed', err);
+      return throwError(() => err);
+    }));
+  }
+
+  getSalesFunnel(params: any = {}): Observable<any> {
+    const qp = new URLSearchParams();
+    Object.keys(params || {}).forEach(k => {
+      if (params[k] !== undefined && params[k] !== null && params[k] !== '') qp.set(k, params[k]);
+    });
+    const url = `${this.base}/analytics/sales-funnel` + (qp.toString() ? `?${qp.toString()}` : '');
+    return this.http.get(url).pipe(catchError(err => {
+      console.warn('Sales funnel API failed', err);
+      return throwError(() => err);
+    }));
+  }
+
+  getAnalyticalSummary(params: any = {}): Observable<any> {
+    const qp = new URLSearchParams();
+    Object.keys(params || {}).forEach(k => {
+      if (params[k] !== undefined && params[k] !== null && params[k] !== '') qp.set(k, params[k]);
+    });
+    const url = `${this.base}/analytics/summary` + (qp.toString() ? `?${qp.toString()}` : '');
+    return this.http.get(url).pipe(catchError(err => {
+      console.warn('Analytical summary API failed', err);
+      return throwError(() => err);
+    }));
+  }
 }

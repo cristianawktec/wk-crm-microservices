@@ -23,8 +23,8 @@ export interface Opportunity {
   seller?: {
     id: string
     name: string
-  }
-  status: 'open' | 'won' | 'lost' | 'negotiation' | 'proposal'
+  } | string
+  status: string
   probability?: number
   notes?: string
   created_at: string

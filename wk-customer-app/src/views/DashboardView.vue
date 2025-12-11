@@ -133,13 +133,17 @@ const stats = ref<DashboardStats>({
 const fetchDashboardData = async () => {
   try {
     const response = await api.getDashboardStats()
+    const recentActivity = (response.data.recentActivity || []).map((a: any) => ({
+      ...a,
+      created_at: a.created_at || a.timestamp || a.date || a.updated_at || new Date().toISOString()
+    }))
     stats.value = {
       totalOpportunities: response.data.totalOpportunities || 0,
       totalValue: response.data.totalValue || 0,
       openOpportunities: response.data.openOpportunities || 0,
       wonOpportunities: response.data.wonOpportunities || 0,
       avgProbability: response.data.avgProbability || 0,
-      recentActivity: response.data.recentActivity || []
+      recentActivity
     }
   } catch (error) {
     console.error('Erro ao carregar dashboard:', error)
@@ -156,9 +160,12 @@ const formatCurrency = (value: number) => {
 }
 
 const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('pt-BR', {
+  const d = new Date(date)
+  return d.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
+    year: 'numeric'
+  }) + ' às ' + d.toLocaleTimeString('pt-BR', {
     hour: '2-digit',
     minute: '2-digit'
   })
