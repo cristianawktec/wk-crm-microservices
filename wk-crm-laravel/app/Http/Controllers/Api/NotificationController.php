@@ -1,0 +1,214 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Notification;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+class NotificationController extends Controller
+{
+    /**
+     * Get user's recent notifications
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function index(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $limit = $request->query('limit', 20);
+
+            $notifications = Notification::where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->limit($limit)
+                ->get()
+                ->map(function ($notification) {
+                    return [
+                        'id' => $notification->id,
+                        'type' => $notification->type,
+                        'title' => $notification->title,
+                        'message' => $notification->message,
+                        'action_url' => $notification->action_url,
+                        'is_read' => $notification->isRead(),
+                        'data' => $notification->data,
+                        'created_at' => $notification->created_at->toIso8601String(),
+                        'created_at_formatted' => $notification->created_at->diffForHumans()
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $notifications,
+                'total' => Notification::where('user_id', $user->id)->count(),
+                'unread' => Notification::unreadCount($user->id)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao carregar notificações: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get unread count
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function unreadCount(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $count = Notification::unreadCount($user->id);
+
+            return response()->json([
+                'success' => true,
+                'unread_count' => $count
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Mark notification as read
+     * 
+     * @param Notification $notification
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function markAsRead(Notification $notification, Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+
+            // Verify notification belongs to user
+            if ($notification->user_id !== $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            $notification->markAsRead();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notificação marcada como lida',
+                'data' => [
+                    'id' => $notification->id,
+                    'is_read' => $notification->isRead()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Mark all notifications as read
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function markAllAsRead(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+
+            Notification::where('user_id', $user->id)
+                ->whereNull('read_at')
+                ->update(['read_at' => now()]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Todas as notificações marcadas como lidas'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete notification
+     * 
+     * @param Notification $notification
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function destroy(Notification $notification, Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+
+            if ($notification->user_id !== $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            $notification->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notificação removida'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Server-Sent Events stream for real-time notifications
+     * 
+     * @param Request $request
+     * @return mixed
+     */
+    public function stream(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->stream(function () use ($user) {
+            // Send initial heartbeat
+            echo "data: {\"type\":\"connected\",\"user_id\":\"{$user->id}\"}\n\n";
+            flush();
+
+            // Keep connection alive for 30 minutes
+            $startTime = time();
+            $timeout = 30 * 60; // 30 minutes
+
+            while ((time() - $startTime) < $timeout) {
+                // Check for new unread notifications
+                $unreadCount = \App\Models\Notification::unreadCount($user->id);
+
+                // Send heartbeat with unread count every 10 seconds
+                echo "data: {\"type\":\"heartbeat\",\"unread_count\":{$unreadCount}}\n\n";
+                flush();
+
+                sleep(10);
+            }
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'Access-Control-Allow-Origin' => '*',
+        ]);
+    }
+}

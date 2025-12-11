@@ -7,6 +7,7 @@ use App\Models\Opportunity;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
+use App\Services\NotificationService;
 class OpportunityController extends Controller
 {
     public function index(Request $request)
@@ -56,6 +57,9 @@ class OpportunityController extends Controller
 
         $opp = Opportunity::create($data);
         return response()->json($opp, 201);
+
+            // Send notification
+            NotificationService::opportunityCreated($opp, $request->user());
     }
 
     public function show($id)
@@ -84,6 +88,16 @@ class OpportunityController extends Controller
         unset($data['client_id']);
 
         $opp->update($data);
+
+        // Check for status change
+        if ($opp->status !== $data['status'] ?? $opp->status) {
+            NotificationService::opportunityStatusChanged($opp, $opp->status, $data['status'] ?? $opp->status);
+        }
+        // Check for value change
+        if (isset($data['value']) && $opp->value !== $data['value']) {
+            NotificationService::opportunityValueChanged($opp, $opp->value, $data['value']);
+        }
+
         return response()->json($opp);
     }
 
