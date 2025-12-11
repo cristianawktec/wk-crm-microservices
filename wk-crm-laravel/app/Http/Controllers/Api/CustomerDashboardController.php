@@ -224,7 +224,7 @@ class CustomerDashboardController extends Controller
             'seller_id' => $opp->seller_id,
             'seller' => $opp->seller ? $opp->seller->name : 'Não atribuído',
             'created_at' => $opp->created_at->toIso8601String(),
-            'notes' => $opp->notes ?? ''
+            'notes' => $opp->description ?? ''
         ]);
 
         // Demo fallback quando não há oportunidades reais
@@ -283,7 +283,7 @@ class CustomerDashboardController extends Controller
             'value' => $data['value'] ?? 0,
             'probability' => $data['probability'] ?? 0,
             'status' => $data['status'] ?? 'Aberta',
-            'notes' => $data['notes'] ?? null,
+            'description' => $data['notes'] ?? null,
             'customer_id' => $user->id,
             'currency' => 'BRL'
         ]);
@@ -299,7 +299,7 @@ class CustomerDashboardController extends Controller
                 'seller_id' => $opp->seller_id,
                 'seller' => $opp->seller ? $opp->seller->name : 'Não atribuído',
                 'created_at' => $opp->created_at->toIso8601String(),
-                'notes' => $opp->notes ?? ''
+                'notes' => $opp->description ?? ''
             ]
         ], 201);
     }

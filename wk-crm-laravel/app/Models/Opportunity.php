@@ -14,7 +14,7 @@ class Opportunity extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 'title', 'customer_id', 'seller_id', 'value', 'currency', 'probability', 'status', 'close_date'
+        'id', 'title', 'customer_id', 'client_id', 'seller_id', 'value', 'currency', 'probability', 'status', 'close_date', 'description'
     ];
 
     protected static function boot()
