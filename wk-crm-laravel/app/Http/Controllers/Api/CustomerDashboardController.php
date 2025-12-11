@@ -57,13 +57,52 @@ class CustomerDashboardController extends Controller
                 'timestamp' => $opp->updated_at->toIso8601String(),
                 'icon' => 'briefcase'
             ]);
+
+        // Demo fallback when não há dados reais
+        if ($totalOpportunities === 0) {
+            $demoOpps = [
+                [
+                    'id' => 'demo-1',
+                    'title' => 'Implantação CRM - Fase 1',
+                    'value' => 45000,
+                    'status' => 'Em Negociação',
+                    'probability' => 40,
+                    'seller' => 'Equipe WK',
+                    'created_at' => now()->subDays(5)->toIso8601String(),
+                    'notes' => 'Escopo inicial, aguardando aprovação de proposta.'
+                ],
+                [
+                    'id' => 'demo-2',
+                    'title' => 'Treinamento Times Comerciais',
+                    'value' => 18000,
+                    'status' => 'Proposta Enviada',
+                    'probability' => 55,
+                    'seller' => 'Equipe WK',
+                    'created_at' => now()->subDays(10)->toIso8601String(),
+                    'notes' => 'Pacote de workshops + playbook de vendas.'
+                ]
+            ];
+
+            $totalOpportunities = count($demoOpps);
+            $totalValue = collect($demoOpps)->sum('value');
+            $openOpportunities = 2;
+            $avgProbability = (int) round(collect($demoOpps)->avg('probability'));
+            $activities = collect($demoOpps)->map(fn($opp) => [
+                'id' => $opp['id'],
+                'type' => 'opportunity',
+                'title' => 'Oportunidade: ' . $opp['title'],
+                'description' => 'Status: ' . $opp['status'] . ' | Valor: R$ ' . number_format($opp['value'], 2, ',', '.'),
+                'timestamp' => $opp['created_at'],
+                'icon' => 'briefcase'
+            ]);
+        }
         
         return response()->json([
             'success' => true,
             'data' => [
-                'totalOpportunities' => $totalOpportunities,
+                'totalOpportunities' => (int) $totalOpportunities,
                 'totalValue' => (float) $totalValue,
-                'openOpportunities' => $openOpportunities,
+                'openOpportunities' => (int) $openOpportunities,
                 'avgProbability' => (int) $avgProbability,
                 'activities' => $activities
             ]
@@ -187,10 +226,81 @@ class CustomerDashboardController extends Controller
             'created_at' => $opp->created_at->toIso8601String(),
             'notes' => $opp->notes ?? ''
         ]);
+
+        // Demo fallback quando não há oportunidades reais
+        if ($formattedOpps->isEmpty()) {
+            $formattedOpps = collect([
+                [
+                    'id' => 'demo-1',
+                    'title' => 'Implantação CRM - Fase 1',
+                    'value' => 45000,
+                    'status' => 'Em Negociação',
+                    'probability' => 40,
+                    'seller_id' => null,
+                    'seller' => 'Equipe WK',
+                    'created_at' => now()->subDays(5)->toIso8601String(),
+                    'notes' => 'Escopo inicial, aguardando aprovação de proposta.'
+                ],
+                [
+                    'id' => 'demo-2',
+                    'title' => 'Treinamento Times Comerciais',
+                    'value' => 18000,
+                    'status' => 'Proposta Enviada',
+                    'probability' => 55,
+                    'seller_id' => null,
+                    'seller' => 'Equipe WK',
+                    'created_at' => now()->subDays(10)->toIso8601String(),
+                    'notes' => 'Pacote de workshops + playbook de vendas.'
+                ]
+            ]);
+        }
         
         return response()->json([
             'success' => true,
             'data' => $formattedOpps
         ], 200);
+    }
+
+    /**
+     * Create Customer Opportunity
+     * 
+     * Permite que o cliente crie uma nova oportunidade.
+     */
+    public function createOpportunity(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'value' => 'nullable|numeric',
+            'probability' => 'nullable|integer|min:0|max:100',
+            'status' => 'nullable|string|max:50',
+            'notes' => 'nullable|string'
+        ]);
+
+        $opp = Opportunity::create([
+            'title' => $data['title'],
+            'value' => $data['value'] ?? 0,
+            'probability' => $data['probability'] ?? 0,
+            'status' => $data['status'] ?? 'Aberta',
+            'notes' => $data['notes'] ?? null,
+            'customer_id' => $user->id,
+            'currency' => 'BRL'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $opp->id,
+                'title' => $opp->title,
+                'value' => (float) ($opp->value ?? 0),
+                'status' => $opp->status,
+                'probability' => (int) ($opp->probability ?? 0),
+                'seller_id' => $opp->seller_id,
+                'seller' => $opp->seller ? $opp->seller->name : 'Não atribuído',
+                'created_at' => $opp->created_at->toIso8601String(),
+                'notes' => $opp->notes ?? ''
+            ]
+        ], 201);
     }
 }

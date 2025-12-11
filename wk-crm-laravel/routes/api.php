@@ -96,6 +96,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [CustomerDashboardController::class, 'getProfile']);
     Route::put('/profile', [CustomerDashboardController::class, 'updateProfile']);
     Route::get('/customer-opportunities', [CustomerDashboardController::class, 'getOpportunities']);
+    Route::post('/customer-opportunities', [CustomerDashboardController::class, 'createOpportunity']);
 
     // Reports
     Route::get('/reports/sales', [ReportController::class, 'salesReport']);
