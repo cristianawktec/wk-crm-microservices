@@ -316,4 +316,73 @@ class CustomerDashboardController extends Controller
             ]
         ], 201);
     }
+
+    /**
+     * Update Customer Opportunity
+     */
+    public function updateOpportunity(Request $request, Opportunity $opportunity): JsonResponse
+    {
+        $user = Auth::user();
+
+        // Ensure ownership
+        if ($opportunity->customer_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Não autorizado'
+            ], 403);
+        }
+
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'value' => 'nullable|numeric',
+            'probability' => 'nullable|integer|min:0|max:100',
+            'status' => 'nullable|string|max:50',
+            'notes' => 'nullable|string'
+        ]);
+
+        $opportunity->update([
+            'title' => $data['title'],
+            'value' => $data['value'] ?? 0,
+            'probability' => $data['probability'] ?? 0,
+            'status' => $data['status'] ?? $opportunity->status,
+            'description' => $data['notes'] ?? $opportunity->description,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $opportunity->id,
+                'title' => $opportunity->title,
+                'value' => (float) ($opportunity->value ?? 0),
+                'status' => $opportunity->status,
+                'probability' => (int) ($opportunity->probability ?? 0),
+                'seller_id' => $opportunity->seller_id,
+                'seller' => $opportunity->seller ? $opportunity->seller->name : 'Não atribuído',
+                'created_at' => $opportunity->created_at->toIso8601String(),
+                'notes' => $opportunity->description ?? ''
+            ]
+        ], 200);
+    }
+
+    /**
+     * Delete Customer Opportunity
+     */
+    public function deleteOpportunity(Opportunity $opportunity): JsonResponse
+    {
+        $user = Auth::user();
+
+        if ($opportunity->customer_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Não autorizado'
+            ], 403);
+        }
+
+        $opportunity->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Oportunidade excluída'
+        ], 200);
+    }
 }
