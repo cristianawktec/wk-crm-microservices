@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Opportunity;
+use App\Models\Customer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -270,6 +271,17 @@ class CustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
+        // Garantir que existe um registro de customer para este usuário (FK obrigatória)
+        $customer = Customer::find($user->id);
+        if (!$customer) {
+            $customer = Customer::create([
+                'id' => $user->id,
+                'name' => $user->name ?? 'Cliente',
+                'email' => $user->email ?? null,
+                'phone' => $user->phone ?? null,
+            ]);
+        }
+
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'value' => 'nullable|numeric',
@@ -284,7 +296,8 @@ class CustomerDashboardController extends Controller
             'probability' => $data['probability'] ?? 0,
             'status' => $data['status'] ?? 'Aberta',
             'description' => $data['notes'] ?? null,
-            'customer_id' => $user->id,
+            'customer_id' => $customer->id,
+            'client_id' => $customer->id,
             'currency' => 'BRL'
         ]);
 
