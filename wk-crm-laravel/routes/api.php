@@ -103,6 +103,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // Reports
     Route::get('/reports/sales', [ReportController::class, 'salesReport']);
     Route::get('/reports/leads', [ReportController::class, 'leadsReport']);
+    
+    // Analytics Dashboard
+    Route::get('/analytics/kpis', [ReportController::class, 'dashboardKpis']);
+    Route::get('/analytics/monthly-sales', [ReportController::class, 'monthlySalesTrend']);
+    Route::get('/analytics/status-distribution', [ReportController::class, 'statusDistribution']);
+    Route::get('/analytics/top-sellers', [ReportController::class, 'topSellersAnalytics']);
+    Route::get('/analytics/sales-funnel', [ReportController::class, 'salesFunnelAnalytics']);
+    Route::get('/analytics/summary', [ReportController::class, 'analyticalSummary']);
 
     // Autenticação - Endpoints Protegidos
     Route::post('/auth/logout', [AuthController::class, 'logout']);
