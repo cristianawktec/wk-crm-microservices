@@ -1,74 +1,101 @@
-<section class="content">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-header"><h3 class="card-title">Oportunidades</h3></div>
-          <div class="card-body">
-            <div class="row mb-3">
-              <div class="col-md-4">
-                <div class="input-group">
-                  <input type="text" class="form-control" 
-                         placeholder="Buscar por título, cliente ou vendedor..."
-                         [(ngModel)]="searchTerm"
-                         (input)="onSearchChange()" />
-                  <button class="btn btn-outline-secondary" type="button"
-                          (click)="clearSearch()" *ngIf="searchTerm">
-                    <i class="fas fa-times"></i>
-                  </button>
-                  <button class="btn btn-primary" type="button">
-                    <i class="fas fa-search"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <select class="form-control" [(ngModel)]="statusFilter" (change)="onStatusChange()">
-                  <option value="">Todos os Status</option>
-                  <option value="open">Aberto</option>
-                  <option value="won">Ganho</option>
-                  <option value="lost">Perdido</option>
-                  <option value="pending">Pendente</option>
-                  <option value="closed">Fechado</option>
-                </select>
-              </div>
-              <div class="col-md-5 text-right">
-                <button class="btn btn-primary" (click)="goNew()">Nova Oportunidade</button>
-              </div>
-            </div>
-
-            <div *ngIf="loading" class="text-center">Carregando...</div>
-            <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-
-            <table *ngIf="!loading && opportunities?.length" class="table table-striped">
-              <thead>
-                <tr>
-                  <th style="min-width:220px">Título</th>
-                  <th>Cliente</th>
-                  <th>Vendedor</th>
-                  <th>Valor</th>
-                  <th>Status</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let o of opportunities">
-                  <td class="text-truncate" style="max-width:220px" title="{{ o.title }}">{{ o.title }}</td>
-                  <td>{{ o.client?.name || o.client?.title || o.client_id || '-' }}</td>
-                  <td>{{ o.seller?.name || o.seller?.title || o.seller_id || '-' }}</td>
-                  <td>{{ o.value | currency:'BRL' }}</td>
-                  <td>{{ statusMap[o.status] || o.status }}</td>
-                  <td class="text-right">
-                    <button class="btn btn-sm btn-secondary" (click)="edit(o.id)">Editar</button>
-                    <button class="btn btn-sm btn-danger ml-2" (click)="delete(o.id)">Excluir</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div *ngIf="!loading && (!opportunities || opportunities.length === 0)">Nenhuma oportunidade encontrada.</div>
-          </div>
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Vendas & Oportunidades</h1></div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="#/">Início</a></li>
+            <li class="breadcrumb-item active">Oportunidades</li>
+          </ol>
         </div>
       </div>
     </div>
   </div>
-</section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Lista de Oportunidades</h3>
+          <div class="card-tools">
+            <button class="btn btn-success btn-sm" (click)="goNew()">
+              <i class="fas fa-plus"></i> Nova Oportunidade
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="input-group">
+                <input type="text" class="form-control" 
+                       placeholder="Buscar por título, cliente..."
+                       [(ngModel)]="searchTerm"
+                       (input)="onSearchChange()" />
+                <button class="btn btn-outline-secondary" type="button"
+                        (click)="clearSearch()" *ngIf="searchTerm">
+                  <i class="fas fa-times"></i>
+                </button>
+                <button class="btn btn-primary" type="button" (click)="load()">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select class="form-control" [(ngModel)]="statusFilter" (change)="onStatusChange()">
+                <option value="">— Todos os Status —</option>
+                <option value="open">Aberta</option>
+                <option value="negotiation">Em Negociação</option>
+                <option value="proposal">Proposta Enviada</option>
+                <option value="won">Ganha</option>
+                <option value="lost">Perdida</option>
+              </select>
+            </div>
+          </div>
+
+          <div *ngIf="loading" class="text-center py-4">
+            <div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>
+          </div>
+
+          <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+          <div *ngIf="!loading && opportunities?.length" class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Valor</th>
+                  <th>Cliente</th>
+                  <th>Vendedor</th>
+                  <th>Status</th>
+                  <th>Probabilidade</th>
+                  <th class="text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let o of opportunities">
+                  <td>{{ o.title }}</td>
+                  <td>{{ o.value | currency:'BRL' }}</td>
+                  <td>{{ o.customer?.name || o.customer?.company || o.client?.name || 'N/A' }}</td>
+                  <td>{{ o.seller?.name || 'N/A' }}</td>
+                  <td><span class="badge" [ngClass]="statusBadgeClass(o.status)">{{ statusLabel(o.status) }}</span></td>
+                  <td>{{ o.probability ? o.probability + '%' : '—' }}</td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-primary" (click)="edit(o.id)" title="Editar">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger ms-1" (click)="delete(o.id)" title="Excluir">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div *ngIf="!loading && (!opportunities || opportunities.length === 0)" class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Nenhuma oportunidade encontrada.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>

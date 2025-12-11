@@ -18,3 +18,8 @@ Route::get('/', function () {
 Route::get('/admin', function () {
     return view('admin');
 });
+
+// Vue SPA Customer App fallback route
+Route::get('/customer-app/{any?}', function () {
+    return file_get_contents(public_path('customer-app/index.html'));
+})->where('any', '.*');

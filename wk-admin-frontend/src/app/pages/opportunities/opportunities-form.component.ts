@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-opportunity-form',
@@ -9,68 +10,137 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class OpportunitiesFormComponent implements OnInit {
   form: FormGroup;
-  loading = false;
-  isEdit = false;
-  id: string | null = null;
+  loading = true;
+  currentId: string | null = null;
   customers: any[] = [];
   sellers: any[] = [];
 
-  constructor(private fb: FormBuilder, private api: ApiService, private route: ActivatedRoute, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private api: ApiService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private toast: ToastService
+  ) {
     this.form = this.fb.group({
-      title: ['', Validators.required],
-      client_id: [null],
-      seller_id: [null],
-      value: [null],
-      currency: ['BRL'],
-      probability: [null],
-      status: ['open'],
-      close_date: [null]
+      title: ['', [Validators.required, Validators.maxLength(200)]],
+      value: ['', [Validators.required, Validators.min(0)]],
+      customer_id: ['', [Validators.required]],
+      seller_id: [''],
+      status: ['open', [Validators.required]],
+      probability: ['', [Validators.min(0), Validators.max(100)]],
+      notes: ['', [Validators.maxLength(500)]]
     });
   }
 
   ngOnInit(): void {
-    this.loadSelects();
-    this.id = this.route.snapshot.paramMap.get('id');
-    this.isEdit = !!this.id && this.id !== 'new';
-    if (this.isEdit && this.id) this.loadEntity(this.id);
+    this.loadCustomers();
+    this.loadSellers();
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id && id !== 'new') {
+      this.currentId = id;
+      this.loadOpportunity(id);
+    } else {
+      this.loading = false;
+    }
   }
 
-  loadSelects() {
-    this.api.getCustomers().subscribe({ next: (r: any) => { this.customers = r?.data || r || []; }, error: () => {} });
-    this.api.getSellers().subscribe({ next: (r: any) => { this.sellers = r?.data || r || []; }, error: () => {} });
+  loadCustomers() {
+    this.api.getCustomers().subscribe({
+      next: (res: any) => {
+        if (Array.isArray(res)) this.customers = res;
+        else this.customers = res?.data || res || [];
+      },
+      error: (err: any) => {
+        console.warn('Could not load customers', err);
+        this.customers = [];
+      }
+    });
   }
 
-  loadEntity(id: string) {
+  loadSellers() {
+    this.api.getSellers().subscribe({
+      next: (res: any) => {
+        if (Array.isArray(res)) this.sellers = res;
+        else this.sellers = res?.data || res || [];
+      },
+      error: (err: any) => {
+        console.warn('Could not load sellers', err);
+        this.sellers = [];
+      }
+    });
+  }
+
+  loadOpportunity(id: string) {
     this.loading = true;
     this.api.getOpportunity(id).subscribe({
       next: (res: any) => {
         const data = res?.data || res || {};
         this.form.patchValue({
-          title: data.title,
-          client_id: data.client_id || data.customer_id || null,
-          seller_id: data.seller_id || null,
-          value: data.value || null,
-          currency: data.currency || 'BRL',
-          probability: data.probability || null,
+          title: data.title || '',
+          value: data.value || '',
+          customer_id: data.customer_id || data.client_id || '',
+          seller_id: data.seller_id || '',
           status: data.status || 'open',
-          close_date: data.close_date || null
+          probability: data.probability || '',
+          notes: data.notes || ''
         });
         this.loading = false;
       },
-      error: (err: any) => { this.loading = false; alert('Erro ao carregar oportunidade'); }
+      error: () => {
+        this.toast.error('Erro', 'Não foi possível carregar a oportunidade.');
+        this.loading = false;
+      }
     });
   }
 
-  submit() {
-    if (this.form.invalid) return this.form.markAllAsTouched();
-    const payload = this.form.value;
+  save() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.toast.error('Dados inválidos', 'Corrija os campos destacados.');
+      return;
+    }
     this.loading = true;
-    if (this.isEdit && this.id) {
-      this.api.updateOpportunity(this.id, payload).subscribe({ next: () => { this.loading = false; this.router.navigate(['/opportunities']); }, error: () => { this.loading = false; alert('Erro ao atualizar'); } });
+    const payload: any = { ...this.form.value };
+    if (payload.title) payload.title = payload.title.trim();
+    if (payload.value) payload.value = parseFloat(payload.value);
+    if (payload.probability) payload.probability = parseFloat(payload.probability);
+    if (payload.notes) payload.notes = payload.notes.trim();
+    
+    if (this.currentId) {
+      this.api.updateOpportunity(this.currentId, payload).subscribe({
+        next: () => this.onSaved(),
+        error: () => {
+          this.toast.error('Erro', 'Não foi possível salvar a oportunidade.');
+          this.loading = false;
+        }
+      });
     } else {
-      this.api.createOpportunity(payload).subscribe({ next: () => { this.loading = false; this.router.navigate(['/opportunities']); }, error: () => { this.loading = false; alert('Erro ao criar'); } });
+      this.api.createOpportunity(payload).subscribe({
+        next: () => this.onSaved(),
+        error: () => {
+          this.toast.error('Erro', 'Não foi possível criar a oportunidade.');
+          this.loading = false;
+        }
+      });
     }
   }
 
-  cancel() { this.router.navigate(['/opportunities']); }
+  onSaved() {
+    this.loading = false;
+    this.router.navigate(['/opportunities'], { queryParams: { saved: '1' } });
+  }
+
+  get f() { return this.form.controls; }
+
+  statusLabel(status: string | null): string {
+    const map: any = {
+      'open': 'Aberta',
+      'won': 'Ganha',
+      'lost': 'Perdida',
+      'negotiation': 'Em Negociação',
+      'proposal': 'Proposta Enviada'
+    };
+    return map[status || ''] || status || '—';
+  }
 }

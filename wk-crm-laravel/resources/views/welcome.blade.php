@@ -227,8 +227,12 @@
                 📊 Dashboard Métricas
             </a>
             
-            <a href="http://localhost:8001/admin" class="link">
+            <a href="https://72.60.254.100/admin" class="link" target="_blank">
                 🎨 Painel Administrativo
+            </a>
+            
+            <a href="/customer-app" class="link" target="_blank">
+                👤 Portal do Cliente
             </a>
             
             <a href="/api/clientes" class="link">

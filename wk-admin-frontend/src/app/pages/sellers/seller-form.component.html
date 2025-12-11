@@ -18,29 +18,40 @@
           <div class="card">
             <div class="card-header"><h3 class="card-title">Informações do Vendedor</h3></div>
             <div class="card-body">
-              <div class="mb-3">
-                <label class="form-label">Nome</label>
-                <input class="form-control" formControlName="name">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Nome *</label>
+                <input class="form-control" formControlName="name" maxlength="120">
+                <div class="text-danger small" *ngIf="f.name.touched && f.name.invalid">Nome é obrigatório.</div>
               </div>
-              <div class="mb-3">
+              <div class="col-md-6 mb-3">
                 <label class="form-label">Email</label>
-                <input class="form-control" formControlName="email">
+                <input class="form-control" formControlName="email" maxlength="180">
+                <div class="text-danger small" *ngIf="f.email.touched && f.email.errors?.['email']">Email inválido.</div>
               </div>
-              <div class="mb-3">
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
                 <label class="form-label">Telefone</label>
-                <input class="form-control" formControlName="phone">
+                <input class="form-control" formControlName="phone" maxlength="30">
               </div>
-              <div class="mb-3">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Meta Mensal (R$)</label>
+                <input class="form-control" formControlName="monthly_goal" type="number" min="0" step="0.01">
+              </div>
+              <div class="col-md-4 mb-3">
                 <label class="form-label">Cargo</label>
                 <select class="form-control" formControlName="role">
                   <option value="">— Selecionar cargo —</option>
-                  <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+                  <option *ngFor="let r of roles" [value]="r">{{ roleLabel(r) }}</option>
                   <option value="other">Outro...</option>
                 </select>
                 <div *ngIf="form.get('role')?.value === 'other'" class="mt-2">
-                  <input class="form-control" formControlName="role_custom" placeholder="Digite o cargo">
+                  <input class="form-control" formControlName="role_custom" placeholder="Digite o cargo" maxlength="80">
                 </div>
               </div>
+            </div>
             </div>
             <div class="card-footer">
               <button class="btn btn-primary" type="submit">Salvar</button>

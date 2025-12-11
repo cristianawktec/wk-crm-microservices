@@ -1,22 +1,37 @@
 
 
 <template>
-  <div id="app">
-    <h1>WK Customer App</h1>
-    <p>Vue 3 + TypeScript funcionando!</p>
-  </div>
+  <router-view />
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useAuthStore } from './stores/auth'
 
-export default defineComponent({
-  name: 'App',
-});
+const authStore = useAuthStore()
+
+onMounted(async () => {
+  if (authStore.token) {
+    try {
+      await authStore.fetchUser()
+    } catch (error) {
+      console.error('Erro ao carregar usuário:', error)
+    }
+  }
+})
 </script>
 
-<style scoped>
-h1 {
-  color: #42b983;
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 </style>

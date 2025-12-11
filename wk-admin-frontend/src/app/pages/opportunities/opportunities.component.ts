@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../services/api.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-opportunities',
@@ -22,9 +23,19 @@ export class OpportunitiesComponent implements OnInit {
     'closed': 'Fechado'
   };
 
-  constructor(private api: ApiService, private router: Router) {}
+  constructor(
+    private api: ApiService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private toast: ToastService
+  ) {}
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['saved'] === '1') {
+        this.toast.success('Sucesso', 'Oportunidade salva com sucesso!');
+      }
+    });
     this.load();
   }
 
@@ -82,6 +93,37 @@ export class OpportunitiesComponent implements OnInit {
 
   delete(id: any) {
     if (!confirm('Tem certeza que deseja excluir esta oportunidade?')) return;
-    this.api.deleteOpportunity(id).subscribe({ next: () => this.load(), error: () => alert('Erro ao excluir oportunidade') });
+    this.api.deleteOpportunity(id).subscribe({
+      next: () => {
+        this.toast.success('Sucesso', 'Oportunidade excluída com sucesso!');
+        this.load();
+      },
+      error: () => this.toast.error('Erro', 'Não foi possível excluir a oportunidade.')
+    });
+  }
+
+  statusLabel(status: string | null): string {
+    const map: any = {
+      'open': 'Aberta',
+      'won': 'Ganha',
+      'lost': 'Perdida',
+      'negotiation': 'Em Negociação',
+      'proposal': 'Proposta Enviada',
+      'pending': 'Pendente',
+      'closed': 'Fechada'
+    };
+    return map[status || ''] || status || '—';
+  }
+
+  statusBadgeClass(status: string | null): string {
+    const map: any = {
+      'open': 'badge-info',
+      'won': 'badge-success',
+      'lost': 'badge-danger',
+      'negotiation': 'badge-warning',
+      'proposal': 'badge-primary',
+      'pending': 'badge-secondary'
+    };
+    return map[status || ''] || 'badge-secondary';
   }
 }

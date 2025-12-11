@@ -17,6 +17,7 @@ import { SalesComponent } from './app/pages/sales/sales.component';
 import { OpportunitiesComponent } from './app/pages/opportunities/opportunities.component';
 import { OpportunitiesFormComponent } from './app/pages/opportunities/opportunities-form.component';
 import { LoginComponent } from './app/components/login/login.component';
+import { ToastContainerComponent } from './app/components/toast-container/toast-container.component';
 import { AuthInterceptor } from './app/interceptors/auth.interceptor';
 import { AuthGuard } from './app/guards/auth.guard';
 import { RouterModule } from '@angular/router';
@@ -116,7 +117,8 @@ import { RouterModule } from '@angular/router';
     SalesComponent, 
     OpportunitiesComponent, 
     OpportunitiesFormComponent,
-    LoginComponent
+    LoginComponent,
+    ToastContainerComponent
   ],
   providers: [
     AuthGuard,

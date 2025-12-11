@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\LeadController;
 use App\Http\Controllers\Api\OpportunityController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\CustomerDashboardController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SellerController;
 
@@ -89,6 +90,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/sales-pipeline', [DashboardController::class, 'salesPipeline']);
     Route::get('/vendedores', [DashboardController::class, 'vendedores']);
     Route::post('/simulate-update', [DashboardController::class, 'simulateUpdate']);
+
+    // Customer Dashboard (Portal do Cliente)
+    Route::get('/dashboard/customer-stats', [CustomerDashboardController::class, 'getStats']);
+    Route::get('/profile', [CustomerDashboardController::class, 'getProfile']);
+    Route::put('/profile', [CustomerDashboardController::class, 'updateProfile']);
+    Route::get('/customer-opportunities', [CustomerDashboardController::class, 'getOpportunities']);
 
     // Reports
     Route::get('/reports/sales', [ReportController::class, 'salesReport']);

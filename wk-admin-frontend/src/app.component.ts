@@ -6,6 +6,7 @@ import { AuthService } from './app/services/auth.service';
 @Component({
   selector: 'app-root',
   template: `
+    <app-toast-container></app-toast-container>
     <ng-container *ngIf="!isLoginPage">
       <app-header></app-header>
       <div class="wrapper">

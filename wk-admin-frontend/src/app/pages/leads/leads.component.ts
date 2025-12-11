@@ -82,6 +82,29 @@ export class LeadsComponent implements OnInit {
     return s.email || s.email_address || '';
   }
 
+  statusLabel(status: string | null): string {
+    const map: any = {
+      new: 'Novo',
+      contacted: 'Contactado',
+      qualified: 'Qualificado',
+      converted: 'Convertido',
+      lost: 'Perdido'
+    };
+    return map[status || ''] || status || '-';
+  }
+
+  sourceLabel(source: string | null): string {
+    const map: any = {
+      web: 'Web',
+      referral: 'Referência',
+      event: 'Evento',
+      outbound: 'Outbound',
+      inbound: 'Inbound',
+      ads: 'Anúncios'
+    };
+    return map[source || ''] || source || '—';
+  }
+
   goNew() {
     this.loading = false;
     this.router.navigate(['/leads', 'new']);

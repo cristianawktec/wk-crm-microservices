@@ -60,6 +60,8 @@
                   <th>Email</th>
                   <th>Vendedor</th>
                   <th>Telefone</th>
+                  <th>Fonte</th>
+                  <th>Status</th>
                   <th class="text-end">Ações</th>
                 </tr>
               </thead>
@@ -72,13 +74,23 @@
                     <div class="text-muted small">{{ getSellerEmail(l.seller_id) }}</div>
                   </td>
                   <td class="align-middle">{{ l.phone || 'N/A' }}</td>
+                  <td class="align-middle">{{ sourceLabel(l.source) }}</td>
+                  <td class="align-middle">
+                    <span class="badge" [ngClass]="{
+                      'bg-primary': l.status === 'new',
+                      'bg-info': l.status === 'contacted',
+                      'bg-warning': l.status === 'qualified',
+                      'bg-success': l.status === 'converted',
+                      'bg-danger': l.status === 'lost'
+                    }">{{ statusLabel(l.status) }}</span>
+                  </td>
                   <td class="text-end align-middle">
                     <button class="btn btn-sm btn-primary me-1" (click)="editLead(l.id)">Editar</button>
                     <button class="btn btn-sm btn-danger" (click)="deleteLead(l.id)">Excluir</button>
                   </td>
                 </tr>
                 <tr *ngIf="leads.length === 0">
-                  <td colspan="4" class="text-center text-muted py-3">Nenhum lead encontrado.</td>
+                  <td colspan="7" class="text-center text-muted py-3">Nenhum lead encontrado.</td>
                 </tr>
               </tbody>
             </table>

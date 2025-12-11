@@ -59,6 +59,7 @@
                   <th>Nome</th>
                   <th>Email</th>
                   <th>Telefone</th>
+                  <th>Meta Mensal (R$)</th>
                   <th class="text-end">Ações</th>
                 </tr>
               </thead>
@@ -67,13 +68,14 @@
                   <td class="align-middle">{{ s.name || s.nome || '—' }}</td>
                   <td class="align-middle text-truncate" style="max-width:220px;">{{ s.email || '—' }}</td>
                   <td class="align-middle">{{ s.phone || 'N/A' }}</td>
+                  <td class="align-middle">{{ (s.monthly_goal || 0) | currency:'BRL':'symbol':'1.0-0' }}</td>
                   <td class="text-end align-middle">
                     <button class="btn btn-sm btn-primary me-1" (click)="editSeller(s.id)">Editar</button>
                     <button class="btn btn-sm btn-danger" (click)="deleteSeller(s.id)">Excluir</button>
                   </td>
                 </tr>
                 <tr *ngIf="sellers.length === 0">
-                  <td colspan="4" class="text-center text-muted py-3">Nenhum vendedor encontrado.</td>
+                  <td colspan="5" class="text-center text-muted py-3">Nenhum vendedor encontrado.</td>
                 </tr>
               </tbody>
             </table>

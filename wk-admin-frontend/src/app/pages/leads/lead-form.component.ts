@@ -16,13 +16,14 @@ export class LeadFormComponent implements OnInit {
 
   constructor(private fb: FormBuilder, private api: ApiService, private route: ActivatedRoute, private router: Router) {
     this.form = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', Validators.email],
-      phone: [''],
-      source: [''],
-      source_custom: [''],
-      status: ['new'],
-      seller_id: ['']
+      name: ['', [Validators.required, Validators.maxLength(120)]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(180)]],
+      phone: ['', [Validators.maxLength(30)]],
+      source: ['', [Validators.maxLength(80)]],
+      source_custom: ['', [Validators.maxLength(80)]],
+      status: ['new', [Validators.required]],
+      seller_id: [''],
+      notes: ['', [Validators.maxLength(500)]]
     });
   }
 
@@ -45,6 +46,7 @@ export class LeadFormComponent implements OnInit {
         // ensure seller_id is present in the form if returned
         const payload = Object.assign({}, res);
         if (res.seller_id) payload.seller_id = res.seller_id;
+        if (!payload.status) payload.status = 'new';
         this.form.patchValue(payload);
         this.loading = false;
       },
@@ -82,12 +84,18 @@ export class LeadFormComponent implements OnInit {
   }
 
   save() {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.loading = true;
-    const payload: any = Object.assign({}, this.form.value);
+    const payload: any = { ...this.form.value };
     if (payload.source === 'other' && payload.source_custom) {
       payload.source = payload.source_custom;
     }
+    if (payload.phone) payload.phone = payload.phone.trim();
+    if (payload.email) payload.email = payload.email.trim();
+    if (payload.name) payload.name = payload.name.trim();
     // remove helper field
     delete payload.source_custom;
     if (this.currentId) {
@@ -101,5 +109,19 @@ export class LeadFormComponent implements OnInit {
     this.loading = false;
     // navigate back to list with saved query param to show success
     this.router.navigate(['/leads'], { queryParams: { saved: '1' } });
+  }
+
+  get f() { return this.form.controls; }
+
+  sourceLabel(source: string | null): string {
+    const map: any = {
+      web: 'Web',
+      referral: 'Referência',
+      event: 'Evento',
+      outbound: 'Outbound',
+      inbound: 'Inbound',
+      ads: 'Anúncios'
+    };
+    return map[source || ''] || source || '—';
   }
 }

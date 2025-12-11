@@ -18,45 +18,62 @@
           <div class="card">
             <div class="card-header"><h3 class="card-title">Informações do Lead</h3></div>
             <div class="card-body">
-              <div class="mb-3">
-                <label class="form-label">Nome</label>
-                <input class="form-control" formControlName="name">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input class="form-control" formControlName="email">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Telefone</label>
-                <input class="form-control" formControlName="phone">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Fonte</label>
-                <select class="form-control" formControlName="source">
-                  <option value="">— Selecionar fonte —</option>
-                  <option *ngFor="let s of sources" [value]="s">{{ s }}</option>
-                  <option value="other">Outro...</option>
-                </select>
-                <div *ngIf="form.get('source')?.value === 'other'" class="mt-2">
-                  <input class="form-control" formControlName="source_custom" placeholder="Digite a fonte">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Nome *</label>
+                  <input class="form-control" formControlName="name" maxlength="120">
+                  <div class="text-danger small" *ngIf="f.name.touched && f.name.invalid">Nome é obrigatório.</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Email *</label>
+                  <input class="form-control" formControlName="email" maxlength="180">
+                  <div class="text-danger small" *ngIf="f.email.touched && f.email.errors?.['required']">Email é obrigatório.</div>
+                  <div class="text-danger small" *ngIf="f.email.touched && f.email.errors?.['email']">Email inválido.</div>
                 </div>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Status</label>
-                <select class="form-control" formControlName="status">
-                  <option value="new">Novo</option>
-                  <option value="contacted">Contactado</option>
-                  <option value="qualified">Qualificado</option>
-                  <option value="converted">Convertido</option>
-                  <option value="lost">Perdido</option>
-                </select>
+
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Telefone</label>
+                  <input class="form-control" formControlName="phone" maxlength="30">
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Fonte</label>
+                  <select class="form-control" formControlName="source">
+                    <option value="">— Selecionar fonte —</option>
+                    <option *ngFor="let s of sources" [value]="s">{{ sourceLabel(s) }}</option>
+                    <option value="other">Outro...</option>
+                  </select>
+                  <div *ngIf="form.get('source')?.value === 'other'" class="mt-2">
+                    <input class="form-control" formControlName="source_custom" placeholder="Digite a fonte" maxlength="80">
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Status *</label>
+                  <select class="form-control" formControlName="status">
+                    <option value="new">Novo</option>
+                    <option value="contacted">Contactado</option>
+                    <option value="qualified">Qualificado</option>
+                    <option value="converted">Convertido</option>
+                    <option value="lost">Perdido</option>
+                  </select>
+                  <div class="text-danger small" *ngIf="f.status.touched && f.status.invalid">Status é obrigatório.</div>
+                </div>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Vendedor</label>
-                <select class="form-control" formControlName="seller_id">
-                  <option value="">— Selecionar vendedor —</option>
-                  <option *ngFor="let s of sellers" [value]="s.id">{{ s.name || s.nome }}</option>
-                </select>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Vendedor</label>
+                  <select class="form-control" formControlName="seller_id">
+                    <option value="">— Selecionar vendedor —</option>
+                    <option *ngFor="let s of sellers" [value]="s.id">{{ s.name || s.nome }}</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Observações</label>
+                  <textarea class="form-control" rows="3" formControlName="notes" maxlength="500" placeholder="Observações sobre o lead"></textarea>
+                  <div class="text-muted small text-end">{{ f.notes.value?.length || 0 }}/500</div>
+                </div>
               </div>
             </div>
             <div class="card-footer">
