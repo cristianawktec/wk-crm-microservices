@@ -115,12 +115,12 @@ export function useNotificationService() {
   function startSSEStream() {
     try {
       const token = localStorage.getItem('auth_token')
-      if (!token) return
+      const streamUrl = new URL(`${apiUrl}/notifications/stream`)
+      if (token) {
+        streamUrl.searchParams.set('token', token)
+      }
 
-      sseConnection = new EventSource(
-        `${apiUrl}/notifications/stream`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      sseConnection = new EventSource(streamUrl.toString())
 
       sseConnection.addEventListener('message', (event) => {
         try {

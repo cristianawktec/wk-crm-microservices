@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class NotificationController extends Controller
 {
@@ -183,7 +184,24 @@ class NotificationController extends Controller
      */
     public function stream(Request $request)
     {
+        // Tenta autenticar via sessão (cookie), bearer ou token na query string (?token=...)
         $user = $request->user();
+
+        if (!$user) {
+            $queryToken = $request->query('token');
+
+            if ($queryToken) {
+                $accessToken = PersonalAccessToken::findToken($queryToken);
+                $user = $accessToken?->tokenable;
+            }
+        }
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
 
         return response()->stream(function () use ($user) {
             // Send initial heartbeat
