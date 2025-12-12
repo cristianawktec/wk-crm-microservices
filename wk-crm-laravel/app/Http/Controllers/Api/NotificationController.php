@@ -211,6 +211,7 @@ class NotificationController extends Controller
             // Keep connection alive for 30 minutes
             $startTime = time();
             $timeout = 30 * 60; // 30 minutes
+            $lastCheckTs = now();
 
             while ((time() - $startTime) < $timeout) {
                 // Check for new unread notifications
@@ -220,6 +221,27 @@ class NotificationController extends Controller
                 echo "data: {\"type\":\"heartbeat\",\"unread_count\":{$unreadCount}}\n\n";
                 flush();
 
+                // Emit any new notifications created since last check
+                $newNotifs = \App\Models\Notification::where('user_id', $user->id)
+                    ->where('created_at', '>', $lastCheckTs)
+                    ->orderBy('created_at')
+                    ->get();
+
+                foreach ($newNotifs as $n) {
+                    $payload = [
+                        'type' => 'notification',
+                        'id' => $n->id,
+                        'title' => $n->title,
+                        'message' => $n->message,
+                        'action_url' => $n->action_url,
+                        'data' => $n->data,
+                        'created_at' => $n->created_at->toIso8601String()
+                    ];
+                    echo 'data: '.json_encode($payload)."\n\n";
+                    flush();
+                }
+
+                $lastCheckTs = now();
                 sleep(10);
             }
         }, 200, [

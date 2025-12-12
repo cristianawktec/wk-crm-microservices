@@ -56,10 +56,14 @@ class OpportunityController extends Controller
         unset($data['client_id']);
 
         $opp = Opportunity::create($data);
-        return response()->json($opp, 201);
-
-            // Send notification
+        // Send notification BEFORE returning response
+        try {
             NotificationService::opportunityCreated($opp, $request->user());
+        } catch (\Throwable $e) {
+            // log silently to avoid breaking creation
+            \Log::warning('Failed to send opportunity created notification: '.$e->getMessage());
+        }
+        return response()->json($opp, 201);
     }
 
     public function show($id)
