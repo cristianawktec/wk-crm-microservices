@@ -84,6 +84,28 @@ O sistema estará disponível em http://localhost:8000
 
 ---
 Se precisar rodar sem banco, basta pular as etapas de banco/migration e ajustar os controllers para não depender de dados persistidos.
+
+### 1.1. Teste de Notificações SSE (Local)
+Para testar o fluxo de notificações em tempo real (SSE) e o endpoint de criação de oportunidades a partir do navegador:
+
+```powershell
+cd C:\xampp\htdocs\crm
+npm run serve:test
+```
+
+Em seguida, abra:
+
+- http://localhost:8080/test-sse.html
+
+No painel, clique em "Criar Oportunidade (Teste)". Você deve ver:
+- Status 201 no POST de `/api/opportunities`
+- Evento SSE "notification" exibindo o cartão "Teste Criado"
+- Heartbeats periódicos do stream
+
+Observações:
+- O SSE autentica via token na query string (`?token=...`) por limitação do `EventSource`.
+- Se aparecer 404 ao abrir a página, garanta que o servidor está rodando e a raiz (`ROOT`) aponta para `C:\xampp\htdocs\crm`.
+- Para parar o servidor de teste: `Ctrl+C` no terminal.
 ### 2. Frontend Angular (Dashboard)
 ```powershell
 cd C:\xampp\htdocs\crm\wk-admin-frontend

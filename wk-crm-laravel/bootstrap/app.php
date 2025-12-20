@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Ensure JSON bodies are parsed for all API requests
         $middleware->api(prepend: [
+            // Add CORS first so preflight requests are handled quickly
+            \App\Http\Middleware\CorsMiddleware::class,
             \App\Http\Middleware\EnsureJsonBodyIsParsed::class,
         ]);
 

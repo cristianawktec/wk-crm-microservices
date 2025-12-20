@@ -39,6 +39,8 @@ class OpportunityController extends Controller
 
     public function store(Request $request)
     {
+        \Log::info('[OpportunityController@store] START');
+        \Log::info('[OpportunityController@store] USER', ['id' => optional($request->user())->id]);
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'customer_id' => 'nullable|string',
@@ -55,14 +57,19 @@ class OpportunityController extends Controller
         $data['customer_id'] = $data['customer_id'] ?? $data['client_id'] ?? null;
         unset($data['client_id']);
 
+        \Log::info('[OpportunityController@store] DATA_VALIDATED', $data);
         $opp = Opportunity::create($data);
+        \Log::info('[OpportunityController@store] CREATED', ['id' => $opp->id]);
         // Send notification BEFORE returning response
         try {
+            $t0 = microtime(true);
             NotificationService::opportunityCreated($opp, $request->user());
+            \Log::info('[OpportunityController@store] NOTIFIED', ['ms' => (int)((microtime(true) - $t0) * 1000)]);
         } catch (\Throwable $e) {
             // log silently to avoid breaking creation
             \Log::warning('Failed to send opportunity created notification: '.$e->getMessage());
         }
+        \Log::info('[OpportunityController@store] END');
         return response()->json($opp, 201);
     }
 

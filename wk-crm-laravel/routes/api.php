@@ -128,3 +128,42 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // SSE stream de notificações autenticado via token na query string
 Route::get('/notifications/stream', [NotificationController::class, 'stream']);
+
+// SSE Test endpoint (no auth for debugging)
+Route::get('/notifications/test-stream', function () {
+    set_time_limit(0);
+    ob_implicit_flush(true);
+    
+    return response()->stream(function () {
+        // Send initial connected message
+        echo "data: " . json_encode(['type' => 'connected', 'message' => 'Test SSE working!']) . "\n\n";
+        if (ob_get_level() > 0) {
+            ob_flush();
+        }
+        flush();
+        
+        // Send 5 heartbeat messages
+        for ($i = 1; $i <= 5; $i++) {
+            sleep(2);
+            echo "data: " . json_encode(['type' => 'heartbeat', 'count' => $i]) . "\n\n";
+            if (ob_get_level() > 0) {
+                ob_flush();
+            }
+            flush();
+        }
+        
+        echo "data: " . json_encode(['type' => 'done', 'message' => 'Test complete']) . "\n\n";
+        if (ob_get_level() > 0) {
+            ob_flush();
+        }
+        flush();
+    }, 200, [
+        'Content-Type' => 'text/event-stream',
+        'Cache-Control' => 'no-cache',
+        'Connection' => 'keep-alive',
+        'X-Accel-Buffering' => 'no',
+        'Access-Control-Allow-Origin' => '*',
+        'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+        'Access-Control-Allow-Headers' => 'Content-Type',
+    ]);
+});

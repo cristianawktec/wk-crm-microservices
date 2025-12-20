@@ -113,29 +113,50 @@ class NotificationService
      */
     public static function opportunityCreated($opportunity, $createdBy = null): void
     {
-        // Notify sales managers
-        $managerIds = User::whereHas('roles', function ($q) {
-            $q->whereIn('name', ['admin', 'manager']);
-        })->pluck('id')->toArray();
+        try {
+            $begin = microtime(true);
+            // Notify sales managers (limit to avoid slow queries)
+            $qStart = microtime(true);
+            $managerIds = User::whereHas('roles', function ($q) {
+                $q->whereIn('name', ['admin', 'manager']);
+            })->limit(50)->pluck('id')->toArray();
+            \Log::info('[NotificationService] managerIds fetched', [
+                'count' => count($managerIds),
+                'ms' => (int)((microtime(true) - $qStart) * 1000)
+            ]);
 
-        $data = [
-            'type' => 'opportunity_created',
-            'title' => '🎯 Nova Oportunidade',
-            'message' => "Oportunidade \"{$opportunity->title}\" foi criada. Valor: R\$ " . number_format($opportunity->value, 2, ',', '.'),
-            'action_url' => "/opportunities/{$opportunity->id}",
-            'related_data' => [
-                'opportunity_id' => $opportunity->id,
-                'opportunity_title' => $opportunity->title,
-                'opportunity_value' => $opportunity->value,
-                'seller_name' => $opportunity->seller?->name ?? 'Não atribuído'
-            ]
-        ];
+            if (empty($managerIds)) {
+                Log::info('No managers found for opportunity notification');
+                return;
+            }
 
-        if ($createdBy) {
-            $data['related_data']['created_by'] = $createdBy->name;
+            $data = [
+                'type' => 'opportunity_created',
+                'title' => '🎯 Nova Oportunidade',
+                'message' => "Oportunidade \"{$opportunity->title}\" foi criada. Valor: R\$ " . number_format($opportunity->value ?? 0, 2, ',', '.'),
+                'action_url' => "/opportunities/{$opportunity->id}",
+                'related_data' => [
+                    'opportunity_id' => $opportunity->id,
+                    'opportunity_title' => $opportunity->title,
+                    'opportunity_value' => $opportunity->value ?? 0,
+                    'seller_name' => $opportunity->seller?->name ?? 'Não atribuído'
+                ]
+            ];
+
+            if ($createdBy) {
+                $data['related_data']['created_by'] = $createdBy->name;
+            }
+
+            $nStart = microtime(true);
+            static::notifyMany($managerIds, $data);
+            \Log::info('[NotificationService] notifyMany completed', [
+                'recipients' => count($managerIds),
+                'ms' => (int)((microtime(true) - $nStart) * 1000),
+                'total_ms' => (int)((microtime(true) - $begin) * 1000)
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Failed in opportunityCreated: ' . $e->getMessage());
         }
-
-        static::notifyMany($managerIds, $data);
     }
 
     /**

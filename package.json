@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "serve:test": "set ROOT=%cd% && node tools\\static_server.js 8080"
+  },
   "devDependencies": {
     "vite": "^7.2.4",
     "vue": "^3.5.25",
