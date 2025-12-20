@@ -195,13 +195,25 @@ class NotificationController extends Controller
                     'token_length' => strlen($queryToken),
                     'token_first_20_chars' => substr($queryToken, 0, 20),
                 ]);
-                $accessToken = PersonalAccessToken::findToken($queryToken);
-                $user = $accessToken?->tokenable;
                 
-                if (!$user) {
-                    \Log::warning('[NotificationController] Token not found in DB', [
-                        'token' => $queryToken,
-                        'token_exists' => !is_null($accessToken),
+                try {
+                    $accessToken = PersonalAccessToken::findToken($queryToken);
+                    \Log::info('[NotificationController] findToken result', [
+                        'found' => !is_null($accessToken),
+                        'has_tokenable' => !is_null($accessToken?->tokenable),
+                    ]);
+                    $user = $accessToken?->tokenable;
+                    
+                    if (!$user) {
+                        \Log::warning('[NotificationController] Token not found in DB', [
+                            'token_prefix' => substr($queryToken, 0, 10),
+                            'token_exists' => !is_null($accessToken),
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('[NotificationController] findToken exception', [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
                     ]);
                 }
             }
