@@ -250,8 +250,8 @@ class NotificationController extends Controller
             // Keep connection alive for 30 minutes
             $startTime = time();
             $timeout = 30 * 60; // 30 minutes
-            // Use app timezone to match created_at timestamps
-            $lastCheckTs = now()->subSeconds(1);
+            // Track which notifications we've already sent to avoid duplicates
+            $sentNotificationIds = [];
 
             while ((time() - $startTime) < $timeout) {
                 \Log::debug('[NotificationController] Heartbeat loop iteration', [
@@ -267,21 +267,25 @@ class NotificationController extends Controller
                 if (ob_get_level()) ob_flush();
                 flush();
 
-                // Emit any new notifications created since last check
-                $newNotifs = \App\Models\Notification::where('user_id', $user->id)
-                    ->where('created_at', '>', $lastCheckTs)
+                // Emit all unread notifications that haven't been sent yet
+                $allUnread = \App\Models\Notification::where('user_id', $user->id)
+                    ->whereNull('read_at')
                     ->orderBy('created_at')
                     ->get();
+
+                $newNotifs = $allUnread->filter(function($n) use (&$sentNotificationIds) {
+                    return !in_array($n->id, $sentNotificationIds);
+                });
 
                 if ($newNotifs->count() > 0) {
                     \Log::info('[NotificationController] New notifications to send', [
                         'count' => $newNotifs->count(),
-                        'since' => $lastCheckTs->toIso8601String(),
-                        'latest_created_at' => optional($newNotifs->last()->created_at)->toIso8601String(),
+                        'total_unread' => $allUnread->count(),
                     ]);
                 }
 
                 foreach ($newNotifs as $n) {
+                    $sentNotificationIds[] = $n->id;
                     $payload = [
                         'type' => 'notification',
                         'id' => $n->id,
@@ -296,7 +300,6 @@ class NotificationController extends Controller
                     flush();
                 }
 
-                $lastCheckTs = now();
                 sleep(10);
             }
         }, 200, [
