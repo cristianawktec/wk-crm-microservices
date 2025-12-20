@@ -237,9 +237,13 @@ class NotificationController extends Controller
         return response()->stream(function () use ($user) {
             \Log::info('[NotificationController] Inside stream callback', ['user_id' => $user->id]);
             
+            // Disable output buffering
+            if (ob_get_level()) ob_end_clean();
+            
             // Send initial heartbeat
             echo "data: {\"type\":\"connected\",\"user_id\":\"{$user->id}\"}\n\n";
             \Log::info('[NotificationController] Sent connected event');
+            if (ob_get_level()) ob_flush();
             flush();
             \Log::info('[NotificationController] Flushed connected event');
 
@@ -259,6 +263,7 @@ class NotificationController extends Controller
 
                 // Send heartbeat with unread count every 10 seconds
                 echo "data: {\"type\":\"heartbeat\",\"unread_count\":{$unreadCount}}\n\n";
+                if (ob_get_level()) ob_flush();
                 flush();
 
                 // Emit any new notifications created since last check
@@ -278,6 +283,7 @@ class NotificationController extends Controller
                         'created_at' => $n->created_at->toIso8601String()
                     ];
                     echo 'data: '.json_encode($payload)."\n\n";
+                    if (ob_get_level()) ob_flush();
                     flush();
                 }
 
