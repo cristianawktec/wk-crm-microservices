@@ -250,8 +250,8 @@ class NotificationController extends Controller
             // Keep connection alive for 30 minutes
             $startTime = time();
             $timeout = 30 * 60; // 30 minutes
-            // Use UTC to match DB timestamps and avoid missing new rows
-            $lastCheckTs = now('UTC')->subSeconds(1);
+            // Use app timezone to match created_at timestamps
+            $lastCheckTs = now()->subSeconds(1);
 
             while ((time() - $startTime) < $timeout) {
                 \Log::debug('[NotificationController] Heartbeat loop iteration', [
@@ -277,6 +277,7 @@ class NotificationController extends Controller
                     \Log::info('[NotificationController] New notifications to send', [
                         'count' => $newNotifs->count(),
                         'since' => $lastCheckTs->toIso8601String(),
+                        'latest_created_at' => optional($newNotifs->last()->created_at)->toIso8601String(),
                     ]);
                 }
 
@@ -295,7 +296,7 @@ class NotificationController extends Controller
                     flush();
                 }
 
-                $lastCheckTs = now('UTC');
+                $lastCheckTs = now();
                 sleep(10);
             }
         }, 200, [
