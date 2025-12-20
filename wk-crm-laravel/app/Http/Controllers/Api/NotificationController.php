@@ -191,12 +191,26 @@ class NotificationController extends Controller
             $queryToken = $request->query('token');
 
             if ($queryToken) {
+                \Log::info('[NotificationController] Stream token received', [
+                    'token_length' => strlen($queryToken),
+                    'token_first_20_chars' => substr($queryToken, 0, 20),
+                ]);
                 $accessToken = PersonalAccessToken::findToken($queryToken);
                 $user = $accessToken?->tokenable;
+                
+                if (!$user) {
+                    \Log::warning('[NotificationController] Token not found in DB', [
+                        'token' => $queryToken,
+                        'token_exists' => !is_null($accessToken),
+                    ]);
+                }
             }
         }
 
         if (!$user) {
+            \Log::error('[NotificationController] Unauthorized SSE attempt', [
+                'has_query_token' => $request->has('token'),
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'
