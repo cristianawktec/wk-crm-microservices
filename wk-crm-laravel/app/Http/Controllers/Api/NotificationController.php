@@ -229,10 +229,19 @@ class NotificationController extends Controller
             ], 401);
         }
 
+        \Log::info('[NotificationController] Starting SSE stream', [
+            'user_id' => $user->id,
+            'timestamp' => now()->toIso8601String(),
+        ]);
+
         return response()->stream(function () use ($user) {
+            \Log::info('[NotificationController] Inside stream callback', ['user_id' => $user->id]);
+            
             // Send initial heartbeat
             echo "data: {\"type\":\"connected\",\"user_id\":\"{$user->id}\"}\n\n";
+            \Log::info('[NotificationController] Sent connected event');
             flush();
+            \Log::info('[NotificationController] Flushed connected event');
 
             // Keep connection alive for 30 minutes
             $startTime = time();
@@ -240,6 +249,11 @@ class NotificationController extends Controller
             $lastCheckTs = now();
 
             while ((time() - $startTime) < $timeout) {
+                \Log::debug('[NotificationController] Heartbeat loop iteration', [
+                    'elapsed' => (time() - $startTime),
+                    'user_id' => $user->id,
+                ]);
+                
                 // Check for new unread notifications
                 $unreadCount = \App\Models\Notification::unreadCount($user->id);
 
