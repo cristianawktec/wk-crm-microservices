@@ -32,14 +32,16 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Return 401 JSON for unauthenticated API requests, don't redirect
+        // Handle AuthenticationException for API requests - return 401 JSON instead of redirecting
         $exceptions->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
-            if ($request->expectsJson()) {
+            // For API requests, always return JSON with 401
+            if ($request->expectsJson() || str_starts_with($request->path(), 'api/')) {
                 return response()->json([
                     'message' => 'Unauthenticated',
                     'error' => 'Authentication required',
                 ], 401);
             }
+            // For web requests, let Laravel handle the default redirect
             return null;
         });
     })
