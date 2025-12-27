@@ -7,8 +7,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Customer;
-use App\Domain\Lead\Lead;
-use App\Domain\Opportunity\Opportunity;
+use App\Models\Lead;
+use App\Models\Opportunity;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -137,7 +137,7 @@ class DashboardController extends Controller
         }
 
         // Últimos leads
-        $leads = \App\Domain\Lead\Lead::orderByDesc('created_at')->take(2)->get();
+        $leads = \App\Models\Lead::orderByDesc('created_at')->take(2)->get();
         foreach ($leads as $l) {
             $atividadesFormatadas[] = [
                 'id' => $l->id,
@@ -148,7 +148,7 @@ class DashboardController extends Controller
         }
 
         // Últimas oportunidades
-        $opps = \App\Domain\Opportunity\Opportunity::orderByDesc('created_at')->take(1)->get();
+        $opps = \App\Models\Opportunity::orderByDesc('created_at')->take(1)->get();
         foreach ($opps as $o) {
             $atividadesFormatadas[] = [
                 'id' => $o->id,
@@ -551,9 +551,14 @@ class DashboardController extends Controller
      */
     private function getLeadQuery(?string $startDate, ?string $endDate)
     {
-        $query = is_string('App\Domain\Lead\Lead') 
-            ? app('App\Domain\Lead\Lead')::query()
-            : \App\Models\Lead::query();
+        // Prefer Eloquent model; fall back only if a Domain class with query() exists
+        if (class_exists(\App\Models\Lead::class)) {
+            $query = \App\Models\Lead::query();
+        } elseif (class_exists(\App\Domain\Lead\Lead::class) && method_exists(\App\Domain\Lead\Lead::class, 'query')) {
+            $query = \App\Domain\Lead\Lead::query();
+        } else {
+            $query = Lead::query();
+        }
             
         if ($startDate) {
             $query->whereDate('created_at', '>=', $startDate);
@@ -569,9 +574,14 @@ class DashboardController extends Controller
      */
     private function getOpportunityQuery(?string $startDate, ?string $endDate)
     {
-        $query = is_string('App\Domain\Opportunity\Opportunity')
-            ? app('App\Domain\Opportunity\Opportunity')::query()
-            : \App\Models\Opportunity::query();
+        // Prefer Eloquent model; fall back only if a Domain class with query() exists
+        if (class_exists(\App\Models\Opportunity::class)) {
+            $query = \App\Models\Opportunity::query();
+        } elseif (class_exists(\App\Domain\Opportunity\Opportunity::class) && method_exists(\App\Domain\Opportunity\Opportunity::class, 'query')) {
+            $query = \App\Domain\Opportunity\Opportunity::query();
+        } else {
+            $query = Opportunity::query();
+        }
             
         if ($startDate) {
             $query->whereDate('created_at', '>=', $startDate);
