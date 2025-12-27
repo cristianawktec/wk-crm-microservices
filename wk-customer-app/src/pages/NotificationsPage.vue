@@ -168,8 +168,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useNotificationService, type Notification } from '@/services/notification'
-import axios from 'axios'
+import { useNotificationService, type Notification } from '../services/notification'
+import apiClient from '../services/api'
 
 const router = useRouter()
 const { markAsRead, markAllAsRead, deleteNotification, cleanup } = useNotificationService()
@@ -180,8 +180,6 @@ const currentPage = ref(1)
 const itemsPerPage = 20
 const allNotifications = ref<Notification[]>([])
 const totalCount = ref(0)
-
-const apiUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '')
 
 onMounted(async () => {
   await loadNotifications()
@@ -200,19 +198,26 @@ onMounted(async () => {
 async function loadNotifications() {
   try {
     const skip = (currentPage.value - 1) * itemsPerPage
-    const response = await axios.get(`${apiUrl}/notifications?limit=${itemsPerPage}&skip=${skip}`)
+    const limit = itemsPerPage
+    
+    console.log(`📡 Loading notifications: limit=${limit}, page=${currentPage.value}`)
+    
+    const response = await apiClient.get(`/notifications?limit=${limit}`)
+    
+    console.log('📦 Notifications response:', response.data)
     
     if (response.data.success) {
       allNotifications.value = response.data.data || []
       totalCount.value = response.data.total || 0
+      console.log(`✅ Loaded ${allNotifications.value.length} notifications`)
     }
   } catch (error) {
-    console.error('Error loading notifications:', error)
+    console.error('❌ Error loading notifications:', error)
   }
 }
 
 const filteredNotifications = computed(() => {
-  return allNotifications.value.filter(n => {
+  return allNotifications.value.filter((n: Notification) => {
     if (filterType.value && n.type !== filterType.value) return false
     if (filterStatus.value === 'unread' && n.is_read) return false
     if (filterStatus.value === 'read' && !n.is_read) return false
@@ -221,7 +226,7 @@ const filteredNotifications = computed(() => {
 })
 
 const hasUnread = computed(() => {
-  return allNotifications.value.some(n => !n.is_read)
+  return allNotifications.value.some((n: Notification) => !n.is_read)
 })
 
 const totalPages = computed(() => {

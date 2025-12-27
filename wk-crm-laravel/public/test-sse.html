@@ -51,44 +51,21 @@
             background: #fafafa;
         }
         .notification-item {
-            padding: 15px;
-            margin-bottom: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
             background: white;
-            border-left: 5px solid #1e7e34;
+            border-left: 4px solid #1e7e34;
             border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-            border-right: 1px solid #eee;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         .notification-item strong {
             color: #1e7e34;
             display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 5px;
         }
-        .notification-item .message {
-            color: #333;
-            margin-bottom: 8px;
-            line-height: 1.4;
-            word-break: break-word;
-        }
-        .notification-item .details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .notification-item small {
+            color: #666;
             font-size: 12px;
-        }
-        .notification-item .type-badge {
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-weight: bold;
-            font-size: 11px;
-        }
-        .notification-item .time {
-            color: #999;
         }
         .actions {
             margin-top: 20px;
@@ -147,13 +124,9 @@
 
     <script>
         // Point directly to Laravel in dev (container maps 8000->8000)
-        // Ambiente: defina para produção quando for testar na VPS
-        const API_URL = 'https://api.consultoriawk.com/api';
-        // Token Sanctum gerado na VPS (use o valor completo)
-        const TOKEN = '23|bGzJCT1GjCx2SBS41yFgNr0kgG2K8GUSK92YkN4Uda802f10';
-        // Opcional: cliente para vincular oportunidade (na VPS pode não existir)
-        // Para testes na VPS, vamos omitir `customer_id` para evitar FK inválida
-        const CUSTOMER_ID = null;
+        const API_URL = 'http://localhost:8000/api';
+        const TOKEN = '15|skf9wR9rwcgL6Ga8LAPyt8kgm3Rh6WSCV3Sf5lnkfc1837c7';
+        const CUSTOMER_ID = '92a54ecd-a180-4ac2-8a41-f9bd185b1b4c';
         let eventSource = null;
         let notificationCount = 0;
         let unreadCount = 0;
@@ -175,30 +148,12 @@
             const item = document.createElement('div');
             item.className = 'notification-item';
             
-            const time = new Date(data.created_at || new Date()).toLocaleTimeString('pt-BR');
-            const typeLabel = {
-                'connected': '🔗 Conectado',
-                'heartbeat': '💓 Heartbeat',
-                'notification': '📬 Notificação',
-                'opportunity_created': '🎯 Oportunidade Criada'
-            }[data.type] || data.type;
-            
-            // Formata mensagem de forma legível
-            let messageHtml = '';
-            if (data.message) {
-                messageHtml = `<div class="message">${escapeHtml(data.message)}</div>`;
-            }
-            if (data.unread_count !== undefined) {
-                messageHtml += `<div class="message"><small>Notificações não lidas: <strong>${data.unread_count}</strong></small></div>`;
-            }
+            const time = new Date().toLocaleTimeString('pt-BR');
             
             item.innerHTML = `
-                <strong>${typeLabel}</strong>
-                ${messageHtml}
-                <div class="details">
-                    <span class="type-badge">${escapeHtml(data.type)}</span>
-                    <span class="time">${time}</span>
-                </div>
+                <strong>${data.title || data.type}</strong>
+                <div>${data.message || JSON.stringify(data)}</div>
+                <small>⏰ ${time}</small>
             `;
             
             container.insertBefore(item, container.firstChild);
@@ -208,14 +163,6 @@
                 unreadCount++;
                 updateBadge();
             }
-
-            console.log(`✅ Notificação adicionada: ${typeLabel}`);
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
         }
 
         function updateBadge() {
@@ -235,7 +182,7 @@
 
             updateStatus('🔄 Conectando ao SSE...', 'connecting');
 
-            const streamUrl = `${API_URL}/notifications/stream?token=${encodeURIComponent(TOKEN)}`;
+            const streamUrl = `${API_URL}/notifications/stream?token=${TOKEN}`;
             eventSource = new EventSource(streamUrl);
 
             eventSource.onopen = () => {
@@ -284,9 +231,9 @@
                     title: `Teste SSE ${new Date().toLocaleTimeString('pt-BR')}`,
                     value: Math.floor(Math.random() * 50000) + 10000,
                     status: 'open',
-                    probability: 50
+                    probability: 50,
+                    customer_id: CUSTOMER_ID
                 };
-                if (CUSTOMER_ID) payload.customer_id = CUSTOMER_ID;
                 
                 console.log('📦 Payload:', payload);
                 console.log('🔗 URL:', `${API_URL}/opportunities`);

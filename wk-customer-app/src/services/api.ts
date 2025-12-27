@@ -1,12 +1,14 @@
 import axios, { type AxiosInstance } from 'axios'
 
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+
 const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8001',
+  baseURL: `${apiBase}/api`,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   },
-  timeout: 30000
+  timeout: 60000
 })
 
 // Request interceptor
@@ -27,10 +29,11 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      window.location.href = '/login'
-    }
+    // Não desloga automaticamente no 401 para evitar loops
+    // if (error.response?.status === 401) {
+    //   localStorage.removeItem('token')
+    //   window.location.href = '/login'
+    // }
     return Promise.reject(error)
   }
 )
@@ -41,7 +44,7 @@ export default apiClient
 export const api = {
   // Dashboard
   getDashboardStats: async () => {
-    const response = await apiClient.get('/api/dashboard/customer-stats')
+    const response = await apiClient.get('/dashboard/customer-stats')
     // Map response to expected format
     const { data } = response.data
     return {
@@ -58,7 +61,7 @@ export const api = {
   
   // Opportunities
   getOpportunities: async (params?: any) => {
-    const response = await apiClient.get('/api/customer-opportunities', { params })
+    const response = await apiClient.get('/customer-opportunities', { params })
     // Map response to expected format
     const { data } = response.data
     return {
@@ -72,7 +75,7 @@ export const api = {
     probability?: number
     notes?: string
   }) => {
-    const response = await apiClient.post('/api/customer-opportunities', payload)
+    const response = await apiClient.post('/customer-opportunities', payload)
     return response.data.data
   },
   updateOpportunity: async (id: string, payload: {
@@ -82,29 +85,29 @@ export const api = {
     probability?: number
     notes?: string
   }) => {
-    const response = await apiClient.put(`/api/customer-opportunities/${id}`, payload)
+    const response = await apiClient.put(`/customer-opportunities/${id}`, payload)
     return response.data.data
   },
   deleteOpportunity: async (id: string) => {
-    const response = await apiClient.delete(`/api/customer-opportunities/${id}`)
+    const response = await apiClient.delete(`/customer-opportunities/${id}`)
     return response.data
   },
-  getOpportunity: (id: string) => apiClient.get(`/api/opportunities/${id}`),
+  getOpportunity: (id: string) => apiClient.get(`/opportunities/${id}`),
   
   // Profile
   getProfile: async () => {
-    const response = await apiClient.get('/api/profile')
+    const response = await apiClient.get('/profile')
     // Return the data object from the response
     return response.data.data
   },
   updateProfile: async (data: any) => {
-    const response = await apiClient.put('/api/profile', data)
+    const response = await apiClient.put('/profile', data)
     return response.data.data
   },
   
   // Auth
   login: (credentials: { email: string; password: string }) => 
-    apiClient.post('/api/auth/login', credentials),
-  logout: () => apiClient.post('/api/auth/logout'),
-  me: () => apiClient.get('/api/auth/me')
+    apiClient.post('/auth/login', credentials),
+  logout: () => apiClient.post('/auth/logout'),
+  me: () => apiClient.get('/auth/me')
 }

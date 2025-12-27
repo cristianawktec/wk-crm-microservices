@@ -2,6 +2,7 @@
 
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\LeadController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\CustomerDashboardController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SellerController;
+use App\Models\User;
 use App\Http\Controllers\Api\NotificationController;
 
 Route::get('/health', function () {
@@ -50,6 +52,31 @@ Route::get('/info', function () {
 // Autenticação - Endpoints Públicos
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+
+// Test endpoint for customer app - creates/returns test user with token
+// Use ?role=admin to get admin user instead of customer
+Route::get('/auth/test-customer', function () {
+    $role = request()->query('role', 'customer');
+    $email = $role === 'admin' ? 'admin-test@wkcrm.local' : 'customer-test@wkcrm.local';
+    $name = $role === 'admin' ? 'Admin WK' : 'Customer Test';
+    
+    $user = User::firstOrCreate(
+        ['email' => $email],
+        [
+            'name' => $name,
+            'role' => $role,
+            'password' => Hash::make('password123')
+        ]
+    );
+    
+    $token = $user->createToken('test-token')->plainTextToken;
+    
+    return response()->json([
+        'success' => true,
+        'user' => $user,
+        'token' => $token
+    ]);
+});
 
 // CRUD routes with authentication - Protegido com auth:sanctum
 Route::middleware('auth:sanctum')->group(function () {
@@ -114,20 +141,29 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/summary', [ReportController::class, 'analyticalSummary']);
 
     // Autenticação - Endpoints Protegidos
-        // Notifications (SSE stream fica fora do middleware para suportar token via query)
-        Route::get('/notifications', [NotificationController::class, 'index']);
-        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
-        Route::put('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
-        Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
-        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
-
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/logout-all', [AuthController::class, 'logoutAll']);
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
+    
+});
+
+// Notifications endpoints
+// Index/unread are temporarily public to debug customer app fetch; mutate operations stay protected
+Route::middleware(\App\Http\Middleware\CorsMiddleware::class)->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::put('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
 });
 
 // SSE stream de notificações autenticado via token na query string
-Route::get('/notifications/stream', [NotificationController::class, 'stream']);
+Route::get('/notifications/stream', [NotificationController::class, 'stream'])
+    ->withoutMiddleware('auth:sanctum')
+    ->middleware('auth.bearer.or.query');
 
 // SSE Test endpoint (no auth for debugging)
 Route::get('/notifications/test-stream', function () {

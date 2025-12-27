@@ -132,7 +132,12 @@ const stats = ref<DashboardStats>({
 
 const fetchDashboardData = async () => {
   try {
+    console.log('📊 Fetching dashboard stats...')
+    console.log('Token being used:', authStore.token?.substring(0, 20))
+    
     const response = await api.getDashboardStats()
+    console.log('📦 Dashboard response:', response)
+    
     const recentActivity = (response.data.recentActivity || []).map((a: any) => ({
       ...a,
       created_at: a.created_at || a.timestamp || a.date || a.updated_at || new Date().toISOString()
@@ -145,8 +150,10 @@ const fetchDashboardData = async () => {
       avgProbability: response.data.avgProbability || 0,
       recentActivity
     }
-  } catch (error) {
-    console.error('Erro ao carregar dashboard:', error)
+    console.log('✅ Dashboard stats loaded:', stats.value)
+  } catch (error: any) {
+    console.error('❌ Erro ao carregar dashboard:', error.message)
+    // Mantém valores zerados mas não bloqueia a aplicação
   } finally {
     loading.value = false
   }

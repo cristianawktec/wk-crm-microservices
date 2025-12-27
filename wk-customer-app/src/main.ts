@@ -7,6 +7,8 @@ import App from './App.vue'
 import router from './router'
 import './services/api'
 import './style.css'
+import { useNotificationService } from './services/notification'
+import { useAuthStore } from './stores/auth'
 
 const app = createApp(App)
 
@@ -27,3 +29,12 @@ app.use(Toast, {
 })
 
 app.mount('#app')
+
+// Initialize notification service after app mount
+setTimeout(() => {
+  const authStore = useAuthStore()
+  if (authStore.isAuthenticated) {
+    const notificationService = useNotificationService()
+    notificationService.init()
+  }
+}, 500)

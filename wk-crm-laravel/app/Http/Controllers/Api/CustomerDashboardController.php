@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Opportunity;
 use App\Models\Customer;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -300,6 +301,9 @@ class CustomerDashboardController extends Controller
             'client_id' => $customer->id,
             'currency' => 'BRL'
         ]);
+
+        // Dispara notificação para managers
+        NotificationService::opportunityCreated($opp, $user);
 
         return response()->json([
             'success' => true,

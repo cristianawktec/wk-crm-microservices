@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Debug Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .test-section {
+            background: #252526;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 3px solid #007acc;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        .success { color: #4ec9b0; }
+        .error { color: #f48771; }
+        .log { 
+            background: #1e1e1e; 
+            padding: 10px; 
+            margin: 5px 0;
+            border: 1px solid #3e3e42;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 SSE Debug Tool</h1>
+    
+    <div class="test-section">
+        <h3>1. Test Simple SSE (No Auth)</h3>
+        <button onclick="testSimpleSSE()">🧪 Test Unauth SSE</button>
+        <div id="simple-log" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Test Auth SSE (With Token)</h3>
+        <button onclick="testAuthSSE()">🔐 Test Auth SSE</button>
+        <div id="auth-log" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Network Diagnostics</h3>
+        <button onclick="testCORS()">🌐 Test CORS</button>
+        <button onclick="testPing()">📡 Test API Ping</button>
+        <div id="diag-log" class="log"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+        const TOKEN = '15|skf9wR9rwcgL6Ga8LAPyt8kgm3Rh6WSCV3Sf5lnkfc1837c7';
+
+        function log(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
+            container.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function testSimpleSSE() {
+            const container = 'simple-log';
+            document.getElementById(container).innerHTML = '';
+            
+            log(container, '🚀 Starting simple SSE test...');
+            
+            const eventSource = new EventSource(`${API_URL}/notifications/test-stream`);
+            let messageCount = 0;
+            
+            eventSource.onopen = () => {
+                log(container, '✅ SSE connection OPENED', 'success');
+            };
+            
+            eventSource.onmessage = (event) => {
+                messageCount++;
+                try {
+                    const data = JSON.parse(event.data);
+                    log(container, `📨 Message ${messageCount}: ${JSON.stringify(data)}`, 'success');
+                } catch (e) {
+                    log(container, `📨 Message ${messageCount}: ${event.data}`, 'success');
+                }
+            };
+            
+            eventSource.onerror = (error) => {
+                log(container, `❌ SSE Error: ${JSON.stringify(error)}`, 'error');
+                log(container, `ReadyState: ${eventSource.readyState}`, 'error');
+                if (messageCount === 0) {
+                    log(container, '⚠️ No messages received - check Network tab!', 'error');
+                }
+                eventSource.close();
+            };
+            
+            // Auto close after 15 seconds
+            setTimeout(() => {
+                log(container, `🏁 Test complete. Received ${messageCount} messages`);
+                eventSource.close();
+            }, 15000);
+        }
+
+        function testAuthSSE() {
+            const container = 'auth-log';
+            document.getElementById(container).innerHTML = '';
+            
+            log(container, '🚀 Starting authenticated SSE test...');
+            log(container, `🔑 Using token: ${TOKEN.substring(0, 20)}...`);
+            
+            const streamUrl = `${API_URL}/notifications/stream?token=${TOKEN}`;
+            log(container, `🔗 URL: ${streamUrl}`);
+            
+            const eventSource = new EventSource(streamUrl);
+            let messageCount = 0;
+            
+            eventSource.onopen = () => {
+                log(container, '✅ Auth SSE connection OPENED', 'success');
+            };
+            
+            eventSource.onmessage = (event) => {
+                messageCount++;
+                try {
+                    const data = JSON.parse(event.data);
+                    log(container, `📨 Message ${messageCount}: type=${data.type}, count=${data.unread_count || 'N/A'}`, 'success');
+                } catch (e) {
+                    log(container, `📨 Raw: ${event.data}`, 'success');
+                }
+            };
+            
+            eventSource.onerror = (error) => {
+                log(container, `❌ SSE Error - ReadyState: ${eventSource.readyState}`, 'error');
+                if (eventSource.readyState === EventSource.CONNECTING) {
+                    log(container, '🔄 Reconnecting...', 'error');
+                } else if (eventSource.readyState === EventSource.CLOSED) {
+                    log(container, '🚫 Connection CLOSED', 'error');
+                }
+                if (messageCount === 0) {
+                    log(container, '⚠️ No messages - check auth or CORS!', 'error');
+                }
+            };
+            
+            setTimeout(() => {
+                log(container, `🏁 Test complete. Received ${messageCount} messages`);
+                eventSource.close();
+            }, 30000);
+        }
+
+        async function testCORS() {
+            const container = 'diag-log';
+            document.getElementById(container).innerHTML = '';
+            
+            log(container, '🌐 Testing CORS...');
+            
+            try {
+                const response = await fetch(`${API_URL}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                log(container, `✅ Health check: ${response.status}`, 'success');
+                log(container, `CORS Headers: ${response.headers.get('Access-Control-Allow-Origin')}`, 'success');
+                
+                const data = await response.json();
+                log(container, `Response: ${JSON.stringify(data).substring(0, 100)}...`, 'success');
+            } catch (error) {
+                log(container, `❌ CORS Test Failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPing() {
+            const container = 'diag-log';
+            
+            log(container, '📡 Testing API connectivity...');
+            
+            try {
+                const start = Date.now();
+                const response = await fetch(`${API_URL}/health`);
+                const elapsed = Date.now() - start;
+                
+                log(container, `✅ API reachable in ${elapsed}ms`, 'success');
+                log(container, `Status: ${response.status} ${response.statusText}`, 'success');
+            } catch (error) {
+                log(container, `❌ Cannot reach API: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run diagnostics on load
+        window.addEventListener('load', () => {
+            setTimeout(testPing, 500);
+            setTimeout(testCORS, 1500);
+        });
+    </script>
+</body>
+</html>

@@ -1,7 +1,10 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const root = path.resolve(__dirname, '..', 'wk-admin-frontend', 'dist', 'admin-frontend');
+const root = process.env.ROOT
+  ? path.resolve(process.env.ROOT)
+  : path.resolve(__dirname, '..', 'wk-admin-frontend', 'dist', 'admin-frontend');
+const defaultFile = process.env.DEFAULT_FILE || 'index.html';
 const port = process.argv[2] || process.env.PORT || 4500;
 
 const mime = {
@@ -17,11 +20,11 @@ const mime = {
 
 const server = http.createServer((req, res) => {
   let filePath = path.join(root, req.url.split('?')[0]);
-  if (req.url === '/' || req.url === '') filePath = path.join(root, 'index.html');
+  if (req.url === '/' || req.url === '') filePath = path.join(root, defaultFile);
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {
       // fallback to index.html for SPA routes
-      fs.readFile(path.join(root, 'index.html'), (e, data) => {
+      fs.readFile(path.join(root, defaultFile), (e, data) => {
         if (e) {
           res.writeHead(404);
           res.end('Not found');

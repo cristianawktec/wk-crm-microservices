@@ -7,16 +7,42 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useAuthStore } from './stores/auth'
+import { useAutoLogin } from './composables/useAutoLogin'
 
 const authStore = useAuthStore()
+const { autoLogin } = useAutoLogin()
 
 onMounted(async () => {
-  if (authStore.token) {
-    try {
-      await authStore.fetchUser()
-    } catch (error) {
-      console.error('Erro ao carregar usuário:', error)
+  console.log('🔄 App mounted, checking auth...')
+  console.log('Token from localStorage:', localStorage.getItem('token')?.substring(0, 20))
+  console.log('User from localStorage:', localStorage.getItem('user'))
+  
+  // Se não está autenticado, tenta auto-login
+  if (!authStore.token) {
+    console.log('🔄 No token in store, attempting auto-login...')
+    await autoLogin()
+  } else {
+    console.log('✅ Token exists in store:', authStore.token.substring(0, 20) + '...')
+    
+    // Se tem token mas não tem user, tenta carregar do localStorage
+    if (!authStore.user) {
+      const storedUser = localStorage.getItem('user')
+      if (storedUser) {
+        try {
+          authStore.setUser(JSON.parse(storedUser))
+          console.log('✅ User loaded from localStorage:', authStore.user)
+        } catch (e) {
+          console.error('❌ Error parsing stored user:', e)
+        }
+      }
     }
+  }
+
+  // Se ainda assim tem token, carrega os dados do usuário
+  if (authStore.token && authStore.user) {
+    console.log('✅ Auth complete, user:', authStore.user.name)
+  } else {
+    console.log('❌ No token/user after auto-login attempt')
   }
 })
 </script>

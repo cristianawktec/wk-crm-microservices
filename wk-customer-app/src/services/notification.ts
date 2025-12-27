@@ -2,7 +2,7 @@
 
 import { ref, Ref } from 'vue'
 import { useToast } from 'vue-toastification'
-import axios from 'axios'
+import apiClient from './api'
 
 export interface Notification {
   id: string
@@ -18,6 +18,9 @@ export interface Notification {
 const notifications: Ref<Notification[]> = ref([])
 const unreadCount: Ref<number> = ref(0)
 let sseConnection: EventSource | null = null
+let sseRetryCount = 0
+const MAX_SSE_RETRIES = 5
+const SSE_BASE_RETRY_INTERVAL = 10000 // 10 seconds, increases exponentially
 
 export function useNotificationService() {
   const toast = useToast()
@@ -36,7 +39,7 @@ export function useNotificationService() {
    */
   async function loadNotifications() {
     try {
-      const response = await axios.get(`${apiUrl}/notifications?limit=20`)
+      const response = await apiClient.get('/notifications?limit=20')
       if (response.data.success) {
         notifications.value = response.data.data || []
         unreadCount.value = response.data.unread || 0
@@ -51,7 +54,7 @@ export function useNotificationService() {
    */
   async function getUnreadCount() {
     try {
-      const response = await axios.get(`${apiUrl}/notifications/unread-count`)
+      const response = await apiClient.get('/notifications/unread-count')
       if (response.data.success) {
         unreadCount.value = response.data.unread_count
       }
@@ -65,7 +68,7 @@ export function useNotificationService() {
    */
   async function markAsRead(notificationId: string) {
     try {
-      const response = await axios.put(`${apiUrl}/notifications/${notificationId}/read`)
+      const response = await apiClient.put(`/notifications/${notificationId}/read`)
       if (response.data.success) {
         const notif = notifications.value.find(n => n.id === notificationId)
         if (notif) {
@@ -83,7 +86,7 @@ export function useNotificationService() {
    */
   async function markAllAsRead() {
     try {
-      const response = await axios.post(`${apiUrl}/notifications/read-all`)
+      const response = await apiClient.post('/notifications/read-all')
       if (response.data.success) {
         notifications.value.forEach(n => n.is_read = true)
         unreadCount.value = 0
@@ -99,7 +102,7 @@ export function useNotificationService() {
    */
   async function deleteNotification(notificationId: string) {
     try {
-      const response = await axios.delete(`${apiUrl}/notifications/${notificationId}`)
+      const response = await apiClient.delete(`/notifications/${notificationId}`)
       if (response.data.success) {
         notifications.value = notifications.value.filter(n => n.id !== notificationId)
         toast.success('Notificação removida')
@@ -114,13 +117,13 @@ export function useNotificationService() {
    */
   function startSSEStream() {
     try {
-      const token = localStorage.getItem('auth_token')
-      const streamUrl = new URL(`${apiUrl}/notifications/stream`)
-      if (token) {
-        streamUrl.searchParams.set('token', token)
-      }
+      const token = localStorage.getItem('token')
+      // Ensure /api prefix is included
+      const baseUrl = apiUrl.includes('/api') ? apiUrl : `${apiUrl}/api`
+      const streamUrl = `${baseUrl}/notifications/stream?token=${encodeURIComponent(token || '')}`
 
-      sseConnection = new EventSource(streamUrl.toString())
+      console.log('SSE connecting to:', streamUrl)
+      sseConnection = new EventSource(streamUrl)
 
       sseConnection.addEventListener('message', (event) => {
         try {
@@ -132,21 +135,26 @@ export function useNotificationService() {
             unreadCount.value = data.unread_count || 0
           } else if (data.type === 'notification') {
             // New real-time notification received
-            const newNotif: Notification = {
-              id: data.id,
-              type: data.type,
-              title: data.title,
-              message: data.message,
-              action_url: data.action_url,
-              is_read: false,
-              data: data.data,
-              created_at_formatted: 'Agora'
-            }
-            notifications.value.unshift(newNotif)
-            unreadCount.value += 1
+            // Check if notification already exists in list to avoid duplicates/duplicate toasts
+            const alreadyExists = notifications.value.some(n => n.id === data.id)
+            
+            if (!alreadyExists) {
+              const newNotif: Notification = {
+                id: data.id,
+                type: data.type,
+                title: data.title,
+                message: data.message,
+                action_url: data.action_url,
+                is_read: false,
+                data: data.data,
+                created_at_formatted: 'Agora'
+              }
+              notifications.value.unshift(newNotif)
+              unreadCount.value += 1
 
-            // Show toast notification
-            showToastForNotification(data)
+              // Show toast only for truly new notifications (not already loaded ones)
+              showToastForNotification(data)
+            }
           }
         } catch (error) {
           console.error('Error parsing SSE message:', error)
@@ -154,9 +162,21 @@ export function useNotificationService() {
       })
 
       sseConnection.onerror = () => {
-        console.warn('SSE connection error, will retry in 5 seconds...')
+        console.warn('SSE connection error, retrying...', {
+          retryCount: sseRetryCount,
+          maxRetries: MAX_SSE_RETRIES
+        })
         closeSSEStream()
-        setTimeout(() => startSSEStream(), 5000)
+        
+        if (sseRetryCount < MAX_SSE_RETRIES) {
+          sseRetryCount++
+          // Exponential backoff: 10s, 20s, 40s, 80s, 160s
+          const retryDelay = SSE_BASE_RETRY_INTERVAL * Math.pow(2, sseRetryCount - 1)
+          console.log(`Retrying SSE in ${retryDelay / 1000}s (attempt ${sseRetryCount}/${MAX_SSE_RETRIES})`)
+          setTimeout(() => startSSEStream(), retryDelay)
+        } else {
+          console.error('Max SSE retries reached, giving up')
+        }
       }
     } catch (error) {
       console.error('Error starting SSE stream:', error)
@@ -164,7 +184,7 @@ export function useNotificationService() {
   }
 
   /**
-   * Close SSE stream
+   * Close SSE stream and reset retry counter
    */
   function closeSSEStream() {
     if (sseConnection) {
@@ -174,11 +194,11 @@ export function useNotificationService() {
   }
 
   /**
-   * Show toast for notification based on type
+   * Show toast for notification based on type - with deduplication
    */
   function showToastForNotification(notification: any) {
     const toastOptions = {
-      duration: 5000,
+      duration: 4000,
       closeButton: true,
       onClick: () => {
         if (notification.action_url) {
@@ -198,7 +218,7 @@ export function useNotificationService() {
         toast.warning(notification.title, toastOptions)
         break
       default:
-        toast.default(notification.title, toastOptions)
+        toast.info(notification.title, toastOptions)
     }
   }
 

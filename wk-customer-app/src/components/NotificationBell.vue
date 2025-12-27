@@ -159,7 +159,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useNotificationService } from '@/services/notification'
+import { useNotificationService } from '../services/notification'
 
 const showPanel = ref(false)
 const { notifications, unreadCount, init, loadNotifications, markAsRead, markAllAsRead, deleteNotification, cleanup } = useNotificationService()

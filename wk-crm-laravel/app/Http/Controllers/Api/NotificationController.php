@@ -22,8 +22,13 @@ class NotificationController extends Controller
             $user = $request->user();
             $limit = $request->query('limit', 20);
 
-            $notifications = Notification::where('user_id', $user->id)
-                ->orderByDesc('created_at')
+            // Admin ou sem usuário: listar tudo (para debug e acesso administrativo)
+            $query = Notification::query()->orderByDesc('created_at');
+            if ($user && $user->role !== 'admin') {
+                $query->where('user_id', $user->id);
+            }
+
+            $notifications = $query
                 ->limit($limit)
                 ->get()
                 ->map(function ($notification) {
@@ -40,11 +45,19 @@ class NotificationController extends Controller
                     ];
                 });
 
+            $total = $user && $user->role !== 'admin'
+                ? Notification::where('user_id', $user->id)->count()
+                : Notification::count();
+
+            $unread = $user && $user->role !== 'admin'
+                ? Notification::unreadCount($user->id)
+                : Notification::whereNull('read_at')->count();
+
             return response()->json([
                 'success' => true,
                 'data' => $notifications,
-                'total' => Notification::where('user_id', $user->id)->count(),
-                'unread' => Notification::unreadCount($user->id)
+                'total' => $total,
+                'unread' => $unread
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -64,6 +77,13 @@ class NotificationController extends Controller
     {
         try {
             $user = $request->user();
+            if (!$user) {
+                return response()->json([
+                    'success' => true,
+                    'unread_count' => 0
+                ]);
+            }
+
             $count = Notification::unreadCount($user->id);
 
             return response()->json([
@@ -247,60 +267,31 @@ class NotificationController extends Controller
             flush();
             \Log::info('[NotificationController] Flushed connected event');
 
-            // Keep connection alive for 30 minutes
-            $startTime = time();
-            $timeout = 30 * 60; // 30 minutes
-            // Track which notifications we've already sent to avoid duplicates
-            $sentNotificationIds = [];
+            // Short-lived stream to avoid exhausting PHP-FPM workers
+            $unreadCount = \App\Models\Notification::unreadCount($user->id);
+            echo "data: {\"type\":\"heartbeat\",\"unread_count\":{$unreadCount}}\n\n";
+            if (ob_get_level()) ob_flush();
+            flush();
 
-            while ((time() - $startTime) < $timeout) {
-                \Log::debug('[NotificationController] Heartbeat loop iteration', [
-                    'elapsed' => (time() - $startTime),
-                    'user_id' => $user->id,
-                ]);
-                
-                // Check for new unread notifications
-                $unreadCount = \App\Models\Notification::unreadCount($user->id);
+            // Emit unread notifications once
+            $allUnread = \App\Models\Notification::where('user_id', $user->id)
+                ->whereNull('read_at')
+                ->orderBy('created_at')
+                ->get();
 
-                // Send heartbeat with unread count every 10 seconds
-                echo "data: {\"type\":\"heartbeat\",\"unread_count\":{$unreadCount}}\n\n";
+            foreach ($allUnread as $n) {
+                $payload = [
+                    'type' => 'notification',
+                    'id' => $n->id,
+                    'title' => $n->title,
+                    'message' => $n->message,
+                    'action_url' => $n->action_url,
+                    'data' => $n->data,
+                    'created_at' => $n->created_at->toIso8601String()
+                ];
+                echo 'data: '.json_encode($payload)."\n\n";
                 if (ob_get_level()) ob_flush();
                 flush();
-
-                // Emit all unread notifications that haven't been sent yet
-                $allUnread = \App\Models\Notification::where('user_id', $user->id)
-                    ->whereNull('read_at')
-                    ->orderBy('created_at')
-                    ->get();
-
-                $newNotifs = $allUnread->filter(function($n) use (&$sentNotificationIds) {
-                    return !in_array($n->id, $sentNotificationIds);
-                });
-
-                if ($newNotifs->count() > 0) {
-                    \Log::info('[NotificationController] New notifications to send', [
-                        'count' => $newNotifs->count(),
-                        'total_unread' => $allUnread->count(),
-                    ]);
-                }
-
-                foreach ($newNotifs as $n) {
-                    $sentNotificationIds[] = $n->id;
-                    $payload = [
-                        'type' => 'notification',
-                        'id' => $n->id,
-                        'title' => $n->title,
-                        'message' => $n->message,
-                        'action_url' => $n->action_url,
-                        'data' => $n->data,
-                        'created_at' => $n->created_at->toIso8601String()
-                    ];
-                    echo 'data: '.json_encode($payload)."\n\n";
-                    if (ob_get_level()) ob_flush();
-                    flush();
-                }
-
-                sleep(10);
             }
         }, 200, [
             'Content-Type' => 'text/event-stream',

@@ -53,6 +53,25 @@
             Carregando...
           </span>
         </button>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <button
+            @click="handleQuickLogin"
+            type="button"
+            :disabled="authStore.loading"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            🚀 Login Rápido (Cliente)
+          </button>
+          <button
+            @click="handleQuickAdminLogin"
+            type="button"
+            :disabled="authStore.loading"
+            class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            🔑 Login Rápido (Admin)
+          </button>
+        </div>
       </form>
 
       <p class="mt-6 text-center text-sm text-gray-600">
@@ -85,6 +104,66 @@ const handleLogin = async () => {
     router.push('/')
   } catch (error: any) {
     toast.error(error.response?.data?.message || 'Erro ao fazer login')
+  }
+}
+
+const handleQuickLogin = async () => {
+  try {
+    console.log('🚀 Iniciando login rápido...')
+    const response = await fetch('http://192.168.1.2:8000/api/auth/test-customer', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    
+    if (response.ok) {
+      const data = await response.json()
+      console.log('✅ Token recebido:', data.token?.substring(0, 20))
+      
+      if (data.success && data.token) {
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('user', JSON.stringify(data.user))
+        authStore.setToken(data.token)
+        authStore.setUser(data.user)
+        
+        toast.success('Login rápido realizado!')
+        router.push('/')
+      }
+    } else {
+      toast.error('Erro ao fazer login rápido')
+    }
+  } catch (error) {
+    console.error('❌ Erro no login rápido:', error)
+    toast.error('Erro ao conectar com o servidor')
+  }
+}
+
+const handleQuickAdminLogin = async () => {
+  try {
+    console.log('🚀 Iniciando login rápido ADMIN...')
+    const response = await fetch('http://192.168.1.2:8000/api/auth/test-customer?role=admin', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      console.log('✅ Admin token recebido:', data.token?.substring(0, 20))
+
+      if (data.success && data.token) {
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('user', JSON.stringify(data.user))
+        authStore.setToken(data.token)
+        authStore.setUser(data.user)
+
+        toast.success('Login rápido ADMIN realizado!')
+        router.push('/')
+      }
+    } else {
+      toast.error('Erro ao fazer login rápido ADMIN')
+    }
+  } catch (error) {
+    console.error('❌ Erro no login rápido ADMIN:', error)
+    toast.error('Erro ao conectar com o servidor')
   }
 }
 </script>
