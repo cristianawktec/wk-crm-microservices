@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Register custom middlewares
         $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'auth.query.token' => \App\Http\Middleware\AuthenticateQueryToken::class,
             'auth.bearer.or.query' => \App\Http\Middleware\AuthBearerOrQueryToken::class,
