@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SellerController;
 use App\Models\User;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\AiController;
 
 Route::get('/health', function () {
     return response()->json([
@@ -182,6 +183,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/top-sellers', [ReportController::class, 'topSellersAnalytics']);
     Route::get('/analytics/sales-funnel', [ReportController::class, 'salesFunnelAnalytics']);
     Route::get('/analytics/summary', [ReportController::class, 'analyticalSummary']);
+
+    // AI Insights
+    Route::post('/ai/opportunity-insights', [AiController::class, 'opportunityInsights']);
 
     // Autenticação - Endpoints Protegidos
     Route::post('/auth/logout', [AuthController::class, 'logout']);

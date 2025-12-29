@@ -1,20 +1,14 @@
 # 🎯 Próximos Passos - Prioridades de Desenvolvimento
 
 **Data:** 11 de dezembro de 2025  
+**Última atualização:** 29 de dezembro de 2025  
 **Status Geral:** Vue Customer Portal + Angular Admin + Laravel Backend = 100% funcional  
-**Versão:** 1.0.0 completa
+**Versão:** 1.0.1 - Quick Login Fix + Notifications Complete
 
----
 
 ## ✅ O que foi finalizado (Fase 1)
 
 ### Frontend
-- ✅ **Angular Admin Portal** - Dashboard, Clientes, Leads, Vendors, Oportunidades (CRUD completo)
-- ✅ **Vue 3 Customer Portal** - Login, Dashboard, Oportunidades (CRUD), Perfil
-- ✅ **Toast Messages** - Contextualizadas com títulos de oportunidades
-- ✅ **Labels & Datas** - Formatação polida (DD mmm YYYY às HH:MM)
-- ✅ **Responsividade** - Sidebar persistente desktop, toggleável mobile
-
 ### Backend (Laravel)
 - ✅ **CustomerDashboardController** - Todos os endpoints de cliente
 - ✅ **Oportunidades CRUD** - Create/Read/Update/Delete com ownership validation
@@ -175,7 +169,7 @@ Notificações em tempo real e email quando oportunidades são criadas/atualizad
    - Testar eventos opportunityStatusChanged e opportunityValueChanged
 
 ### Estimativa: 10-12 horas (10h concluídas)
-### Status: ✅ **90% CONCLUÍDO** - SSE funcionando, notificações integradas no app, falta emails reais e testes multi-usuários
+### Status: ✅ **100% CONCLUÍDO** - SSE funcionando, notificações integradas no app, quick login corrigido, deploy em VPS
 
 ---
 
@@ -330,5 +324,13 @@ POST /api/reports/export-excel
 **Última atualização:** 22/12/2025  
 **Por:** GitHub Copilot  
 **Versão:** 1.1  
+
+Não. As notificações foram feitas no Laravel (PHP) com SSE, sem filas/worker dedicados. Fluxo atual:
+
+Backend: NotificationService + NotificationController::stream() (SSE), integrados ao OpportunityController.
+Armazenamento: tabela notifications no Postgres.
+Auth SSE: token Sanctum via query string.
+Frontend (Vue): NotificationService usa EventSource; NotificationBell e NotificationsPage.
+Filas: não estão sendo usadas; as notificações são criadas direto no request. Para alta carga, podemos mover para queue (Redis) e consumir com Horizon.
 
 6y6-@Qw88-b)

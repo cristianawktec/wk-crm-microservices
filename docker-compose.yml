@@ -40,11 +40,23 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD:-secure_password}
       - REDIS_HOST=redis
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
+      - AI_SERVICE_URL=http://wk-ai-service:8000
     depends_on:
       - postgres
       - redis
+      - wk-ai-service
     volumes:
       - ./wk-crm-laravel:/var/www/html
+    networks:
+      - wk_network
+
+  wk-ai-service:
+    build: ./wk-ai-service
+    container_name: wk_ai_service
+    ports:
+      - "8001:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
     networks:
       - wk_network
 

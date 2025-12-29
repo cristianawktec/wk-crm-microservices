@@ -141,5 +141,20 @@ export const api = {
   login: (credentials: { email: string; password: string }) => 
     apiClient.post('/auth/login', credentials),
   logout: () => apiClient.post('/auth/logout'),
-  me: () => apiClient.get('/auth/me')
+  me: () => apiClient.get('/auth/me'),
+
+  // AI Insights
+  getOpportunityInsights: async (payload: {
+    id?: string
+    title: string
+    description?: string
+    value?: number
+    probability?: number
+    status?: string
+    customer_name?: string
+    sector?: string
+  }) => {
+    const response = await apiClient.post('/ai/opportunity-insights', payload)
+    return response.data.data
+  }
 }
