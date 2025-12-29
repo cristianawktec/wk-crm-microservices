@@ -110,7 +110,8 @@ const handleLogin = async () => {
 const handleQuickLogin = async () => {
   try {
     console.log('🚀 Iniciando login rápido...')
-    const response = await fetch('http://192.168.1.2:8000/api/auth/test-customer', {
+    const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+    const response = await fetch(`${apiBase}/api/auth/test-customer`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     })
@@ -140,7 +141,8 @@ const handleQuickLogin = async () => {
 const handleQuickAdminLogin = async () => {
   try {
     console.log('🚀 Iniciando login rápido ADMIN...')
-    const response = await fetch('http://192.168.1.2:8000/api/auth/test-customer?role=admin', {
+    const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+    const response = await fetch(`${apiBase}/api/auth/test-customer?role=admin`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     })
