@@ -69,6 +69,49 @@ Route::get('/auth/test-customer', function () {
         ]
     );
     
+    // Criar oportunidades demo se o usuário não tiver nenhuma
+    if ($role === 'customer') {
+        $existingOpps = \App\Models\Opportunity::where('customer_id', $user->id)->count();
+        if ($existingOpps === 0) {
+            // Criar 4 oportunidades de demonstração
+            \App\Models\Opportunity::create([
+                'title' => 'Implantação CRM - Fase 1',
+                'value' => 45000,
+                'status' => 'Em Negociação',
+                'probability' => 40,
+                'customer_id' => $user->id,
+                'notes' => 'Escopo inicial, aguardando aprovação de proposta.'
+            ]);
+            
+            \App\Models\Opportunity::create([
+                'title' => 'Treinamento Times Comerciais',
+                'value' => 18000,
+                'status' => 'Proposta Enviada',
+                'probability' => 55,
+                'customer_id' => $user->id,
+                'notes' => 'Pacote de workshops + playbook de vendas.'
+            ]);
+            
+            \App\Models\Opportunity::create([
+                'title' => 'Consultoria de Processos',
+                'value' => 8000,
+                'status' => 'Aberta',
+                'probability' => 80,
+                'customer_id' => $user->id,
+                'notes' => 'Mapeamento e otimização do fluxo de vendas.'
+            ]);
+            
+            \App\Models\Opportunity::create([
+                'title' => 'Sistema de Automação',
+                'value' => 8000,
+                'status' => 'Ganha',
+                'probability' => 100,
+                'customer_id' => $user->id,
+                'notes' => 'Integração com ferramentas de marketing.'
+            ]);
+        }
+    }
+    
     $token = $user->createToken('test-token')->plainTextToken;
     
     return response()->json([
