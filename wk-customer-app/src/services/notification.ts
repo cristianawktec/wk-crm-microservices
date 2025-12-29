@@ -30,8 +30,14 @@ export function useNotificationService() {
    * Initialize notification service
    */
   function init() {
-    loadNotifications()
-    startSSEStream()
+    try {
+      console.log('🔔 NotificationService: Initializing...')
+      loadNotifications()
+      startSSEStream()
+      console.log('🔔 NotificationService: Initialized successfully')
+    } catch (error) {
+      console.error('🔔 NotificationService: Initialization error:', error)
+    }
   }
 
   /**
@@ -118,11 +124,16 @@ export function useNotificationService() {
   function startSSEStream() {
     try {
       const token = localStorage.getItem('token')
+      if (!token) {
+        console.warn('SSE: No token found in localStorage')
+        return
+      }
+
       // Ensure /api prefix is included
       const baseUrl = apiUrl.includes('/api') ? apiUrl : `${apiUrl}/api`
-      const streamUrl = `${baseUrl}/notifications/stream?token=${encodeURIComponent(token || '')}`
+      const streamUrl = `${baseUrl}/notifications/stream?token=${encodeURIComponent(token)}`
 
-      console.log('SSE connecting to:', streamUrl)
+      console.log('SSE: Connecting to:', streamUrl)
       sseConnection = new EventSource(streamUrl)
 
       sseConnection.addEventListener('message', (event) => {
@@ -161,8 +172,10 @@ export function useNotificationService() {
         }
       })
 
-      sseConnection.onerror = () => {
-        console.warn('SSE connection error, retrying...', {
+      sseConnection.onerror = (error) => {
+        console.error('SSE connection error:', {
+          readyState: sseConnection?.readyState,
+          error: error,
           retryCount: sseRetryCount,
           maxRetries: MAX_SSE_RETRIES
         })
