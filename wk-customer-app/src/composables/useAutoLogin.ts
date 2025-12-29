@@ -16,8 +16,10 @@ export function useAutoLogin() {
 
     isLoggingIn.value = true
     try {
-      console.log('📡 Fetching test-customer token from: http://localhost:8000/api/auth/test-customer')
-      const response = await fetch('http://localhost:8000/api/auth/test-customer', {
+      const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+      const loginUrl = `${apiBase}/api/auth/test-customer`
+      console.log('📡 Fetching test-customer token from:', loginUrl)
+      const response = await fetch(loginUrl, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       })
