@@ -199,6 +199,8 @@ function handleNotificationClick(notification: any) {
 <style scoped>
 .notification-bell {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .bell-button {
@@ -206,16 +208,21 @@ function handleNotificationClick(notification: any) {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #666;
   transition: color 0.2s;
+  font-size: 20px;
+  min-width: 40px;
+  min-height: 40px;
 }
 
 .bell-button:hover {
   color: #333;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
 }
 
 .bell-button.active {
@@ -225,12 +232,13 @@ function handleNotificationClick(notification: any) {
 .bell-icon {
   width: 24px;
   height: 24px;
+  stroke-width: 2;
 }
 
 .badge {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: 2px;
+  right: 2px;
   background: #ff4444;
   color: white;
   border-radius: 50%;
@@ -239,21 +247,24 @@ function handleNotificationClick(notification: any) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
+  line-height: 1;
+  padding: 0;
 }
 
 .notification-panel {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px);
   right: 0;
   width: 400px;
-  max-height: 600px;
+  max-width: calc(100vw - 20px);
   background: white;
-  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   z-index: 1000;
+  max-height: 500px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   margin-top: 8px;
