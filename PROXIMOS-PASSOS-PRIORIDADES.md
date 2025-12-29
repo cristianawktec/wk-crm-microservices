@@ -153,10 +153,12 @@ Notificações em tempo real e email quando oportunidades são criadas/atualizad
 - Database: customer_id nullable, foreign key ON DELETE SET NULL
 
 ### Próximos Passos (Prioridade 2)
-1. ⏳ **Integrar componentes Vue no app principal**
-   - Adicionar NotificationBell ao layout
-   - Configurar rota para NotificationsPage
-   - Inicializar NotificationService no main.ts
+1. ✅ **Integrar componentes Vue no app principal**
+   - ✅ Adicionar NotificationBell ao layout
+   - ✅ Configurar rota para NotificationsPage
+   - ✅ Inicializar NotificationService no main.ts
+   - ✅ Adicionar "Notificações" ao menu sidebar
+   - ✅ Deploy em produção na VPS (app.consultoriawk.com)
 
 2. ⏳ **Testar com múltiplos usuários simultâneos**
    - Gerar tokens para diferentes usuários
@@ -172,8 +174,8 @@ Notificações em tempo real e email quando oportunidades são criadas/atualizad
    - Chamar NotificationService em OpportunityController@update
    - Testar eventos opportunityStatusChanged e opportunityValueChanged
 
-### Estimativa: 10-12 horas (8h concluídas)
-### Status: ✅ **80% CONCLUÍDO** - SSE funcionando, falta integração final no app
+### Estimativa: 10-12 horas (10h concluídas)
+### Status: ✅ **90% CONCLUÍDO** - SSE funcionando, notificações integradas no app, falta emails reais e testes multi-usuários
 
 ---
 
@@ -328,3 +330,5 @@ POST /api/reports/export-excel
 **Última atualização:** 22/12/2025  
 **Por:** GitHub Copilot  
 **Versão:** 1.1  
+
+6y6-@Qw88-b)
