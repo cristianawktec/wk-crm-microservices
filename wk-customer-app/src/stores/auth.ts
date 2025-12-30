@@ -30,6 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     token.value = null
     localStorage.removeItem('token')
+    localStorage.removeItem('user')
     delete apiClient.defaults.headers.common['Authorization']
   }
 
