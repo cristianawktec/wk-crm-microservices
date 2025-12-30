@@ -38,6 +38,8 @@ export function useAutoLogin() {
         
         if (data.success && data.token) {
           console.log('🔐 Setting token:', data.token.substring(0, 20) + '...')
+          // Limpar flag de logout quando fazer auto-login bem-sucedido
+          localStorage.removeItem('loggedOut')
           // Salva o token no localStorage
           localStorage.setItem('token', data.token)
           localStorage.setItem('user', JSON.stringify(data.user))

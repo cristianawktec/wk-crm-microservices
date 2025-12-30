@@ -211,9 +211,15 @@ const fetchInsights = async () => {
       sector: undefined
     }
 
+    console.log('📊 Fetching insights for:', props.opportunity.title)
+    console.log('Payload:', payload)
     insights.value = await api.getOpportunityInsights(payload)
+    console.log('✅ Insights received:', insights.value)
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Não foi possível gerar os insights. Tente novamente.'
+    console.error('❌ Error fetching insights:', err)
+    console.error('Response status:', err.response?.status)
+    console.error('Response data:', err.response?.data)
+    error.value = err.response?.data?.message || err.message || 'Não foi possível gerar os insights. Tente novamente.'
   } finally {
     loading.value = false
   }

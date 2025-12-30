@@ -115,6 +115,7 @@ const userInitials = computed(() => {
 })
 
 const handleLogout = async () => {
+  localStorage.setItem('loggedOut', 'true')
   await authStore.logout()
   router.push('/login')
 }
