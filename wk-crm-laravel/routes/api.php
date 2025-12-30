@@ -210,7 +210,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // SSE stream de notificações autenticado via token na query string
 // Middleware CorsMiddleware já adiciona headers CORS
 Route::get('/notifications/stream', [NotificationController::class, 'stream'])
-    ->middleware(\App\Http\Middleware\CorsMiddleware::class)
+    ->middleware([\App\Http\Middleware\CorsMiddleware::class, \App\Http\Middleware\AuthenticateQueryToken::class])
     ->withoutMiddleware('auth:sanctum');
 
 // SSE Test endpoint (no auth for debugging)
