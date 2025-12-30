@@ -8,6 +8,13 @@ export function useAutoLogin() {
   const isLoggingIn = ref(false)
 
   async function autoLogin() {
+    // Auto-login desativado por padrão (apenas em DEV se explicitamente ativado)
+    const autoLoginEnabled = import.meta.env.VITE_ENABLE_AUTO_LOGIN === 'true'
+    if (!autoLoginEnabled) {
+      console.log('🚫 Auto-login desativado (VITE_ENABLE_AUTO_LOGIN não está true)')
+      return
+    }
+
     // Se já está autenticado, não faz nada
     if (authStore.isAuthenticated && authStore.token) {
       console.log('✅ Já autenticado, pulando auto-login')

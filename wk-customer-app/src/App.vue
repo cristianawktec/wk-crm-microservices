@@ -16,10 +16,11 @@ onMounted(async () => {
   console.log('🔄 App mounted, checking auth...')
   console.log('Token from localStorage:', localStorage.getItem('token')?.substring(0, 20))
   console.log('User from localStorage:', localStorage.getItem('user'))
+  console.log('Auto-login enabled:', import.meta.env.VITE_ENABLE_AUTO_LOGIN === 'true')
   
-  // Se não está autenticado, tenta auto-login
+  // Se não está autenticado, tenta auto-login (apenas se habilitado)
   if (!authStore.token) {
-    console.log('🔄 No token in store, attempting auto-login...')
+    console.log('🔄 No token in store, checking auto-login...')
     await autoLogin()
   } else {
     console.log('✅ Token exists in store:', authStore.token.substring(0, 20) + '...')
