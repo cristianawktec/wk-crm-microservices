@@ -100,6 +100,7 @@ const form = ref({
 const handleLogin = async () => {
   try {
     await authStore.login(form.value.email, form.value.password)
+    localStorage.removeItem('loggedOut') // Limpar flag de logout
     toast.success('Login realizado com sucesso!')
     router.push('/')
   } catch (error: any) {
@@ -121,6 +122,7 @@ const handleQuickLogin = async () => {
       console.log('✅ Token recebido:', data.token?.substring(0, 20))
       
       if (data.success && data.token) {
+        localStorage.removeItem('loggedOut') // Limpar flag de logout
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
         authStore.setToken(data.token)

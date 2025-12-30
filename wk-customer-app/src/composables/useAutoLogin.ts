@@ -14,6 +14,12 @@ export function useAutoLogin() {
       return
     }
 
+    // Se o usuário fez logout explicitamente, não fazer auto-login
+    if (localStorage.getItem('loggedOut') === 'true') {
+      console.log('👋 Usuário fez logout, não auto-logando')
+      return
+    }
+
     isLoggingIn.value = true
     try {
       const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
