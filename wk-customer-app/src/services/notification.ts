@@ -129,8 +129,8 @@ export function useNotificationService() {
         return
       }
 
-      // Ensure /api prefix is included
-      const baseUrl = apiUrl.includes('/api') ? apiUrl : `${apiUrl}/api`
+      // Ensure /api prefix is included in the path, not just domain
+      const baseUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`
       const streamUrl = `${baseUrl}/notifications/stream?token=${encodeURIComponent(token)}`
 
       console.log('SSE: Connecting to:', streamUrl)
