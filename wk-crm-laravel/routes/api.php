@@ -65,10 +65,14 @@ Route::get('/auth/test-customer', function () {
         ['email' => $email],
         [
             'name' => $name,
-            'role' => $role,
             'password' => Hash::make('password123')
         ]
     );
+    
+    // Assign role if user was just created or doesn't have the role
+    if (!$user->hasRole($role)) {
+        $user->syncRoles([$role]);
+    }
     
     // Criar oportunidades demo se o usuário não tiver nenhuma
     if ($role === 'customer') {
