@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-wk_main}
       POSTGRES_USER: ${POSTGRES_USER:-wk_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password_123}
     ports:
       - "5432:5432"
     volumes:
@@ -37,7 +37,7 @@ services:
       - DB_PORT=5432
       - DB_DATABASE=${POSTGRES_DB:-wk_main}
       - DB_USERNAME=${POSTGRES_USER:-wk_user}
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-secure_password}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-secure_password_123}
       - REDIS_HOST=redis
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
       - AI_SERVICE_URL=http://wk-ai-service:8000
