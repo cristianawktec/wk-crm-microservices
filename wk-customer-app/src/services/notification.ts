@@ -173,22 +173,26 @@ export function useNotificationService() {
       })
 
       sseConnection.onerror = (error) => {
-        console.error('SSE connection error:', {
-          readyState: sseConnection?.readyState,
-          error: error,
-          retryCount: sseRetryCount,
-          maxRetries: MAX_SSE_RETRIES
-        })
+        // Log SSE errors only in development mode
+        if (import.meta.env.DEV) {
+          console.warn('SSE connection error (dev mode):', {
+            readyState: sseConnection?.readyState,
+            retryCount: sseRetryCount,
+            maxRetries: MAX_SSE_RETRIES
+          })
+        }
         closeSSEStream()
         
         if (sseRetryCount < MAX_SSE_RETRIES) {
           sseRetryCount++
           // Exponential backoff: 10s, 20s, 40s, 80s, 160s
           const retryDelay = SSE_BASE_RETRY_INTERVAL * Math.pow(2, sseRetryCount - 1)
-          console.log(`Retrying SSE in ${retryDelay / 1000}s (attempt ${sseRetryCount}/${MAX_SSE_RETRIES})`)
+          if (import.meta.env.DEV) {
+            console.log(`Retrying SSE in ${retryDelay / 1000}s (attempt ${sseRetryCount}/${MAX_SSE_RETRIES})`)
+          }
           setTimeout(() => startSSEStream(), retryDelay)
-        } else {
-          console.error('Max SSE retries reached, giving up')
+        } else if (import.meta.env.DEV) {
+          console.warn('Max SSE retries reached')
         }
       }
     } catch (error) {
