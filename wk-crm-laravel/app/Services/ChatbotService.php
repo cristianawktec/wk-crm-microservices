@@ -9,7 +9,7 @@ use Exception;
 class ChatbotService
 {
     private string $aiServiceUrl;
-    private string $geminiApiKey;
+    private ?string $geminiApiKey;
 
     public function __construct()
     {
