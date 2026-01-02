@@ -101,6 +101,7 @@ const menuItems = [
   { name: 'Dashboard', path: '/', label: 'Dashboard', icon: HomeIcon },
   { name: 'Opportunities', path: '/opportunities', label: 'Oportunidades', icon: ChartBarIcon },
   { name: 'Notifications', path: '/notifications', label: 'Notificações', icon: BellIcon },
+  { name: 'Trends', path: '/trends', label: 'Análise de Tendências', icon: ChartBarIcon },
   { name: 'Profile', path: '/profile', label: 'Meu Perfil', icon: UserCircleIcon }
 ]
 

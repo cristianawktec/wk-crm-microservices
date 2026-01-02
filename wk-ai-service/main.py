@@ -29,6 +29,18 @@ class OpportunityInsight(BaseModel):
     cached: bool = False
 
 
+class ChatRequest(BaseModel):
+    question: str
+    context: Optional[dict] = None
+    api_key: Optional[str] = None
+
+
+class ChatResponse(BaseModel):
+    answer: str
+    model: str
+    source: str = "ai_service"
+
+
 def get_model():
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
@@ -108,6 +120,46 @@ def generate_insight(payload: OpportunityInput) -> OpportunityInsight:
         )
 
 
+def generate_chat_response(question: str, context: Optional[dict] = None) -> str:
+    """Generate a response for a chat question using Gemini AI"""
+    model = get_model()
+    
+    # Build context string
+    context_str = ""
+    if context:
+        if "user_id" in context:
+            context_str += f"User ID: {context['user_id']}\n"
+        if "timestamp" in context:
+            context_str += f"Time: {context['timestamp']}\n"
+    
+    prompt = (
+        "You are a helpful CRM sales assistant for WK CRM platform. "
+        "Answer the user's question about sales, opportunities, trends, and business insights. "
+        "Keep responses concise, actionable, and in Portuguese (Brasil). "
+        "Use markdown formatting when helpful.\n\n"
+        f"Context:\n{context_str}\n"
+        f"Question: {question}\n\n"
+        "Provide a helpful, specific answer."
+    )
+    
+    try:
+        if not model:
+            return (
+                "Desculpe, não consegui processar sua pergunta no momento. "
+                "O serviço de IA não está configurado. "
+                "Por favor, tente novamente mais tarde ou entre em contato com o suporte."
+            )
+        
+        result = model.generate_content(prompt)
+        return result.text or "Não consegui gerar uma resposta."
+    except Exception as e:
+        print(f"Error generating chat response: {str(e)}")
+        return (
+            "Desculpe, ocorreu um erro ao processar sua pergunta. "
+            "Por favor, tente novamente com uma pergunta mais específica."
+        )
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "wk-ai-service"}
@@ -121,3 +173,14 @@ async def root():
 @app.post("/ai/opportunity-insights", response_model=OpportunityInsight)
 async def opportunity_insights(payload: OpportunityInput):
     return generate_insight(payload)
+
+
+@app.post("/api/v1/chat", response_model=ChatResponse)
+async def chat(request: ChatRequest):
+    """Handle chat messages and generate AI responses"""
+    answer = generate_chat_response(request.question, request.context)
+    return ChatResponse(
+        answer=answer,
+        model="gemini-pro",
+        source="ai_service"
+    )

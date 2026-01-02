@@ -254,3 +254,16 @@ Route::get('/notifications/test-stream', function () {
         'Access-Control-Allow-Headers' => 'Content-Type',
     ]);
 });
+// Chat/Chatbot Routes (Protected)
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/chat/ask', [App\Http\Controllers\ChatController::class, 'ask']);
+    Route::get('/chat/suggestions', [App\Http\Controllers\ChatController::class, 'suggestions']);
+    Route::post('/opportunities/{id}/insights', [App\Http\Controllers\ChatController::class, 'opportunityInsights']);
+});
+
+// Trend Analysis Routes (Protected)
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/trends/analyze', [App\Http\Controllers\TrendAnalysisController::class, 'analyze']);
+    Route::get('/trends/conversion', [App\Http\Controllers\TrendAnalysisController::class, 'conversion']);
+    Route::get('/trends/monthly-revenue', [App\Http\Controllers\TrendAnalysisController::class, 'monthlyRevenue']);
+});

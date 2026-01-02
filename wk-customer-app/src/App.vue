@@ -1,14 +1,18 @@
 
 
 <template>
-  <router-view />
+  <div class="app-container">
+    <router-view />
+    <!-- Chatbot widget on all pages -->
+    <ChatbotWidget v-if="authStore.isAuthenticated" />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useAuthStore } from './stores/auth'
 import { useAutoLogin } from './composables/useAutoLogin'
-
+import ChatbotWidget from './components/ChatbotWidget.vue'
 const authStore = useAuthStore()
 const { autoLogin } = useAutoLogin()
 
