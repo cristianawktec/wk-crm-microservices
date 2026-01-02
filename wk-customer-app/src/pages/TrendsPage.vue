@@ -114,7 +114,7 @@
         <h3>Produtos/Serviços Mais Vendidos 🏆</h3>
         <div v-if="trends.product_performance?.top_products?.length > 0" class="products-list">
           <div v-for="(product, idx) in trends.product_performance.top_products" :key="idx" class="product-item">
-            <div class="product-rank">{{ idx + 1 }}</div>
+            <div class="product-rank">{{ (idx as number) + 1 }}</div>
             <div class="product-info">
               <h4>{{ product.title }}</h4>
               <small>{{ product.count }} venda(s)</small>
@@ -154,7 +154,7 @@
           <div v-for="(period, idx) in trends.best_periods.best_months" :key="idx" class="period-item">
             <div class="period-rank">🥇</div>
             <div class="period-stats">
-              <h4>Mês {{ idx + 1 }}</h4>
+              <h4>Mês {{ (idx as number) + 1 }}</h4>
               <p>{{ period.count }} oportunidade(s) ganhas</p>
               <small>Valor: {{ formatCurrency(period.value) }}</small>
             </div>
@@ -209,7 +209,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
-import { api } from '@/services/api'
+import { api } from '../services/api'
 
 interface Trends {
   conversion_trends?: any
