@@ -139,7 +139,7 @@ const sendMessage = async (message: string) => {
   isLoading.value = true
 
   try {
-    const response = await api.post('/api/chat/ask', {
+    const response = await api.post('api/chat/ask', {
       question: message,
       context: {
         // Include opportunity context if available

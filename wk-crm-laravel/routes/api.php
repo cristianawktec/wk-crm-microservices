@@ -10,8 +10,10 @@ use App\Http\Controllers\Api\OpportunityController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\CustomerDashboardController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\TrendsController;
 use App\Http\Controllers\Api\SellerController;
 use App\Models\User;
+use App\Models\Customer;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\AiController;
 
@@ -60,7 +62,7 @@ Route::get('/auth/test-customer', function () {
     $role = request()->query('role', 'customer');
     $email = $role === 'admin' ? 'admin-test@wkcrm.local' : 'customer-test@wkcrm.local';
     $name = $role === 'admin' ? 'Admin WK' : 'Customer Test';
-    
+
     $user = User::firstOrCreate(
         ['email' => $email],
         [
@@ -68,50 +70,61 @@ Route::get('/auth/test-customer', function () {
             'password' => Hash::make('password123')
         ]
     );
-    
+
+    // Garante que exista um registro na tabela de clientes com o mesmo email
+    $customer = Customer::firstOrCreate(
+        ['email' => $email],
+        [
+            'id' => $user->id,
+            'name' => $name,
+            'phone' => '000000000'
+        ]
+    );
+
     // Assign role if user was just created or doesn't have the role
     if (!$user->hasRole($role)) {
         $user->syncRoles([$role]);
     }
-    
+
     // Criar oportunidades demo se o usuário não tiver nenhuma
     if ($role === 'customer') {
-        $existingOpps = \App\Models\Opportunity::where('customer_id', $user->id)->count();
+        $customerId = $customer->id;
+        $existingOpps = \App\Models\Opportunity::where('customer_id', $customerId)->count();
         if ($existingOpps === 0) {
             // Criar 4 oportunidades de demonstração
             \App\Models\Opportunity::create([
                 'title' => 'Implantação CRM - Fase 1',
                 'value' => 45000,
-                'status' => 'Em Negociação',
+                'status' => 'open',
                 'probability' => 40,
-                'customer_id' => $user->id,
+                'customer_id' => $customerId,
                 'notes' => 'Escopo inicial, aguardando aprovação de proposta.'
             ]);
-            
+
             \App\Models\Opportunity::create([
                 'title' => 'Treinamento Times Comerciais',
                 'value' => 18000,
-                'status' => 'Proposta Enviada',
+                'status' => 'proposal',
                 'probability' => 55,
-                'customer_id' => $user->id,
+                'customer_id' => $customerId,
                 'notes' => 'Pacote de workshops + playbook de vendas.'
             ]);
-            
+
             \App\Models\Opportunity::create([
                 'title' => 'Consultoria de Processos',
                 'value' => 8000,
-                'status' => 'Aberta',
+                'status' => 'open',
                 'probability' => 80,
-                'customer_id' => $user->id,
+                'customer_id' => $customerId,
                 'notes' => 'Mapeamento e otimização do fluxo de vendas.'
             ]);
-            
+
             \App\Models\Opportunity::create([
                 'title' => 'Sistema de Automação',
                 'value' => 8000,
-                'status' => 'Ganha',
+                'status' => 'won',
                 'probability' => 100,
-                'customer_id' => $user->id,
+                'customer_id' => $customerId,
                 'notes' => 'Integração com ferramentas de marketing.'
             ]);
         }
@@ -188,6 +201,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/sales-funnel', [ReportController::class, 'salesFunnelAnalytics']);
     Route::get('/analytics/summary', [ReportController::class, 'analyticalSummary']);
 
+    // Trends (Customer Portal)
+    Route::get('/trends/analyze', [TrendsController::class, 'analyze']);
+
     // AI Insights
     Route::post('/ai/opportunity-insights', [AiController::class, 'opportunityInsights']);
 
@@ -254,16 +270,4 @@ Route::get('/notifications/test-stream', function () {
         'Access-Control-Allow-Headers' => 'Content-Type',
     ]);
 });
-// Chat/Chatbot Routes (Protected)
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('/chat/ask', [App\Http\Controllers\ChatController::class, 'ask']);
-    Route::get('/chat/suggestions', [App\Http\Controllers\ChatController::class, 'suggestions']);
-    Route::post('/opportunities/{id}/insights', [App\Http\Controllers\ChatController::class, 'opportunityInsights']);
-});
 
-// Trend Analysis Routes (Protected)
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/trends/analyze', [App\Http\Controllers\TrendAnalysisController::class, 'analyze']);
-    Route::get('/trends/conversion', [App\Http\Controllers\TrendAnalysisController::class, 'conversion']);
-    Route::get('/trends/monthly-revenue', [App\Http\Controllers\TrendAnalysisController::class, 'monthlyRevenue']);
-});

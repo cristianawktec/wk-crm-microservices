@@ -232,18 +232,18 @@ const loadTrends = async () => {
   error.value = ''
 
   try {
-    const response = await api.get('/api/trends/analyze', {
-      params: { period: selectedPeriod.value }
-    })
-
-    if (response.data.success) {
-      trends.value = response.data.data
-    } else {
-      error.value = 'Erro ao carregar análise de tendências'
-    }
+    trends.value = await api.getTrends(selectedPeriod.value)
   } catch (err: any) {
-    error.value = 'Erro ao conectar ao servidor'
-    console.error('Trend analysis error:', err)
+    if (err.response?.status === 401) {
+      error.value = 'Sessão expirada. Por favor, faça login novamente.'
+      toast.error('Sua sessão expirou. Por favor, faça login novamente')
+    } else if (err.response?.status === 404) {
+      error.value = 'Serviço de análise temporariamente indisponível'
+      console.error('Trends endpoint not found (404)')
+    } else {
+      error.value = 'Erro ao conectar ao servidor'
+    }
+    console.error('Trend analysis error:', err.response?.status, err.message)
   } finally {
     loading.value = false
   }

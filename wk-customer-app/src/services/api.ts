@@ -143,6 +143,39 @@ export const api = {
   logout: () => apiClient.post('/auth/logout'),
   me: () => apiClient.get('/auth/me'),
 
+  // Trends Analysis
+  getTrends: async (period: string = 'year') => {
+    const doRequest = async () => apiClient.get('/trends/analyze', { params: { period } })
+
+    try {
+      const response = await doRequest()
+      if (response.data.success) {
+        return response.data.data
+      }
+      throw new Error(response.data.message || 'Erro ao carregar tendências')
+    } catch (error: any) {
+      // Se estiver 401 (token ausente/expirado), tenta regenerar token de teste e refazer a chamada
+      if (error?.response?.status === 401) {
+        try {
+          const testResp = await fetch(`${apiBase}/api/auth/test-customer`)
+          const testData = await testResp.json()
+          if (testData?.success && testData?.token) {
+            localStorage.setItem('token', testData.token)
+            localStorage.setItem('user', JSON.stringify(testData.user || {}))
+            apiClient.defaults.headers.common.Authorization = `Bearer ${testData.token}`
+            const retry = await doRequest()
+            if (retry.data.success) {
+              return retry.data.data
+            }
+          }
+        } catch (tokenError) {
+          console.error('Auto-refresh de token falhou:', tokenError)
+        }
+      }
+      throw error
+    }
+  },
+
   // AI Insights
   getOpportunityInsights: async (payload: {
     id?: string

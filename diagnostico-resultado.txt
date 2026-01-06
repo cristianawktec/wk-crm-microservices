@@ -1,0 +1,46 @@
+=== 1. CONFIGURA├ç├âO DO .env ===
+
+DB_CONNECTION:
+N├úo encontrado
+
+DB_HOST:
+N├úo encontrado
+
+DB_PORT:
+N├úo encontrado
+
+DB_DATABASE:
+N├úo encontrado
+
+DB_USERNAME:
+N├úo encontrado
+
+=== 2. TESTE DE CONEX├âO COM O BANCO ===
+
+
+=== 3. CONTAGEM DE REGISTROS ===
+
+
+=== 4. STATUS DAS MIGRATIONS ===
+
+
+=== 5. VERIFICAR SE POSTGRESQL EST├ü RODANDO ===
+
+postgres  953751  0.0  0.3 223256 26880 ?        Ss    2025   2:28 /usr/lib/postgresql/16/bin/postgres -D /var/lib/postgresql/16/main -c config_file=/etc/postgresql/16/main/postgresql.conf
+postgres  953752  0.0  0.0 223388  7336 ?        Ss    2025   0:00 postgres: 16/main: checkpointer 
+postgres  953753  0.0  0.0 223404  6440 ?        Ss    2025   0:31 postgres: 16/main: background writer 
+postgres  953755  0.0  0.1 223256  9256 ?        Ss    2025   0:33 postgres: 16/main: walwriter 
+postgres  953756  0.0  0.0 224852  6824 ?        Ss    2025   0:41 postgres: 16/main: autovacuum launcher 
+postgres  953757  0.0  0.0 224828  6312 ?        Ss    2025   0:01 postgres: 16/main: logical replication launcher 
+70       1773850  0.0  0.3 174484 26624 ?        Ss   Jan01   0:32 postgres
+70       1774122  0.0  0.1 174664 10152 ?        Ss   Jan01   0:00 postgres: checkpointer 
+70       1774123  0.0  0.0 174580  5928 ?        Ss   Jan01   0:01 postgres: background writer 
+70       1774125  0.0  0.1 174548  8872 ?        Ss   Jan01   0:01 postgres: walwriter 
+70       1774126  0.0  0.0 176164  7592 ?        Ss   Jan01   0:01 postgres: autovacuum launcher 
+70       1774127  0.0  0.0 176084  6952 ?        Ss   Jan01   0:00 postgres: logical replication launcher 
+
+=== 6. PORTAS EM USO (PostgreSQL geralmente usa 5432) ===
+
+tcp        0      0 0.0.0.0:5432            0.0.0.0:*               LISTEN     
+tcp6       0      0 :::5432                 :::*                    LISTEN     
+
