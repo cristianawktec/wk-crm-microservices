@@ -201,9 +201,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/sales-funnel', [ReportController::class, 'salesFunnelAnalytics']);
     Route::get('/analytics/summary', [ReportController::class, 'analyticalSummary']);
 
-    // Trends (Customer Portal)
-    Route::get('/trends/analyze', [TrendsController::class, 'analyze']);
-
     // AI Insights
     Route::post('/ai/opportunity-insights', [AiController::class, 'opportunityInsights']);
 
@@ -213,6 +210,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
     
 });
+
+// Public endpoints (sem autenticação necessária)
+Route::get('/trends/analyze', [TrendsController::class, 'analyze']);
 
 // Notifications endpoints
 // Index/unread are temporarily public to debug customer app fetch; mutate operations stay protected
