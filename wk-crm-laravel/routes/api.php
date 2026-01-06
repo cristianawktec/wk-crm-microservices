@@ -271,3 +271,107 @@ Route::get('/notifications/test-stream', function () {
     ]);
 });
 
+// Deploy endpoint - only accessible with deploy token
+Route::post('/deploy/upload-dist', function (\Illuminate\Http\Request $request) {
+    $deployToken = config('app.deploy_token', 'wkcrm-deploy-2025');
+    
+    if ($request->header('X-Deploy-Token') !== $deployToken) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    if (!$request->hasFile('dist')) {
+        return response()->json(['error' => 'No file provided'], 400);
+    }
+
+    try {
+        $file = $request->file('dist');
+        $uploadPath = storage_path('deploy');
+        
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+
+        $filename = 'dist-' . time() . '.zip';
+        $file->storeAs('deploy', $filename, 'local');
+        
+        $zipPath = storage_path('app/deploy/' . $filename);
+        $extractPath = public_path('../app');
+
+        // Extract zip
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath) === true) {
+            // Remove old files first
+            $files = glob($extractPath . '/*');
+            foreach ($files as $f) {
+                if (is_file($f)) unlink($f);
+                elseif (is_dir($f)) {
+                    array_map('unlink', glob("$f/*"));
+                    rmdir($f);
+                }
+            }
+            
+            // Extract new files
+            $zip->extractTo($extractPath);
+            $zip->close();
+            unlink($zipPath);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Deploy realizado com sucesso',
+                'path' => $extractPath
+            ]);
+        } else {
+            return response()->json(['error' => 'Failed to extract zip'], 500);
+        }
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+// Deploy via pull+build na VPS
+Route::post('/deploy/pull-build', function (\Illuminate\Http\Request $request) {
+    $deployToken = config('app.deploy_token', 'wkcrm-deploy-2025');
+    
+    if ($request->header('X-Deploy-Token') !== $deployToken) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    try {
+        $projectRoot = '/var/www/consultoriawk-crm';
+        $appRoot = '/var/www/consultoriawk-crm/app';
+        
+        if (!is_dir($projectRoot)) {
+            throw new \Exception("Project directory not found: {$projectRoot}");
+        }
+
+        $output = [];
+        
+        // Git pull
+        $output[] = "=== Git Pull ===";
+        exec("cd {$projectRoot} && git pull origin main 2>&1", $gitOutput);
+        $output = array_merge($output, $gitOutput);
+        
+        // NPM build
+        $output[] = "\n=== NPM Build ===";
+        exec("cd {$projectRoot}/wk-customer-app && npm run build 2>&1", $npmOutput);
+        $output = array_merge($output, array_slice($npmOutput, -20));
+        
+        // Copy dist
+        $output[] = "\n=== Copying Dist ===";
+        exec("cp -r {$projectRoot}/wk-customer-app/dist/* {$appRoot}/ 2>&1", $copyOutput);
+        $output = array_merge($output, $copyOutput);
+        
+        $output[] = "\n✅ Deploy completed!";
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Deploy realizado com sucesso',
+            'output' => implode("\n", $output)
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
