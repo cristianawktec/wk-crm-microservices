@@ -270,3 +270,34 @@ Route::get('/notifications/test-stream', function () {
         'Access-Control-Allow-Headers' => 'Content-Type',
     ]);
 });
+// Test email endpoint
+Route::get('/test-email', function () {
+    try {
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => 'cristian@consultoriawk.com'],
+            ['name' => 'Cristian Test', 'password' => bcrypt('password123')]
+        );
+
+        $mail = new \App\Mail\NotificationMail(
+            '🎯 Nova Oportunidade - Teste',
+            'Esta é uma mensagem de teste do sistema de notificações WK CRM.',
+            'https://app.consultoriawk.com/opportunities/teste',
+            now()->toDateTimeString()
+        );
+
+        \Illuminate\Support\Facades\Mail::to($user->email)->send($mail);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Email enviado com sucesso!',
+            'email' => $user->email,
+            'timestamp' => now()->toDateTimeString()
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
