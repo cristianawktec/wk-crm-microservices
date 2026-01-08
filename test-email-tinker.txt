@@ -1,0 +1,16 @@
+use App\Mail\NotificationMail;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+
+$user = User::firstOrCreate(['email' => 'cristian@consultoriawk.com'], ['name' => 'Test', 'password' => bcrypt('pass')]);
+$mail = new NotificationMail('🎯 Nova Oportunidade', 'Uma nova oportunidade foi criada.', 'http://app.consultoriawk.com/oportunidades/123', now()->toString());
+
+try {
+  Mail::to($user->email)->send($mail);
+  echo "SUCCESS\n";
+} catch (Throwable $e) {
+  echo "ERROR: " . $e->getMessage() . "\n";
+  echo $e->getTraceAsString();
+}
+
+exit()

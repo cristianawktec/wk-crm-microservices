@@ -4,11 +4,10 @@ namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
 
 class NotificationMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
 
     public string $titleText;
     public string $bodyText;
