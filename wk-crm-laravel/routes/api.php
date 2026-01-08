@@ -301,3 +301,35 @@ Route::get('/test-email', function () {
         ], 500);
     }
 });
+
+// Webhook deploy endpoint
+Route::get('/deploy', function () {
+    $secret = env('DEPLOY_SECRET', 'deploy_secret_123');
+    $token = request('token', '');
+
+    if ($token !== $secret) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    try {
+        chdir('/root/crm');
+        $output = [];
+        exec('git pull 2>&1', $output, $returnCode);
+
+        $result = [
+            'success' => $returnCode === 0,
+            'git_pull' => $output,
+            'return_code' => $returnCode
+        ];
+
+        if ($returnCode === 0) {
+            $cacheOutput = [];
+            exec('docker exec wk_crm_laravel php artisan optimize:clear 2>&1', $cacheOutput, $cacheCode);
+            $result['optimize_clear'] = $cacheOutput;
+        }
+
+        return response()->json($result);
+    } catch (\Throwable $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
