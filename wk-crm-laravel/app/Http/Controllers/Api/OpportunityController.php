@@ -82,6 +82,11 @@ class OpportunityController extends Controller
     public function update(Request $request, $id)
     {
         $opp = Opportunity::findOrFail($id);
+        
+        // Guardar valores antigos ANTES do update
+        $oldStatus = $opp->status;
+        $oldValue = $opp->value;
+        
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'customer_id' => 'nullable|string',
@@ -100,13 +105,32 @@ class OpportunityController extends Controller
 
         $opp->update($data);
 
-        // Check for status change
-        if ($opp->status !== $data['status'] ?? $opp->status) {
-            NotificationService::opportunityStatusChanged($opp, $opp->status, $data['status'] ?? $opp->status);
+        // Check for status change (comparar com valor antigo)
+        if (isset($data['status']) && $oldStatus !== $data['status']) {
+            try {
+                NotificationService::opportunityStatusChanged($opp, $oldStatus, $data['status']);
+                \Log::info('[OpportunityController@update] Status notification sent', [
+                    'opportunity_id' => $opp->id,
+                    'old' => $oldStatus,
+                    'new' => $data['status']
+                ]);
+            } catch (\Throwable $e) {
+                \Log::warning('Failed to send status change notification: '.$e->getMessage());
+            }
         }
-        // Check for value change
-        if (isset($data['value']) && $opp->value !== $data['value']) {
-            NotificationService::opportunityValueChanged($opp, $opp->value, $data['value']);
+        
+        // Check for value change (comparar com valor antigo)
+        if (isset($data['value']) && $oldValue != $data['value']) {
+            try {
+                NotificationService::opportunityValueChanged($opp, $oldValue, $data['value']);
+                \Log::info('[OpportunityController@update] Value notification sent', [
+                    'opportunity_id' => $opp->id,
+                    'old' => $oldValue,
+                    'new' => $data['value']
+                ]);
+            } catch (\Throwable $e) {
+                \Log::warning('Failed to send value change notification: '.$e->getMessage());
+            }
         }
 
         return response()->json($opp);

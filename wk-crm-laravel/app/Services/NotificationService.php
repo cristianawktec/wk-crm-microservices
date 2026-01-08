@@ -70,16 +70,32 @@ class NotificationService
     {
         try {
             $user = User::find($notification->user_id);
-            if (!$user) return;
+            if (!$user || empty($user->email)) {
+                Log::warning('Notification email skipped: user not found or without email', ['user_id' => $notification->user_id]);
+                return;
+            }
 
-            // Mail::to($user->email)->queue(new NotificationMailMessage($notification));
-            // For now, just log - implement Mailable class when ready
-            Log::info('Email notification would be sent to: ' . $user->email, [
+            // Use Mailable
+            \Log::info('[NotificationService] Sending email', [
+                'to' => $user->email,
                 'title' => $notification->title,
-                'type' => $notification->type
+                'type' => $notification->type,
             ]);
-        } catch (\Exception $e) {
-            Log::warning('Failed to send email notification: ' . $e->getMessage());
+
+            $title = $notification->title ?? 'Notificação WK CRM';
+            $body = $notification->message ?? '';
+            $actionUrl = $notification->action_url ?? null;
+            $createdAt = optional($notification->created_at)->toDateTimeString() ?? now()->toDateTimeString();
+
+            Mail::to($user->email)->send(new \App\Mail\NotificationMail($title, $body, $actionUrl, $createdAt));
+            \Log::info('[NotificationService] Email sent successfully', ['to' => $user->email]);
+        } catch (\Throwable $e) {
+            Log::error('Failed to send email notification', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 

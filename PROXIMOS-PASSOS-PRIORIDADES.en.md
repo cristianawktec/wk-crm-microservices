@@ -329,6 +329,22 @@ POST /api/reports/export-excel
 **By:** GitHub Copilot  
 **Version:** 1.1
 
+Opção 1: Completar Sistema de Notificações (Priority 2 - 10% restante)
+
+Implementar envio real de emails (SMTP/Mailtrap)
+Adicionar notificações em mudanças de status/valor de oportunidades
+Testar com múltiplos usuários simultâneos
+Opção 2: Começar Integrações AI (Priority 3)
+
+Conectar serviço Python FastAPI com Google Gemini
+Implementar análise de risco de oportunidades
+Criar chatbot de suporte no portal
+Opção 3: Melhorias Gerais (Priority 5)
+
+Implementar paginação nas listas
+Sistema de permissões (roles: admin, seller, customer)
+Testes unitários
+
 6y6-@Qw88-b)
 
 secure_password_123
