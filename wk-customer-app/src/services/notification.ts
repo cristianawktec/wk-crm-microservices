@@ -117,8 +117,11 @@ export function useNotificationService() {
       
       if (response.data.success) {
         toast.success('Notificação removida')
-        // Remove from local list if present
+        // Remove from local list
         notifications.value = notifications.value.filter(n => n.id !== notificationId)
+        // Update total count
+        unreadCount.value = Math.max(0, unreadCount.value - 1)
+        console.log(`✓ Removed from local state`)
       } else {
         toast.error('Erro ao deletar notificação: ' + response.data.message)
       }

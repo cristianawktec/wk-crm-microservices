@@ -185,6 +185,7 @@ const totalCount = ref(0)
 async function deleteNotification(notificationId: string) {
   console.log(`🗑️ NotificationsPage.deleteNotification called for: ${notificationId}`)
   console.log(`Before delete - Total: ${totalCount.value}, Current page: ${currentPage.value}`)
+  console.log(`Token in localStorage: ${localStorage.getItem('token')?.substring(0, 20)}...`)
   
   try {
     await serviceDeleteNotification(notificationId)
@@ -192,9 +193,10 @@ async function deleteNotification(notificationId: string) {
     
     // Reload current page after delete
     console.log(`📡 About to reload notifications...`)
+    await new Promise(resolve => setTimeout(resolve, 500)) // Wait 500ms for DB to update
     await loadNotifications()
     console.log(`✓ loadNotifications completed`)
-    console.log(`After reload - Total: ${totalCount.value}, Page: ${currentPage.value}`)
+    console.log(`After reload - Total: ${totalCount.value}, Loaded items: ${allNotifications.value.length}`)
   } catch (error) {
     console.error(`❌ Error in deleteNotification:`, error)
   }
