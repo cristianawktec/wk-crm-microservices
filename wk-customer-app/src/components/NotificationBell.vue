@@ -138,7 +138,7 @@
 
         <!-- Footer -->
         <div class="panel-footer">
-          <button class="btn-secondary" @click="loadNotifications">
+          <button class="btn-secondary" @click="() => loadNotifications()">
             Atualizar
           </button>
           <router-link to="/notifications" class="btn-primary" @click="closePanel">
