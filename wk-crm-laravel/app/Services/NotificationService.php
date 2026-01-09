@@ -229,6 +229,15 @@ class NotificationService
      */
     public static function opportunityValueChanged($opportunity, $oldValue, $newValue): void
     {
+        if ($oldValue == 0 || $oldValue === null) {
+            \Log::info('[NotificationService] Skipping value change notification (old value is zero/undefined)', [
+                'opportunity_id' => $opportunity->id,
+                'old' => $oldValue,
+                'new' => $newValue,
+            ]);
+            return;
+        }
+
         $percentChange = (($newValue - $oldValue) / $oldValue) * 100;
 
         if (abs($percentChange) > 10) { // Only notify if change > 10%
