@@ -183,10 +183,21 @@ const totalCount = ref(0)
 
 // Wrapper functions that use local loadNotifications
 async function deleteNotification(notificationId: string) {
-  console.log(`🗑️ NotificationsPage: Deleting ${notificationId}`)
-  await serviceDeleteNotification(notificationId)
-  // Reload current page after delete
-  await loadNotifications()
+  console.log(`🗑️ NotificationsPage.deleteNotification called for: ${notificationId}`)
+  console.log(`Before delete - Total: ${totalCount.value}, Current page: ${currentPage.value}`)
+  
+  try {
+    await serviceDeleteNotification(notificationId)
+    console.log(`✓ serviceDeleteNotification completed`)
+    
+    // Reload current page after delete
+    console.log(`📡 About to reload notifications...`)
+    await loadNotifications()
+    console.log(`✓ loadNotifications completed`)
+    console.log(`After reload - Total: ${totalCount.value}, Page: ${currentPage.value}`)
+  } catch (error) {
+    console.error(`❌ Error in deleteNotification:`, error)
+  }
 }
 
 async function markAsRead(notificationId: string) {
@@ -213,16 +224,18 @@ async function loadNotifications() {
     const skip = (currentPage.value - 1) * itemsPerPage
     const limit = itemsPerPage
     
-    console.log(`📡 Loading notifications: limit=${limit}, page=${currentPage.value}`)
+    console.log(`📡 Loading notifications: limit=${limit}, page=${currentPage.value}, skip=${skip}`)
     
     const response = await apiClient.get(`/notifications?limit=${limit}&page=${currentPage.value}`)
     
     console.log('📦 Notifications response:', response.data)
+    console.log(`Total from server: ${response.data.total}, Page: ${response.data.page}, Limit: ${response.data.limit}`)
     
     if (response.data.success) {
       allNotifications.value = response.data.data || []
       totalCount.value = response.data.total || 0
-      console.log(`✅ Loaded ${allNotifications.value.length} notifications`)
+      console.log(`✅ Loaded ${allNotifications.value.length} notifications, Total: ${totalCount.value}`)
+      console.log(`Total pages should be: ${Math.ceil(totalCount.value / itemsPerPage)}`)
     }
   } catch (error) {
     console.error('❌ Error loading notifications:', error)
