@@ -172,7 +172,7 @@ import { useNotificationService, type Notification } from '../services/notificat
 import apiClient from '../services/api'
 
 const router = useRouter()
-const { markAsRead, markAllAsRead, deleteNotification, cleanup } = useNotificationService()
+const { markAsRead: serviceMarkAsRead, markAllAsRead, deleteNotification: serviceDeleteNotification, cleanup } = useNotificationService()
 
 const filterType = ref('')
 const filterStatus = ref('')
@@ -180,6 +180,19 @@ const currentPage = ref(1)
 const itemsPerPage = 20
 const allNotifications = ref<Notification[]>([])
 const totalCount = ref(0)
+
+// Wrapper functions that use local loadNotifications
+async function deleteNotification(notificationId: string) {
+  console.log(`🗑️ NotificationsPage: Deleting ${notificationId}`)
+  await serviceDeleteNotification(notificationId)
+  // Reload current page after delete
+  await loadNotifications()
+}
+
+async function markAsRead(notificationId: string) {
+  console.log(`✓ NotificationsPage: Marking as read ${notificationId}`)
+  await serviceMarkAsRead(notificationId)
+}
 
 onMounted(async () => {
   await loadNotifications()
