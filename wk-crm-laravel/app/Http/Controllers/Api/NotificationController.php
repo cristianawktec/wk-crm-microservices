@@ -20,7 +20,9 @@ class NotificationController extends Controller
     {
         try {
             $user = $request->user();
-            $limit = $request->query('limit', 20);
+            $limit = (int) $request->query('limit', 20);
+            $page = max(1, (int) $request->query('page', 1));
+            $offset = ($page - 1) * $limit;
 
             // Admin ou sem usuário: listar tudo (para debug e acesso administrativo)
             $query = Notification::query()->orderByDesc('created_at');
@@ -29,6 +31,7 @@ class NotificationController extends Controller
             }
 
             $notifications = $query
+                ->skip($offset)
                 ->limit($limit)
                 ->get()
                 ->map(function ($notification) {
@@ -57,7 +60,9 @@ class NotificationController extends Controller
                 'success' => true,
                 'data' => $notifications,
                 'total' => $total,
-                'unread' => $unread
+                'unread' => $unread,
+                'page' => $page,
+                'limit' => $limit
             ]);
         } catch (\Exception $e) {
             return response()->json([

@@ -216,15 +216,15 @@ Route::get('/trends/analyze', [TrendsController::class, 'analyze']);
 
 // Notifications endpoints
 // Index/unread are temporarily public to debug customer app fetch; mutate operations stay protected
-Route::middleware(\App\Http\Middleware\CorsMiddleware::class)->group(function () {
+Route::middleware([\App\Http\Middleware\CorsMiddleware::class])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
-});
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::put('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
-    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::put('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
+        Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
+    });
 });
 
 // SSE stream de notificações autenticado via token na query string
