@@ -202,7 +202,7 @@ async function loadNotifications() {
     
     console.log(`📡 Loading notifications: limit=${limit}, page=${currentPage.value}`)
     
-    const response = await apiClient.get(`/notifications?limit=${limit}`)
+    const response = await apiClient.get(`/notifications?limit=${limit}&page=${currentPage.value}`)
     
     console.log('📦 Notifications response:', response.data)
     

@@ -43,9 +43,9 @@ export function useNotificationService() {
   /**
    * Load notifications from API
    */
-  async function loadNotifications() {
+  async function loadNotifications(page = 1) {
     try {
-      const response = await apiClient.get('/notifications?limit=20')
+      const response = await apiClient.get(`/notifications?limit=20&page=${page}`)
       if (response.data.success) {
         notifications.value = response.data.data || []
         unreadCount.value = response.data.unread || 0
