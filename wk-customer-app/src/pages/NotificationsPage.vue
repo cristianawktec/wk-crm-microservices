@@ -207,18 +207,20 @@ async function markAsRead(notificationId: string) {
   await serviceMarkAsRead(notificationId)
 }
 
+let interval: NodeJS.Timeout | undefined
+
 onMounted(async () => {
   await loadNotifications()
   
   // Auto-reload every 30 seconds
-  const interval = setInterval(() => {
+  interval = setInterval(() => {
     loadNotifications()
   }, 30000)
+})
 
-  onUnmounted(() => {
-    clearInterval(interval)
-    cleanup()
-  })
+onUnmounted(() => {
+  if (interval) clearInterval(interval)
+  cleanup()
 })
 
 async function loadNotifications() {
@@ -238,6 +240,10 @@ async function loadNotifications() {
       totalCount.value = response.data.total || 0
       console.log(`✅ Loaded ${allNotifications.value.length} notifications, Total: ${totalCount.value}`)
       console.log(`Total pages should be: ${Math.ceil(totalCount.value / itemsPerPage)}`)
+      console.log(`📊 Pagination: currentPage=${currentPage.value}, totalPages=${totalPages.value}, totalCount=${totalCount.value}, itemsPerPage=${itemsPerPage}`)
+      console.log(`Filtered notifications: ${filteredNotifications.value.length}`)
+    } else {
+      console.warn('⚠️ Response success is false:', response.data)
     }
   } catch (error) {
     console.error('❌ Error loading notifications:', error)
