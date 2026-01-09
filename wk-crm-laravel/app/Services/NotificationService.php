@@ -87,8 +87,17 @@ class NotificationService
             $actionUrl = $notification->action_url ?? null;
             $createdAt = optional($notification->created_at)->toDateTimeString() ?? now()->toDateTimeString();
 
-            Mail::to($user->email)->send(new \App\Mail\NotificationMail($title, $body, $actionUrl, $createdAt));
-            \Log::info('[NotificationService] Email sent successfully', ['to' => $user->email]);
+            $mail = Mail::to($user->email);
+            $extraTo = env('NOTIFICATION_EXTRA_TO');
+            if (!empty($extraTo)) {
+                $mail->cc($extraTo);
+            }
+
+            $mail->send(new \App\Mail\NotificationMail($title, $body, $actionUrl, $createdAt));
+            \Log::info('[NotificationService] Email sent successfully', [
+                'to' => $user->email,
+                'cc' => $extraTo ?? null,
+            ]);
         } catch (\Throwable $e) {
             Log::error('Failed to send email notification', [
                 'error' => $e->getMessage(),

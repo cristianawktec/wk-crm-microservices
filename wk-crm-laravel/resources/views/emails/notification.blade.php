@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ $title ?? 'Notificação' }}</title>
+  <title>Notificação WK CRM</title>
   <style>
     body { font-family: Arial, Helvetica, sans-serif; background:#f7f7f7; padding:24px; }
     .card { max-width:640px; margin:0 auto; background:#fff; border:1px solid #eee; border-radius:8px; }
@@ -15,12 +15,12 @@
 </head>
 <body>
   <div class="card">
-    <div class="header">{{ $title ?? 'Notificação WK CRM' }}</div>
+    <div class="header">{{ $title }}</div>
     <div class="content">
-      <p style="margin:0 0 12px">{{ $message }}</p>
+      <p style="margin:0 0 12px">{{ $body }}</p>
       @if(!empty($action_url))
         <p>
-          <a class="btn" href="{{ url($action_url) }}" target="_blank">Abrir no WK CRM</a>
+          <a class="btn" href="{{ $action_url }}" target="_blank">Abrir no WK CRM</a>
         </p>
       @endif
       <p style="margin-top:16px; color:#777">Gerado em {{ $created_at }}</p>

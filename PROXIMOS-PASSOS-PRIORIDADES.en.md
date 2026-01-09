@@ -108,10 +108,10 @@ Real-time notifications and email when opportunities are created/updated.
    - ✅ Notification when an opportunity is updated (backend ready)
    - ⏳ Bell icon with counter in header (component created, needs integration)
 
-2. **Email Notifications** ⏳
-   - ⏳ Mailtrap/SMTP configured (logs implemented, real driver pending)
-   - ✅ Email on opportunity creation (structure ready)
-   - ✅ Email on status update (structure ready)
+2. **Email Notifications** ✅
+   - ✅ SMTP configured (Titan smtp.titan.email:465 SSL)
+   - ✅ Email on opportunity creation (working in production)
+   - ✅ Email on status update (backend ready, needs trigger)
    - ⏳ Daily digest summary (TODO)
 
 3. **In-App Notifications** ✅
@@ -163,17 +163,18 @@ Real-time notifications and email when opportunities are created/updated.
    - Test notification isolation
    - Check performance with multiple SSE connections
 
-3. ⏳ **Implement real email sending**
-   - Configure SMTP/Mailtrap
-   - Create email templates (Blade)
-   - Replace logs with real `Mail::send()`
+3. ✅ **Implement real email sending**
+   - ✅ Configure SMTP (Titan smtp.titan.email:465)
+   - ✅ Create email templates (Blade: notification.blade.php)
+   - ✅ Replace logs with real `Mail::send()` (working in production)
+   - ✅ Test email delivery to noreply@consultoriawk.com
 
 4. ⏳ **Add notifications for status/value changes**
    - Call `NotificationService` in `OpportunityController@update`
    - Test `opportunityStatusChanged` and `opportunityValueChanged` events
 
-### Estimate: 10–12 hours (10h completed)  
-### Status: ✅ **90% COMPLETE** – SSE working, notifications integrated in the app; real emails and multi-user tests pending
+### Estimate: 10–12 hours (11.5h completed)  
+### Status: ✅ **95% COMPLETE** – SSE working, notifications integrated, emails working in production; multi-user tests and status/value change triggers pending
 
 ---
 
@@ -334,11 +335,13 @@ Opção 1: Completar Sistema de Notificações (Priority 2 - 10% restante)
 Implementar envio real de emails (SMTP/Mailtrap)
 Adicionar notificações em mudanças de status/valor de oportunidades
 Testar com múltiplos usuários simultâneos
+
 Opção 2: Começar Integrações AI (Priority 3)
 
 Conectar serviço Python FastAPI com Google Gemini
 Implementar análise de risco de oportunidades
 Criar chatbot de suporte no portal
+
 Opção 3: Melhorias Gerais (Priority 5)
 
 Implementar paginação nas listas
