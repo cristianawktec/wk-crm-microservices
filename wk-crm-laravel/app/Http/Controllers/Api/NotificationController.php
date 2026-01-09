@@ -110,8 +110,12 @@ class NotificationController extends Controller
         try {
             $user = $request->user();
 
+            $isAdmin = method_exists($user, 'roles')
+                ? $user->roles()->where('name', 'admin')->exists()
+                : ($user->role ?? null) === 'admin';
+
             // Verify notification belongs to user
-            if ($notification->user_id !== $user->id) {
+            if ($notification->user_id !== $user->id && !$isAdmin) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized'
@@ -175,7 +179,11 @@ class NotificationController extends Controller
         try {
             $user = $request->user();
 
-            if ($notification->user_id !== $user->id) {
+            $isAdmin = method_exists($user, 'roles')
+                ? $user->roles()->where('name', 'admin')->exists()
+                : ($user->role ?? null) === 'admin';
+
+            if ($notification->user_id !== $user->id && !$isAdmin) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized'
