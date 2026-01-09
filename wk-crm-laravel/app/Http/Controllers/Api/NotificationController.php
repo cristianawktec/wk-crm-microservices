@@ -184,24 +184,47 @@ class NotificationController extends Controller
         try {
             $user = $request->user();
 
+            \Log::info('[NotificationController] Destroy called', [
+                'notification_id' => $notification->id,
+                'notification_user_id' => $notification->user_id,
+                'user_id' => $user->id ?? null,
+                'user_name' => $user->name ?? null,
+            ]);
+
             $isAdmin = method_exists($user, 'roles')
                 ? $user->roles()->where('name', 'admin')->exists()
                 : ($user->role ?? null) === 'admin';
 
+            \Log::info('[NotificationController] Admin check', [
+                'is_admin' => $isAdmin,
+                'user_role' => $user->role ?? null,
+            ]);
+
             if ($notification->user_id !== $user->id && !$isAdmin) {
+                \Log::warning('[NotificationController] Unauthorized delete', [
+                    'notification_user_id' => $notification->user_id,
+                    'user_id' => $user->id,
+                    'is_admin' => $isAdmin,
+                ]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized'
                 ], 403);
             }
 
+            \Log::info('[NotificationController] Attempting to delete');
             $notification->delete();
+            \Log::info('[NotificationController] Delete successful');
 
             return response()->json([
                 'success' => true,
                 'message' => 'Notificação removida'
             ]);
         } catch (\Exception $e) {
+            \Log::error('[NotificationController] Delete error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Erro: ' . $e->getMessage()
