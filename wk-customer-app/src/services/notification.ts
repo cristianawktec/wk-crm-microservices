@@ -74,7 +74,10 @@ export function useNotificationService() {
    */
   async function markAsRead(notificationId: string) {
     try {
+      console.log(`✓ Marking as read: ${notificationId}`)
       const response = await apiClient.put(`/notifications/${notificationId}/read`)
+      console.log(`Mark read response:`, response.data)
+      
       if (response.data.success) {
         const notif = notifications.value.find(n => n.id === notificationId)
         if (notif) {
@@ -82,7 +85,7 @@ export function useNotificationService() {
           unreadCount.value = Math.max(0, unreadCount.value - 1)
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error marking notification as read:', error)
     }
   }
@@ -108,13 +111,21 @@ export function useNotificationService() {
    */
   async function deleteNotification(notificationId: string) {
     try {
+      console.log(`🗑️ Deleting notification: ${notificationId}`)
       const response = await apiClient.delete(`/notifications/${notificationId}`)
+      console.log(`Delete response:`, response.data)
+      
       if (response.data.success) {
-        notifications.value = notifications.value.filter(n => n.id !== notificationId)
         toast.success('Notificação removida')
+        // Reload notifications after delete
+        await loadNotifications()
+      } else {
+        toast.error('Erro ao deletar notificação: ' + response.data.message)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting notification:', error)
+      const message = error.response?.data?.message || error.message
+      toast.error(`Erro: ${message}`)
     }
   }
 
