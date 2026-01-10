@@ -65,19 +65,29 @@ class NotificationService
 
     /**
      * Send email notification
+     * Sends to noreply@consultoriawk.com (configured in MAIL_FROM_ADDRESS)
      */
     private static function sendEmail(Notification $notification): void
     {
         try {
+            // Get the notification recipient user (for context only, we send to noreply)
             $user = User::find($notification->user_id);
-            if (!$user || empty($user->email)) {
-                Log::warning('Notification email skipped: user not found or without email', ['user_id' => $notification->user_id]);
+            
+            // Get the FROM address (should be noreply@consultoriawk.com)
+            $fromEmail = config('mail.from.address') ?? env('MAIL_FROM_ADDRESS', 'noreply@consultoriawk.com');
+            
+            if (empty($fromEmail) || !filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
+                Log::warning('Notification email skipped: invalid FROM address', [
+                    'from_email' => $fromEmail,
+                    'notification_id' => $notification->id
+                ]);
                 return;
             }
 
-            // Use Mailable
             \Log::info('[NotificationService] Sending email', [
-                'to' => $user->email,
+                'from' => $fromEmail,
+                'user' => $user?->name ?? 'Unknown',
+                'user_id' => $notification->user_id,
                 'title' => $notification->title,
                 'type' => $notification->type,
             ]);
@@ -87,23 +97,31 @@ class NotificationService
             $actionUrl = $notification->action_url ?? null;
             $createdAt = optional($notification->created_at)->toDateTimeString() ?? now()->toDateTimeString();
 
-            $mail = Mail::to($user->email);
-            $extraTo = env('NOTIFICATION_EXTRA_TO');
-            if (!empty($extraTo)) {
-                $mail->cc($extraTo);
-            }
+            // Send to noreply@consultoriawk.com (from address)
+            $mail = Mail::to($fromEmail);
 
             $mail->send(new \App\Mail\NotificationMail($title, $body, $actionUrl, $createdAt));
+            
             \Log::info('[NotificationService] Email sent successfully', [
-                'to' => $user->email,
-                'cc' => $extraTo ?? null,
+                'from' => $fromEmail,
+                'user_id' => $notification->user_id,
+                'notification_id' => $notification->id
+            ]);
+        } catch (\Swift_TransportException $e) {
+            // SMTP/Transport errors (mailbox not found, connection issues, etc)
+            Log::warning('Email transport error', [
+                'notification_id' => $notification->id,
+                'user_id' => $notification->user_id ?? null,
+                'error' => $e->getMessage(),
+                'code' => $e->getCode()
             ]);
         } catch (\Throwable $e) {
             Log::error('Failed to send email notification', [
+                'notification_id' => $notification->id,
+                'user_id' => $notification->user_id ?? null,
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'line' => $e->getLine()
             ]);
         }
     }
