@@ -116,8 +116,28 @@ const userInitials = computed(() => {
 })
 
 const handleLogout = async () => {
-  localStorage.setItem('loggedOut', 'true')
-  await authStore.logout()
-  router.push('/login')
+  try {
+    console.log('[logout] Usuario clicou em Sair')
+
+    // Fechar dropdown
+    userMenuOpen.value = false
+
+    // Marcar que foi logout explicito
+    localStorage.setItem('loggedOut', 'true')
+
+    // Fazer logout
+    await authStore.logout()
+
+    console.log('[logout] Redirecionando para login...')
+
+    // Redirecionar para login
+    await router.push('/login')
+
+    console.log('[logout] Logout completo, redirecionado')
+  } catch (error) {
+    console.error('[logout] Erro no processo de logout:', error)
+    // Mesmo com erro, garantir redirect
+    await router.push('/login')
+  }
 }
 </script>

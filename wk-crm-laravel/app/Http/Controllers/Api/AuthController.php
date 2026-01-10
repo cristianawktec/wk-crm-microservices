@@ -231,13 +231,52 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        // Revoke current token
-        $request->user()->currentAccessToken()->delete();
+        try {
+            $user = $request->user();
+            
+            if (!$user) {
+                \Log::warning('Logout attempt without authenticated user');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated',
+                ], 401);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logged out successfully',
-        ], 200);
+            $currentToken = $request->user()->currentAccessToken();
+            
+            if (!$currentToken) {
+                \Log::warning('Logout attempt without valid token', ['user_id' => $user->id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No valid token found',
+                ], 401);
+            }
+
+            \Log::info('User logout', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'token_id' => $currentToken->id,
+            ]);
+
+            // Revoke current token
+            $currentToken->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Logged out successfully',
+            ], 200);
+            
+        } catch (\Exception $e) {
+            \Log::error('Logout error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Logout failed: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

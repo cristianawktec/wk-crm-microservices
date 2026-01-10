@@ -55,11 +55,22 @@ export const useAuthStore = defineStore('auth', () => {
 
   const logout = async () => {
     try {
-      await apiClient.post('/auth/logout')
-    } catch (err) {
-      console.error('Erro ao fazer logout:', err)
+      console.log('[logout] Iniciando logout...')
+      console.log('[logout] Token antes do logout:', token.value ? 'presente' : 'ausente')
+
+      if (token.value) {
+        await apiClient.post('/auth/logout')
+        console.log('[logout] Logout no backend realizado')
+      } else {
+        console.log('[logout] Sem token, apenas limpeza local')
+      }
+    } catch (err: any) {
+      console.error('[logout] Erro ao fazer logout no backend:', err?.response?.data || err?.message || err)
+      // Mesmo com erro no backend, continuar com logout local
     } finally {
+      console.log('[logout] Limpando dados locais...')
       clearAuth()
+      console.log('[logout] Logout completo')
     }
   }
 
