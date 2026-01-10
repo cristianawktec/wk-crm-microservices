@@ -347,6 +347,3 @@ Opção 3: Melhorias Gerais (Priority 5)
 Implementar paginação nas listas
 Sistema de permissões (roles: admin, seller, customer)
 Testes unitários
-
-<!-- Secret redacted: Removed accidental credentials from document -->
-<REMOVED_SENSITIVE_SAMPLE>
