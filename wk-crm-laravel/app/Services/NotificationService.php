@@ -145,13 +145,21 @@ class NotificationService
             $managerIds = User::whereHas('roles', function ($q) {
                 $q->whereIn('name', ['admin', 'manager']);
             })->limit(50)->pluck('id')->toArray();
+            
+            // Remove duplicates and exclude the creator
+            $managerIds = array_unique($managerIds);
+            if ($createdBy) {
+                $managerIds = array_diff($managerIds, [$createdBy->id]);
+            }
+            
             \Log::info('[NotificationService] managerIds fetched', [
                 'count' => count($managerIds),
+                'excluded_creator' => $createdBy ? $createdBy->id : null,
                 'ms' => (int)((microtime(true) - $qStart) * 1000)
             ]);
 
             if (empty($managerIds)) {
-                Log::info('No managers found for opportunity notification');
+                Log::info('No managers found for opportunity notification (after excluding creator)');
                 return;
             }
 
@@ -187,80 +195,133 @@ class NotificationService
     /**
      * Notify when opportunity status changes
      */
-    public static function opportunityStatusChanged($opportunity, $oldStatus, $newStatus): void
+    public static function opportunityStatusChanged($opportunity, $oldStatus, $newStatus, $changedBy = null): void
     {
-        $statusLabel = match ($newStatus) {
-            'open' => 'Aberta',
-            'negotiation' => 'Em Negociação',
-            'proposal' => 'Proposta Enviada',
-            'won' => '✅ Ganha',
-            'lost' => '❌ Perdida',
-            default => $newStatus
-        };
+        try {
+            $statusLabel = match ($newStatus) {
+                'open' => 'Aberta',
+                'negotiation' => 'Em Negociação',
+                'proposal' => 'Proposta Enviada',
+                'won' => '✅ Ganha',
+                'lost' => '❌ Perdida',
+                default => $newStatus
+            };
 
-        // Notify managers and opportunity owner
-        $userIds = User::whereHas('roles', function ($q) {
-            $q->whereIn('name', ['admin', 'manager']);
-        })->pluck('id')->toArray();
+            // Notify managers and opportunity owner
+            $userIds = User::whereHas('roles', function ($q) {
+                $q->whereIn('name', ['admin', 'manager']);
+            })->pluck('id')->toArray();
 
-        if ($opportunity->seller_id && !in_array($opportunity->seller_id, $userIds)) {
-            $userIds[] = $opportunity->seller_id;
-        }
+            if ($opportunity->seller_id && !in_array($opportunity->seller_id, $userIds)) {
+                $userIds[] = $opportunity->seller_id;
+            }
+            
+            // Remove duplicates and exclude who made the change
+            $userIds = array_unique($userIds);
+            if ($changedBy) {
+                $userIds = array_diff($userIds, [$changedBy->id]);
+            }
 
-        $data = [
-            'type' => 'opportunity_status_changed',
-            'title' => '📊 Status Atualizado',
-            'message' => "Oportunidade \"{$opportunity->title}\" mudou para: {$statusLabel}",
-            'action_url' => "/opportunities/{$opportunity->id}",
-            'related_data' => [
+            if (empty($userIds)) {
+                Log::info('No users to notify for status change (after excluding changer)');
+                return;
+            }
+
+            $data = [
+                'type' => 'opportunity_status_changed',
+                'title' => '📊 Status Atualizado',
+                'message' => "Oportunidade \"{$opportunity->title}\" mudou para: {$statusLabel}",
+                'action_url' => "/opportunities/{$opportunity->id}",
+                'related_data' => [
+                    'opportunity_id' => $opportunity->id,
+                    'opportunity_title' => $opportunity->title,
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'seller_name' => $opportunity->seller?->name ?? 'Não atribuído'
+                ]
+            ];
+
+            if ($changedBy) {
+                $data['related_data']['changed_by'] = $changedBy->name;
+            }
+
+            static::notifyMany($userIds, $data);
+            
+            Log::info('[NotificationService] Status change notification sent', [
                 'opportunity_id' => $opportunity->id,
-                'opportunity_title' => $opportunity->title,
+                'recipients' => count($userIds),
                 'old_status' => $oldStatus,
-                'new_status' => $newStatus,
-                'seller_name' => $opportunity->seller?->name ?? 'Não atribuído'
-            ]
-        ];
-
-        static::notifyMany(array_unique($userIds), $data);
+                'new_status' => $newStatus
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Failed in opportunityStatusChanged: ' . $e->getMessage());
+        }
     }
 
     /**
      * Notify when opportunity value changes significantly
      */
-    public static function opportunityValueChanged($opportunity, $oldValue, $newValue): void
+    public static function opportunityValueChanged($opportunity, $oldValue, $newValue, $changedBy = null): void
     {
-        if ($oldValue == 0 || $oldValue === null) {
-            \Log::info('[NotificationService] Skipping value change notification (old value is zero/undefined)', [
-                'opportunity_id' => $opportunity->id,
-                'old' => $oldValue,
-                'new' => $newValue,
-            ]);
-            return;
-        }
-
-        $percentChange = (($newValue - $oldValue) / $oldValue) * 100;
-
-        if (abs($percentChange) > 10) { // Only notify if change > 10%
-            $managerIds = User::whereHas('roles', function ($q) {
-                $q->whereIn('name', ['admin', 'manager']);
-            })->pluck('id')->toArray();
-
-            $symbol = $percentChange > 0 ? '📈' : '📉';
-            $data = [
-                'type' => 'opportunity_value_changed',
-                'title' => "{$symbol} Valor Alterado",
-                'message' => "Oportunidade \"{$opportunity->title}\": R\$ " . number_format($oldValue, 2, ',', '.') . " → R\$ " . number_format($newValue, 2, ',', '.'),
-                'action_url' => "/opportunities/{$opportunity->id}",
-                'related_data' => [
+        try {
+            if ($oldValue == 0 || $oldValue === null) {
+                \Log::info('[NotificationService] Skipping value change notification (old value is zero/undefined)', [
                     'opportunity_id' => $opportunity->id,
-                    'opportunity_title' => $opportunity->title,
+                    'old' => $oldValue,
+                    'new' => $newValue,
+                ]);
+                return;
+            }
+
+            $percentChange = (($newValue - $oldValue) / $oldValue) * 100;
+
+            if (abs($percentChange) > 10) { // Only notify if change > 10%
+                $managerIds = User::whereHas('roles', function ($q) {
+                    $q->whereIn('name', ['admin', 'manager']);
+                })->pluck('id')->toArray();
+                
+                // Remove duplicates and exclude who made the change
+                $managerIds = array_unique($managerIds);
+                if ($changedBy) {
+                    $managerIds = array_diff($managerIds, [$changedBy->id]);
+                }
+
+                if (empty($managerIds)) {
+                    Log::info('No users to notify for value change (after excluding changer)');
+                    return;
+                }
+
+                $symbol = $percentChange > 0 ? '📈' : '📉';
+                $data = [
+                    'type' => 'opportunity_value_changed',
+                    'title' => "{$symbol} Valor Alterado",
+                    'message' => "Oportunidade \"{$opportunity->title}\": R\$ " . number_format($oldValue, 2, ',', '.') . " → R\$ " . number_format($newValue, 2, ',', '.'),
+                    'action_url' => "/opportunities/{$opportunity->id}",
+                    'related_data' => [
+                        'opportunity_id' => $opportunity->id,
+                        'opportunity_title' => $opportunity->title,
+                        'old_value' => $oldValue,
+                        'new_value' => $newValue,
+                        'percent_change' => round($percentChange, 2)
+                    ]
+                ];
+
+                if ($changedBy) {
+                    $data['related_data']['changed_by'] = $changedBy->name;
+                }
+
+                static::notifyMany($managerIds, $data);
+                
+                Log::info('[NotificationService] Value change notification sent', [
+                    'opportunity_id' => $opportunity->id,
+                    'recipients' => count($managerIds),
                     'old_value' => $oldValue,
                     'new_value' => $newValue,
                     'percent_change' => round($percentChange, 2)
-                ]
-            ];
-
-            static::notifyMany($managerIds, $data);
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Failed in opportunityValueChanged: ' . $e->getMessage());
         }
     }
 }

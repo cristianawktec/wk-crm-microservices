@@ -108,7 +108,7 @@ class OpportunityController extends Controller
         // Check for status change (comparar com valor antigo)
         if (isset($data['status']) && $oldStatus !== $data['status']) {
             try {
-                NotificationService::opportunityStatusChanged($opp, $oldStatus, $data['status']);
+                NotificationService::opportunityStatusChanged($opp, $oldStatus, $data['status'], $request->user());
                 \Log::info('[OpportunityController@update] Status notification sent', [
                     'opportunity_id' => $opp->id,
                     'old' => $oldStatus,
@@ -122,7 +122,7 @@ class OpportunityController extends Controller
         // Check for value change (comparar com valor antigo)
         if (isset($data['value']) && $oldValue != $data['value']) {
             try {
-                NotificationService::opportunityValueChanged($opp, $oldValue, $data['value']);
+                NotificationService::opportunityValueChanged($opp, $oldValue, $data['value'], $request->user());
                 \Log::info('[OpportunityController@update] Value notification sent', [
                     'opportunity_id' => $opp->id,
                     'old' => $oldValue,
