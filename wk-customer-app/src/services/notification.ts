@@ -111,9 +111,12 @@ export function useNotificationService() {
    */
   async function deleteNotification(notificationId: string) {
     try {
-      console.log(`🗑️ Deleting notification: ${notificationId}`)
-      const response = await apiClient.delete(`/notifications/${notificationId}`)
+      const deleteUrl = `/notifications/${notificationId}`
+      console.log(`🗑️ Deleting notification at URL: ${deleteUrl}`)
+      console.log(`Full API URL: ${apiUrl}${deleteUrl}`)
+      const response = await apiClient.delete(deleteUrl)
       console.log(`Delete response:`, response.data)
+      console.log(`Delete status: ${response.status}`)
       
       if (response.data.success) {
         toast.success('Notificação removida')

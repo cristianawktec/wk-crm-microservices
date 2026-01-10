@@ -186,6 +186,7 @@ async function deleteNotification(notificationId: string) {
   console.log(`🗑️ NotificationsPage.deleteNotification called for: ${notificationId}`)
   console.log(`Before delete - Total: ${totalCount.value}, Current page: ${currentPage.value}`)
   console.log(`Token in localStorage: ${localStorage.getItem('token')?.substring(0, 20)}...`)
+  console.log(`Will call DELETE /api/notifications/${notificationId}`)
   
   try {
     await serviceDeleteNotification(notificationId)
