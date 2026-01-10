@@ -228,7 +228,7 @@ const fetchOpportunity = async () => {
     error.value = null
     const id = route.params.id as string
     const response = await opportunitiesApi.getById(parseInt(id))
-    opportunity.value = response.data
+    opportunity.value = response.data.data || response.data
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Não foi possível carregar a oportunidade'
     console.error('Failed to fetch opportunity:', err)

@@ -263,8 +263,50 @@ class CustomerDashboardController extends Controller
         ], 200);
     }
 
-    /**
-     * Create Customer Opportunity
+    /**     * Get Single Customer Opportunity
+     * 
+     * Retorna os detalhes de uma oportunidade específica do cliente autenticado
+     */
+    public function getOpportunity(Opportunity $opportunity): JsonResponse
+    {
+        $user = Auth::user();
+        
+        // Verificar se a oportunidade pertence ao usuário autenticado
+        if ($opportunity->customer_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Oportunidade não encontrada'
+            ], 404);
+        }
+        
+        $formatted = [
+            'id' => $opportunity->id,
+            'title' => $opportunity->title,
+            'value' => (float) ($opportunity->value ?? 0),
+            'status' => $opportunity->status,
+            'probability' => (int) ($opportunity->probability ?? 0),
+            'seller_id' => $opportunity->seller_id,
+            'seller' => $opportunity->seller ? ['id' => $opportunity->seller->id, 'name' => $opportunity->seller->name] : null,
+            'customer' => $opportunity->customer ? [
+                'id' => $opportunity->customer->id,
+                'name' => $opportunity->customer->name,
+                'email' => $opportunity->customer->email,
+                'phone' => $opportunity->customer->phone,
+                'document' => $opportunity->customer->document
+            ] : null,
+            'description' => $opportunity->description,
+            'notes' => $opportunity->notes,
+            'created_at' => $opportunity->created_at->toIso8601String(),
+            'updated_at' => $opportunity->updated_at->toIso8601String()
+        ];
+        
+        return response()->json([
+            'success' => true,
+            'data' => $formatted
+        ], 200);
+    }
+
+    /**     * Create Customer Opportunity
      * 
      * Permite que o cliente crie uma nova oportunidade.
      */
