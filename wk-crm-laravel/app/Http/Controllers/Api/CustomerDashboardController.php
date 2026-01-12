@@ -204,6 +204,9 @@ class CustomerDashboardController extends Controller
         
         $query = Opportunity::where('customer_id', $user->id);
         
+        $hasFilters = ($request->has('status') && !empty($request->status)) 
+                   || ($request->has('search') && !empty($request->search));
+        
         // Filter by status
         if ($request->has('status') && !empty($request->status)) {
             $query->where('status', $request->status);
@@ -229,8 +232,8 @@ class CustomerDashboardController extends Controller
             'notes' => $opp->description ?? ''
         ]);
 
-        // Demo fallback quando não há oportunidades reais
-        if ($formattedOpps->isEmpty()) {
+        // Demo fallback apenas quando não há oportunidades reais E não há filtros aplicados
+        if ($formattedOpps->isEmpty() && !$hasFilters) {
             $formattedOpps = collect([
                 [
                     'id' => 'demo-1',
@@ -260,6 +263,41 @@ class CustomerDashboardController extends Controller
         return response()->json([
             'success' => true,
             'data' => $formattedOpps
+        ], 200);
+    }
+
+    /**
+     * Get Single Customer Opportunity
+     * 
+     * Retorna os detalhes de uma oportunidade específica do cliente.
+     */
+    public function getOpportunity(Opportunity $opportunity): JsonResponse
+    {
+        $user = Auth::user();
+        
+        // Verifica se a oportunidade pertence ao cliente autenticado
+        if ($opportunity->customer_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acesso negado a esta oportunidade.'
+            ], 403);
+        }
+
+        $formatted = [
+            'id' => $opportunity->id,
+            'title' => $opportunity->title,
+            'value' => $opportunity->value ?? 0,
+            'status' => $opportunity->status,
+            'probability' => $opportunity->probability ?? 0,
+            'seller_id' => $opportunity->seller_id,
+            'seller' => $opportunity->seller ? $opportunity->seller->name : 'Não atribuído',
+            'created_at' => $opportunity->created_at->toIso8601String(),
+            'notes' => $opportunity->description ?? ''
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $formatted
         ], 200);
     }
 

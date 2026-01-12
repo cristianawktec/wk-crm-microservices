@@ -140,11 +140,23 @@ class NotificationService
     {
         try {
             $begin = microtime(true);
+            \Log::info('[NotificationService::opportunityCreated] START', [
+                'opportunity_id' => $opportunity->id,
+                'opportunity_title' => $opportunity->title,
+                'created_by_id' => $createdBy ? $createdBy->id : null,
+                'created_by_name' => $createdBy ? $createdBy->name : null,
+            ]);
+            
             // Notify sales managers (limit to avoid slow queries)
             $qStart = microtime(true);
             $managerIds = User::whereHas('roles', function ($q) {
                 $q->whereIn('name', ['admin', 'manager']);
             })->limit(50)->pluck('id')->toArray();
+            
+            \Log::info('[NotificationService] Raw managerIds before filtering', [
+                'ids' => $managerIds,
+                'count' => count($managerIds)
+            ]);
             
             // Remove duplicates and exclude the creator
             $managerIds = array_unique($managerIds);
@@ -152,7 +164,8 @@ class NotificationService
                 $managerIds = array_diff($managerIds, [$createdBy->id]);
             }
             
-            \Log::info('[NotificationService] managerIds fetched', [
+            \Log::info('[NotificationService] managerIds after filtering', [
+                'ids' => $managerIds,
                 'count' => count($managerIds),
                 'excluded_creator' => $createdBy ? $createdBy->id : null,
                 'ms' => (int)((microtime(true) - $qStart) * 1000)

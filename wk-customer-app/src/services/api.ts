@@ -124,7 +124,7 @@ export const api = {
     const response = await apiClient.delete(`/customer-opportunities/${id}`)
     return response.data
   },
-  getOpportunity: (id: string) => apiClient.get(`/opportunities/${id}`),
+  getOpportunity: (id: string) => apiClient.get(`/customer-opportunities/${id}`),
   
   // Profile
   getProfile: async () => {
