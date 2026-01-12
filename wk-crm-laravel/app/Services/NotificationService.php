@@ -95,10 +95,20 @@ class NotificationService
             $title = $notification->title ?? 'Notificação WK CRM';
             $body = $notification->message ?? '';
             $actionUrl = $notification->action_url ?? null;
-            $createdAt = optional($notification->created_at)->toDateTimeString() ?? now()->toDateTimeString();
+            $createdAt = $notification->created_at ? $notification->created_at->toDateTimeString() : now()->toDateTimeString();
 
-            // Send to noreply@consultoriawk.com (from address)
-            $mail = Mail::to($fromEmail);
+            // Send to the user's email address
+            $recipientEmail = $user->email ?? null;
+            
+            if (empty($recipientEmail) || !filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {
+                Log::warning('Cannot send email: user has no valid email address', [
+                    'user_id' => $notification->user_id,
+                    'notification_id' => $notification->id
+                ]);
+                return;
+            }
+
+            $mail = Mail::to($recipientEmail);
 
             $mail->send(new \App\Mail\NotificationMail($title, $body, $actionUrl, $createdAt));
             
@@ -158,26 +168,37 @@ class NotificationService
     {
         try {
             $begin = microtime(true);
-            // Notify sales managers (limit to avoid slow queries)
+            
+            // Collect all users to notify
+            $notifyIds = [];
+            
+            // 1. Notify the creator (customer who created the opportunity)
+            if ($createdBy) {
+                $notifyIds[] = $createdBy->id;
+                \Log::info('[NotificationService] Adding creator to notification', [
+                    'creator_id' => $createdBy->id,
+                    'creator_name' => $createdBy->name
+                ]);
+            }
+            
+            // 2. Notify managers and admins
             $qStart = microtime(true);
             $managerIds = User::whereHas('roles', function ($q) {
                 $q->whereIn('name', ['admin', 'manager']);
             })->limit(50)->pluck('id')->toArray();
             
-            // Remove duplicates and exclude the creator
-            $managerIds = array_unique($managerIds);
-            if ($createdBy) {
-                $managerIds = array_diff($managerIds, [$createdBy->id]);
-            }
+            // Merge and remove duplicates
+            $notifyIds = array_unique(array_merge($notifyIds, $managerIds));
             
-            \Log::info('[NotificationService] managerIds fetched', [
-                'count' => count($managerIds),
-                'excluded_creator' => $createdBy ? $createdBy->id : null,
+            \Log::info('[NotificationService] Recipients fetched', [
+                'total_count' => count($notifyIds),
+                'managers_count' => count($managerIds),
+                'creator_included' => (bool)$createdBy,
                 'ms' => (int)((microtime(true) - $qStart) * 1000)
             ]);
 
-            if (empty($managerIds)) {
-                Log::info('No managers found for opportunity notification (after excluding creator)');
+            if (empty($notifyIds)) {
+                Log::warning('No users found for opportunity notification');
                 return;
             }
 
@@ -199,9 +220,9 @@ class NotificationService
             }
 
             $nStart = microtime(true);
-            static::notifyMany($managerIds, $data);
+            static::notifyMany($notifyIds, $data);
             \Log::info('[NotificationService] notifyMany completed', [
-                'recipients' => count($managerIds),
+                'recipients' => count($notifyIds),
                 'ms' => (int)((microtime(true) - $nStart) * 1000),
                 'total_ms' => (int)((microtime(true) - $begin) * 1000)
             ]);
