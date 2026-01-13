@@ -102,7 +102,7 @@
       </router-link>
     </div>
 
-    <AI Analysis Modal -->
+    <!-- AI Analysis Modal -->
     <AiAnalysisModal 
       :is-open="aiModalOpen"
       :opportunity="opportunity"
