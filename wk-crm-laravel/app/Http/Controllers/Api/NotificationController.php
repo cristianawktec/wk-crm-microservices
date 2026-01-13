@@ -65,7 +65,7 @@ class NotificationController extends Controller
 
             $unread = ($user && $isAdmin)
                 ? Notification::whereNull('read_at')->count()
-                : Notification::where('user_id', $user->id)->unreadCount($user->id);
+                : Notification::unreadCount($user->id);
 
             return response()->json([
                 'success' => true,
