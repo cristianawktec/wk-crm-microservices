@@ -26,7 +26,18 @@ class NotificationController extends Controller
 
             // Admin vê tudo, usuários normais veem suas próprias
             $query = Notification::query()->orderByDesc('created_at');
-            if (!$user || $user->role !== 'admin') {
+
+            // Detectar admin corretamente (Spatie roles ou atributo simples)
+            $isAdmin = false;
+            if ($user) {
+                if (method_exists($user, 'roles')) {
+                    $isAdmin = $user->roles()->where('name', 'admin')->exists();
+                } else {
+                    $isAdmin = ($user->role ?? null) === 'admin';
+                }
+            }
+
+            if (!$user || !$isAdmin) {
                 $query->where('user_id', $user->id);
             }
 
@@ -48,11 +59,11 @@ class NotificationController extends Controller
                     ];
                 });
 
-            $total = ($user && $user->role === 'admin')
+            $total = ($user && $isAdmin)
                 ? Notification::count()
                 : Notification::where('user_id', $user->id)->count();
 
-            $unread = ($user && $user->role === 'admin')
+            $unread = ($user && $isAdmin)
                 ? Notification::whereNull('read_at')->count()
                 : Notification::where('user_id', $user->id)->unreadCount($user->id);
 
