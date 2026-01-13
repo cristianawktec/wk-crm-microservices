@@ -300,8 +300,8 @@ class AiController extends Controller
                 'sector' => ['nullable', 'string', 'max:100'],
             ]);
 
-            // Call FastAPI analyze endpoint directly (no leading slash)
-            $response = $this->callAiService('analyze', $data);
+            // Call FastAPI ai/opportunity-insights endpoint
+            $response = $this->callAiService('ai/opportunity-insights', $data);
             
             if ($response && is_array($response)) {
                 return response()->json([
