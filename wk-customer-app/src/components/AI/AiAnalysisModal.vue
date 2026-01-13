@@ -194,7 +194,10 @@ async function analyzeOpportunity() {
       description: props.opportunity.notes || props.opportunity.title
     })
 
-    if (response.success && response.data) {
+    if (response && response.data && response.success) {
+      analysis.value = response.data
+    } else if (response && response.data) {
+      // In case response doesn't have success field
       analysis.value = response.data
     } else {
       error.value = 'Não foi possível analisar a oportunidade'

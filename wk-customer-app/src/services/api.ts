@@ -195,7 +195,7 @@ export const api = {
     sector?: string
   }) => {
     const response = await apiClient.post('/ai/opportunity-insights', payload)
-    return response.data.data
+    return response.data
   },
 
   // Generic HTTP methods
