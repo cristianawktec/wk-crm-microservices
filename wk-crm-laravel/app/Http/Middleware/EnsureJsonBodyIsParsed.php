@@ -21,11 +21,27 @@ class EnsureJsonBodyIsParsed
             try {
                 $rawContent = $request->getContent();
                 
+                \Log::info('[EnsureJsonBodyIsParsed] Processing JSON', [
+                    'raw_content' => $rawContent,
+                    'content_length' => strlen($rawContent),
+                    'is_json' => $request->isJson(),
+                ]);
+                
                 if (!empty($rawContent)) {
                     $data = json_decode($rawContent, true, 512, JSON_THROW_ON_ERROR);
                     if (is_array($data)) {
+                        // Log what we're replacing with
+                        \Log::info('[EnsureJsonBodyIsParsed] Replacing request data', [
+                            'parsed_data' => $data,
+                        ]);
+                        
                         // Use replace to fully replace request data
                         $request->replace($data);
+                        
+                        // Verify replacement worked
+                        \Log::info('[EnsureJsonBodyIsParsed] After replace', [
+                            'request_all' => $request->all(),
+                        ]);
                     }
                 }
             } catch (\JsonException $e) {
