@@ -226,12 +226,9 @@ Route::get('/trends/analyze', [TrendsController::class, 'analyze']);
 Route::middleware(['auth:sanctum', \App\Http\Middleware\CorsMiddleware::class])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
-
-    Route::group(function () {
-        Route::put('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
-        Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
-        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
-    });
+    Route::put('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
 });
 
 // SSE stream de notificações autenticado via token na query string
