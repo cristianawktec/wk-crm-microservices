@@ -16,10 +16,9 @@ class EnsureJsonBodyIsParsed
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // If request claims to be JSON but has no data, try reading raw input
-        if ($request->isJson() && empty($request->all())) {
+        // ALWAYS parse JSON if content-type is JSON, regardless of whether request->all() is empty
+        if ($request->isJson()) {
             try {
-                // getContent() is from Symfony\HttpFoundation\Request
                 $rawContent = $request->getContent();
                 
                 if (!empty($rawContent)) {
@@ -30,7 +29,10 @@ class EnsureJsonBodyIsParsed
                     }
                 }
             } catch (\JsonException $e) {
-                // Continue with empty request - validation will handle it
+                \Log::warning('[EnsureJsonBodyIsParsed] JSON parsing error', [
+                    'error' => $e->getMessage(),
+                    'content_length' => strlen($rawContent ?? ''),
+                ]);
             }
         }
 
