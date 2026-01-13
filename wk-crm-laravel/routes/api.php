@@ -16,7 +16,6 @@ use App\Models\User;
 use App\Models\Customer;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\AiController;
-use App\Http\Controllers\ChatController;
 
 Route::get('/health', function () {
     return response()->json([
@@ -209,8 +208,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/sales-funnel', [ReportController::class, 'salesFunnelAnalytics']);
     Route::get('/analytics/summary', [ReportController::class, 'analyticalSummary']);
 
-    // AI Insights (ChatController)
-    Route::post('/ai/opportunity-insights', [ChatController::class, 'opportunityInsights']);
+    // AI Insights (Original method in AiController)
+    Route::post('/ai/opportunity-insights', [AiController::class, 'opportunityInsights']);
 
     // Autenticação - Endpoints Protegidos
     Route::post('/auth/logout', [AuthController::class, 'logout']);
