@@ -185,8 +185,8 @@
       </div>
     </div>
 
-    <!-- Insight Modal -->
-    <OpportunityInsightModal 
+    <!-- AI Analysis Modal -->
+    <AiAnalysisModal 
       :is-open="insightModal.isOpen"
       :opportunity="insightModal.opportunity"
       @close="insightModal.isOpen = false"
@@ -199,7 +199,7 @@ import { ref, onMounted } from 'vue'
 import { api } from '../services/api'
 import type { Opportunity } from '../types'
 import { useToast } from 'vue-toastification'
-import OpportunityInsightModal from '../components/OpportunityInsightModal.vue'
+import AiAnalysisModal from '../components/AI/AiAnalysisModal.vue'
 
 const opportunities = ref<Opportunity[]>([])
 const loading = ref(true)

@@ -78,6 +78,15 @@
           Voltar
         </router-link>
         <button 
+          @click="showAnalysis"
+          class="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center justify-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5.36-5.36l.707-.707M5.05 5.05A9 9 0 1112 3c-4.4 0-8.27 2.903-9.657 6.82" />
+          </svg>
+          IA Insights
+        </button>
+        <button 
           @click="editOpportunity"
           class="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
         >
@@ -92,6 +101,13 @@
         Voltar para oportunidades
       </router-link>
     </div>
+
+    <AI Analysis Modal -->
+    <AiAnalysisModal 
+      :is-open="aiModalOpen"
+      :opportunity="opportunity"
+      @close="aiModalOpen = false"
+    />
   </div>
 </template>
 
@@ -99,6 +115,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '../services/api'
+import AiAnalysisModal from '../components/AI/AiAnalysisModal.vue'
 import type { Opportunity } from '../types'
 
 const route = useRoute()
@@ -106,6 +123,7 @@ const router = useRouter()
 
 const loading = ref(true)
 const opportunity = ref<Opportunity | null>(null)
+const aiModalOpen = ref(false)
 
 onMounted(async () => {
   await loadOpportunity()
@@ -127,6 +145,10 @@ async function loadOpportunity() {
 function editOpportunity() {
   router.push('/opportunities')
   // TODO: Abrir modal de edição com o ID da oportunidade
+}
+
+function showAnalysis() {
+  aiModalOpen.value = true
 }
 
 function formatDate(date: string): string {
