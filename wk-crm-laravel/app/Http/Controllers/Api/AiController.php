@@ -283,6 +283,12 @@ class AiController extends Controller
     public function opportunityInsights(Request $request)
     {
         try {
+            \Log::info('[AiController@opportunityInsights] Request received', [
+                'all' => $request->all(),
+                'content' => $request->getContent(),
+                'is_json' => $request->isJson(),
+            ]);
+
             $data = $request->validate([
                 'id' => ['nullable', 'string'],
                 'title' => ['required', 'string', 'max:255'],
