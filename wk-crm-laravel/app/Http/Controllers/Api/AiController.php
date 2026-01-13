@@ -280,24 +280,44 @@ class AiController extends Controller
      * POST /api/ai/opportunity-insights
      * Used by Vue Customer App
      */
-    public function opportunityInsights(Request $request, AiService $aiService)
+    public function opportunityInsights(Request $request)
     {
-        $data = $request->validate([
-            'id' => ['nullable', 'string'],
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'value' => ['nullable', 'numeric', 'min:0'],
-            'probability' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'status' => ['nullable', 'string', 'max:100'],
-            'customer_name' => ['nullable', 'string', 'max:255'],
-            'sector' => ['nullable', 'string', 'max:100'],
-        ]);
+        try {
+            $data = $request->validate([
+                'id' => ['nullable', 'string'],
+                'title' => ['required', 'string', 'max:255'],
+                'description' => ['nullable', 'string'],
+                'value' => ['nullable', 'numeric', 'min:0'],
+                'probability' => ['nullable', 'numeric', 'min:0', 'max:100'],
+                'status' => ['nullable', 'string', 'max:100'],
+                'customer_name' => ['nullable', 'string', 'max:255'],
+                'sector' => ['nullable', 'string', 'max:100'],
+            ]);
 
-        $insight = $aiService->analyzeOpportunity($data);
+            // Call FastAPI /analyze endpoint directly
+            $response = $this->callAiService('/analyze', $data);
+            
+            if ($response && is_array($response)) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $response,
+                ]);
+            }
 
-        return response()->json([
-            'success' => true,
-            'data' => $insight,
-        ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Falha ao analisar oportunidade',
+            ], 400);
+        } catch (\Exception $e) {
+            \Log::error('[AiController@opportunityInsights] ERROR', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao processar análise: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }
