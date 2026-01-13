@@ -19,14 +19,14 @@ class NotificationController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $user = $request->user();
+            $user = $request->user(); // Agora sempre será autenticado
             $limit = (int) $request->query('limit', 20);
             $page = max(1, (int) $request->query('page', 1));
             $offset = ($page - 1) * $limit;
 
-            // Admin ou sem usuário: listar tudo (para debug e acesso administrativo)
+            // Admin vê tudo, usuários normais veem suas próprias
             $query = Notification::query()->orderByDesc('created_at');
-            if ($user && $user->role !== 'admin') {
+            if (!$user || $user->role !== 'admin') {
                 $query->where('user_id', $user->id);
             }
 
@@ -48,13 +48,13 @@ class NotificationController extends Controller
                     ];
                 });
 
-            $total = $user && $user->role !== 'admin'
-                ? Notification::where('user_id', $user->id)->count()
-                : Notification::count();
+            $total = ($user && $user->role === 'admin')
+                ? Notification::count()
+                : Notification::where('user_id', $user->id)->count();
 
-            $unread = $user && $user->role !== 'admin'
-                ? Notification::unreadCount($user->id)
-                : Notification::whereNull('read_at')->count();
+            $unread = ($user && $user->role === 'admin')
+                ? Notification::whereNull('read_at')->count()
+                : Notification::where('user_id', $user->id)->unreadCount($user->id);
 
             return response()->json([
                 'success' => true,
@@ -65,6 +65,10 @@ class NotificationController extends Controller
                 'limit' => $limit
             ]);
         } catch (\Exception $e) {
+            \Log::error('[NotificationController@index] Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Erro ao carregar notificações: ' . $e->getMessage()
