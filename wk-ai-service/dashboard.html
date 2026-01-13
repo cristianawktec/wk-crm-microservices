@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WK CRM - Dashboard AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #333;
+        }
+
+        .header-status {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-badge.online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.online .dot {
+            background: #28a745;
+        }
+
+        .status-badge.offline .dot {
+            background: #dc3545;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .card .subtext {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #333;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+
+        .response-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #333;
+            white-space: pre-wrap;
+            word-break: break-all;
+            display: none;
+        }
+
+        .response-box.show {
+            display: block;
+        }
+
+        .response-box.success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .response-box.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            margin-top: 10px;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #1565c0;
+            font-size: 14px;
+        }
+
+        .endpoints-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .endpoint {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 11px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .method.get {
+            background: #cfe2ff;
+            color: #0c5394;
+        }
+
+        .method.post {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🤖 WK AI Dashboard</h1>
+                <p style="color: #666; margin-top: 5px;">Priority 3 Phase 1 - AI Service Analytics</p>
+            </div>
+            <div class="header-status">
+                <div class="status-badge online" id="statusBadge">
+                    <div class="dot"></div>
+                    <span>Conectado</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Cards -->
+        <div class="grid">
+            <div class="card">
+                <h2>Serviço Status</h2>
+                <div class="value" id="serviceStatus">-</div>
+                <div class="subtext" id="serviceVersion">Verificando...</div>
+            </div>
+            <div class="card">
+                <h2>Requisições Total</h2>
+                <div class="value" id="totalRequests">0</div>
+                <div class="subtext">Desde o boot</div>
+            </div>
+            <div class="card">
+                <h2>Tempo de Resposta</h2>
+                <div class="value" id="responseTime">-</div>
+                <div class="subtext">Última requisição</div>
+            </div>
+            <div class="card">
+                <h2>Taxa de Sucesso</h2>
+                <div class="value" id="successRate">100%</div>
+                <div class="subtext">Últimas 10 requisições</div>
+            </div>
+        </div>
+
+        <!-- API Endpoints -->
+        <div class="section">
+            <h2>📡 API Endpoints</h2>
+            <div class="endpoints-list">
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <code>/health</code> - Verificar status do serviço
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <code>/</code> - Documentação da API
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <code>/analyze</code> - Analisar oportunidade de risco
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <code>/api/v1/chat</code> - Chat com IA (Gemini)
+                </div>
+            </div>
+        </div>
+
+        <!-- Análise de Oportunidade -->
+        <div class="section">
+            <h2>📊 Analisar Oportunidade</h2>
+            <div class="info-box">
+                💡 Utilize esta ferramenta para analisar o risco e potencial de uma oportunidade usando IA.
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Título da Oportunidade *</label>
+                    <input type="text" id="oppTitle" placeholder="ex: Projeto ERP Cloud" value="Projeto ERP Cloud">
+                </div>
+                <div class="form-group">
+                    <label>Valor (R$) *</label>
+                    <input type="number" id="oppValue" placeholder="ex: 500000" value="500000">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Probabilidade (%) *</label>
+                    <input type="number" id="oppProbability" min="0" max="100" placeholder="ex: 75" value="75">
+                </div>
+                <div class="form-group">
+                    <label>Setor</label>
+                    <input type="text" id="oppSector" placeholder="ex: Manufatura" value="Manufatura">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="oppDescription" placeholder="Descreva detalhes da oportunidade...">Cliente grande do setor, com histórico de compras consistente</textarea>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="analyzeOpportunity()">🔍 Analisar com IA</button>
+                <button class="btn-secondary" onclick="clearAnalyze()">🔄 Limpar</button>
+            </div>
+
+            <div class="loader" id="analyzeLoader">
+                <div class="spinner"></div>
+                <span>Analisando com IA...</span>
+            </div>
+            <div class="response-box" id="analyzeResponse"></div>
+        </div>
+
+        <!-- Chat com IA -->
+        <div class="section">
+            <h2>💬 Chat com IA (Gemini)</h2>
+            <div class="info-box">
+                💡 Faça perguntas sobre vendas, CRM e melhores práticas de negócio.
+            </div>
+
+            <div class="form-group">
+                <label>Sua Pergunta *</label>
+                <textarea id="chatQuestion" placeholder="ex: Como aumentar taxa de conversão em vendas?">Como aumentar a taxa de conversão em vendas B2B?</textarea>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="sendChat()">💬 Enviar Pergunta</button>
+                <button class="btn-secondary" onclick="clearChat()">🔄 Limpar</button>
+            </div>
+
+            <div class="loader" id="chatLoader">
+                <div class="spinner"></div>
+                <span>Processando...</span>
+            </div>
+            <div class="response-box" id="chatResponse"></div>
+        </div>
+
+        <!-- Performance Chart -->
+        <div class="section">
+            <h2>📈 Performance</h2>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="section">
+            <h2>📋 Histórico de Requisições</h2>
+            <div id="activityLog" style="font-size: 13px; color: #666; line-height: 1.8; background: #f8f9fa; padding: 15px; border-radius: 6px; max-height: 300px; overflow-y: auto;">
+                <div style="color: #999; text-align: center; padding: 20px;">Nenhuma requisição ainda...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api.consultoriawk.com/ai';
+        const LOCAL_API = 'http://localhost:8080';
+        let requestCount = 0;
+        let requests = [];
+        let performanceData = {
+            labels: [],
+            times: []
+        };
+        let performanceChart = null;
+
+        // Verificar status na inicialização
+        window.addEventListener('load', () => {
+            checkHealth();
+            initChart();
+        });
+
+        function initChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Tempo de Resposta (ms)',
+                        data: [],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        async function checkHealth() {
+            const start = performance.now();
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const elapsed = Math.round(performance.now() - start);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('serviceStatus').textContent = '✅ Online';
+                    document.getElementById('serviceVersion').textContent = `v${data.version || '1.0.0'}`;
+                    document.getElementById('statusBadge').className = 'status-badge online';
+                    updateMetrics(elapsed);
+                    addLog('GET /health', 'ok', elapsed);
+                } else {
+                    setOffline();
+                }
+            } catch (error) {
+                setOffline();
+            }
+        }
+
+        function setOffline() {
+            document.getElementById('serviceStatus').textContent = '❌ Offline';
+            document.getElementById('serviceVersion').textContent = 'Verificar conexão';
+            document.getElementById('statusBadge').className = 'status-badge offline';
+        }
+
+        function updateMetrics(elapsed) {
+            requestCount++;
+            document.getElementById('totalRequests').textContent = requestCount;
+            document.getElementById('responseTime').textContent = elapsed + 'ms';
+            
+            performanceData.labels.push(requestCount);
+            performanceData.times.push(elapsed);
+            
+            if (performanceChart) {
+                performanceChart.data.labels = performanceData.labels.slice(-10);
+                performanceChart.data.datasets[0].data = performanceData.times.slice(-10);
+                performanceChart.update();
+            }
+        }
+
+        function addLog(endpoint, status, time) {
+            const logDiv = document.getElementById('activityLog');
+            const now = new Date().toLocaleTimeString('pt-BR');
+            const entry = `<div style="margin-bottom: 8px; padding: 8px; background: white; border-left: 3px solid ${status === 'ok' ? '#28a745' : '#dc3545'};">
+                <strong>${now}</strong> - ${endpoint} <strong style="color: ${status === 'ok' ? '#28a745' : '#dc3545'}">${status.toUpperCase()}</strong> (${time}ms)
+            </div>`;
+            
+            if (logDiv.innerHTML.includes('Nenhuma requisição')) {
+                logDiv.innerHTML = '';
+            }
+            logDiv.innerHTML = entry + logDiv.innerHTML;
+            
+            // Manter apenas últimas 20 requisições
+            const children = logDiv.children;
+            while (children.length > 20) {
+                logDiv.removeChild(logDiv.lastChild);
+            }
+        }
+
+        async function analyzeOpportunity() {
+            const title = document.getElementById('oppTitle').value;
+            const value = document.getElementById('oppValue').value;
+            const probability = document.getElementById('oppProbability').value;
+            const sector = document.getElementById('oppSector').value;
+            const description = document.getElementById('oppDescription').value;
+
+            if (!title || !value || !probability) {
+                alert('Preencha os campos obrigatórios (*)');
+                return;
+            }
+
+            const loader = document.getElementById('analyzeLoader');
+            const response = document.getElementById('analyzeResponse');
+            
+            loader.classList.add('show');
+            response.classList.remove('show', 'success', 'error');
+
+            const start = performance.now();
+            try {
+                const result = await fetch(`${API_BASE}/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title,
+                        value: parseInt(value),
+                        probability: parseInt(probability),
+                        sector,
+                        description
+                    })
+                });
+
+                const elapsed = Math.round(performance.now() - start);
+                const data = await result.json();
+                
+                loader.classList.remove('show');
+                response.classList.add('show', 'success');
+                response.textContent = JSON.stringify(data, null, 2);
+                
+                updateMetrics(elapsed);
+                addLog('POST /analyze', 'ok', elapsed);
+            } catch (error) {
+                const elapsed = Math.round(performance.now() - start);
+                loader.classList.remove('show');
+                response.classList.add('show', 'error');
+                response.textContent = `Erro: ${error.message}`;
+                addLog('POST /analyze', 'error', elapsed);
+            }
+        }
+
+        async function sendChat() {
+            const question = document.getElementById('chatQuestion').value;
+            
+            if (!question) {
+                alert('Digite uma pergunta');
+                return;
+            }
+
+            const loader = document.getElementById('chatLoader');
+            const response = document.getElementById('chatResponse');
+            
+            loader.classList.add('show');
+            response.classList.remove('show', 'success', 'error');
+
+            const start = performance.now();
+            try {
+                const result = await fetch(`${API_BASE}/api/v1/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+
+                const elapsed = Math.round(performance.now() - start);
+                const data = await result.json();
+                
+                loader.classList.remove('show');
+                response.classList.add('show', 'success');
+                response.textContent = JSON.stringify(data, null, 2);
+                
+                updateMetrics(elapsed);
+                addLog('POST /api/v1/chat', 'ok', elapsed);
+            } catch (error) {
+                const elapsed = Math.round(performance.now() - start);
+                loader.classList.remove('show');
+                response.classList.add('show', 'error');
+                response.textContent = `Erro: ${error.message}`;
+                addLog('POST /api/v1/chat', 'error', elapsed);
+            }
+        }
+
+        function clearAnalyze() {
+            document.getElementById('oppTitle').value = '';
+            document.getElementById('oppValue').value = '';
+            document.getElementById('oppProbability').value = '';
+            document.getElementById('oppSector').value = '';
+            document.getElementById('oppDescription').value = '';
+            document.getElementById('analyzeResponse').classList.remove('show');
+        }
+
+        function clearChat() {
+            document.getElementById('chatQuestion').value = '';
+            document.getElementById('chatResponse').classList.remove('show');
+        }
+
+        // Verificar saúde a cada 30 segundos
+        setInterval(checkHealth, 30000);
+    </script>
+</body>
+</html>

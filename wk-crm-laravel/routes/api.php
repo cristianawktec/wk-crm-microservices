@@ -173,6 +173,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('opportunities/{opportunity}', [OpportunityController::class, 'update']);
     Route::delete('opportunities/{opportunity}', [OpportunityController::class, 'destroy']);
 
+    // AI Analysis
+    Route::post('opportunities/{id}/ai-analysis', [AiController::class, 'analyzeOpportunity']);
+    Route::get('opportunities/{id}/ai-analysis', [AiController::class, 'getAnalyses']);
+    Route::post('ai/chat', [AiController::class, 'chat']);
+    Route::get('ai/health', [AiController::class, 'health']);
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
