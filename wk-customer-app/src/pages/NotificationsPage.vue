@@ -296,9 +296,15 @@ function formatCurrency(value: number): string {
 }
 
 function goToOpportunity(notification: Notification) {
-  if (notification.action_url) {
-    router.push(notification.action_url)
+  if (!notification.action_url) return
+
+  // Mark as read when navigating
+  if (!notification.is_read) {
+    markAsRead(notification.id)
   }
+
+  // Simply push the path (now it's a relative path like "/opportunities/123")
+  router.push(notification.action_url)
 }
 
 function previousPage() {

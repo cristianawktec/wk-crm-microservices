@@ -347,7 +347,3 @@ Opção 3: Melhorias Gerais (Priority 5)
 Implementar paginação nas listas
 Sistema de permissões (roles: admin, seller, customer)
 Testes unitários
-
-6y6-@Qw88-b)
-
-secure_password_123

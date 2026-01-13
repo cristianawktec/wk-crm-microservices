@@ -100,6 +100,10 @@ export const api = {
       data: Array.isArray(data) ? data : []
     }
   },
+  getOpportunityById: async (id: number) => {
+    const response = await apiClient.get(`/customer-opportunities/${id}`)
+    return response.data
+  },
   createOpportunity: async (payload: {
     title: string
     value?: number
@@ -199,3 +203,11 @@ export const api = {
   patch: (url: string, data?: any, config?: any) => apiClient.patch(url, data, config)
 }
 
+// Export opportunities API
+export const opportunitiesApi = {
+  getAll: api.getOpportunities,
+  getById: api.getOpportunityById,
+  create: api.createOpportunity,
+  update: api.updateOpportunity,
+  delete: api.deleteOpportunity
+}
