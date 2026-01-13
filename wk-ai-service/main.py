@@ -46,7 +46,7 @@ def get_model():
     if not api_key:
         return None
     genai.configure(api_key=api_key)
-    return genai.GenerativeModel("gemini-pro")
+    return genai.GenerativeModel("gemini-1.5-flash")
 
 
 def build_prompt(payload: OpportunityInput) -> str:
@@ -76,7 +76,7 @@ def parse_response(text: str) -> OpportunityInsight:
             next_action=str(data.get("next_action", "Reengajar o cliente")),
             recommendation=str(data.get("recommendation", "Envie um follow-up com proposta revisada.")),
             summary=str(data.get("summary", "Oportunidade com risco moderado.")),
-            model="gemini-pro",
+            model="gemini-1.5-flash",
         )
     except Exception:
         # Fallback if parsing fails
@@ -86,7 +86,7 @@ def parse_response(text: str) -> OpportunityInsight:
             next_action="Reengajar o cliente com próxima reunião",
             recommendation="Envie um follow-up reforçando o valor e prazos.",
             summary="Oportunidade com risco moderado; avance no relacionamento.",
-            model="gemini-pro",
+            model="gemini-1.5-flash",
         )
 
 
@@ -121,7 +121,7 @@ def generate_insight(payload: OpportunityInput) -> OpportunityInsight:
             next_action="Solicitar mais contexto ao cliente",
             recommendation="Tente novamente ou revise os dados da oportunidade.",
             summary="Falha ao consultar o modelo; usando fallback.",
-            model="gemini-pro",
+            model="gemini-1.5-flash",
             cached=True,
         )
 
@@ -187,6 +187,6 @@ async def chat(request: ChatRequest):
     answer = generate_chat_response(request.question, request.context)
     return ChatResponse(
         answer=answer,
-        model="gemini-pro",
+        model="gemini-1.5-flash",
         source="ai_service"
     )
