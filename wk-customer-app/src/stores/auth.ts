@@ -39,8 +39,8 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
     try {
       const response = await apiClient.post('/auth/login', { email, password })
-      const { token: authToken, data: userData, user: userPayload } = response.data
-      const resolvedUser = userData || userPayload
+      const { token: authToken, user: userPayload } = response.data
+      const resolvedUser = userPayload
 
       if (!authToken || !resolvedUser) {
         throw new Error('Credenciais inválidas')
