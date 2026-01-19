@@ -78,6 +78,17 @@
         Esqueceu sua senha? 
         <a href="#" class="text-indigo-600 hover:text-indigo-500 font-medium">Recuperar</a>
       </p>
+
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <p class="text-center text-xs text-gray-500 mb-3">Acesso para administradores:</p>
+        <a 
+          href="https://api.consultoriawk.com/admin/"
+          target="_blank"
+          class="block w-full text-center bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+        >
+          📊 Ir para Painel Admin
+        </a>
+      </div>
     </div>
   </div>
 </template>
@@ -101,6 +112,13 @@ const handleLogin = async () => {
   try {
     await authStore.login(form.value.email, form.value.password)
     localStorage.removeItem('loggedOut') // Limpar flag de logout
+    
+    // Aguardar um tick para garantir que o store está atualizado
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    console.log('✅ Login normal completo. Token:', authStore.token ? 'presente' : 'ausente')
+    console.log('✅ User:', authStore.user ? 'presente' : 'ausente')
+    
     toast.success('Login realizado com sucesso!')
     router.push('/')
   } catch (error: any) {

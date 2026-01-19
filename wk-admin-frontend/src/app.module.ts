@@ -34,53 +34,43 @@ import { RouterModule } from '@angular/router';
       { path: 'login', component: LoginComponent },
       { 
         path: '', 
-        component: DashboardComponent,
-        canActivate: [AuthGuard]
+        component: DashboardComponent
       },
       { 
         path: 'customers', 
-        component: CustomersComponent,
-        canActivate: [AuthGuard]
+        component: CustomersComponent
       },
       { 
         path: 'customers/new', 
-        component: CustomerFormComponent,
-        canActivate: [AuthGuard]
+        component: CustomerFormComponent
       },
       { 
         path: 'customers/:id', 
-        component: CustomerFormComponent,
-        canActivate: [AuthGuard]
+        component: CustomerFormComponent
       },
       { 
         path: 'leads', 
-        component: LeadsComponent,
-        canActivate: [AuthGuard]
+        component: LeadsComponent
       },
       { 
         path: 'leads/new', 
-        component: LeadFormComponent,
-        canActivate: [AuthGuard]
+        component: LeadFormComponent
       },
       { 
         path: 'leads/:id', 
-        component: LeadFormComponent,
-        canActivate: [AuthGuard]
+        component: LeadFormComponent
       },
       { 
         path: 'sellers', 
-        component: SellersComponent,
-        canActivate: [AuthGuard]
+        component: SellersComponent
       },
       { 
         path: 'sellers/new', 
-        component: SellerFormComponent,
-        canActivate: [AuthGuard]
+        component: SellerFormComponent
       },
       { 
         path: 'sellers/:id', 
-        component: SellerFormComponent,
-        canActivate: [AuthGuard]
+        component: SellerFormComponent
       },
       { 
         path: 'sales', 
@@ -89,28 +79,23 @@ import { RouterModule } from '@angular/router';
       },
       { 
         path: 'opportunities', 
-        component: OpportunitiesComponent,
-        canActivate: [AuthGuard]
+        component: OpportunitiesComponent
       },
       { 
         path: 'opportunities/new', 
-        component: OpportunitiesFormComponent,
-        canActivate: [AuthGuard]
+        component: OpportunitiesFormComponent
       },
       { 
         path: 'opportunities/:id', 
-        component: OpportunitiesFormComponent,
-        canActivate: [AuthGuard]
+        component: OpportunitiesFormComponent
       },
       { 
         path: 'reports', 
-        component: ReportsComponent,
-        canActivate: [AuthGuard]
+        component: ReportsComponent
       },
       { 
         path: 'reports', 
-        component: ReportsComponent,
-        canActivate: [AuthGuard]
+        component: ReportsComponent
       }
     ], { useHash: true })
   ],

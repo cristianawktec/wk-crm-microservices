@@ -10,23 +10,30 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    if (this.authService.isAuthenticated()) {
-      // Verifica se o token ainda é válido no backend
-      this.authService.verifyToken().subscribe({
-        next: (response) => {
-          // Token válido, continua
-        },
-        error: (error) => {
-          // Token inválido ou expirado, força logout
-          this.authService.logout();
-          this.router.navigate(['/login']);
-        }
-      });
+    const url = state.url;
+    console.log('🔐 [AuthGuard.canActivate] CHAMADO');
+    console.log('🔐 [AuthGuard] state.url =', url);
+    console.log('🔐 [AuthGuard] router.url =', this.router.url);
+    console.log('🔐 [AuthGuard] Contains /login?', url.includes('/login'));
+    
+    const isLoginRoute = url.includes('/login');
+    
+    if (isLoginRoute) {
+      console.log('🔐 [AuthGuard] ROTA DE LOGIN - PERMITINDO ACESSO SEM AUTENTICAÇÃO');
+      return true;
+    }
+    
+    // Para rotas protegidas, verificar autenticação
+    const authenticated = this.authService.isAuthenticated();
+    console.log('🔐 [AuthGuard] Rota protegida - isAuthenticated():', authenticated);
+    
+    if (authenticated) {
+      console.log('🔐 [AuthGuard] Usuário autenticado - permitindo');
       return true;
     }
 
-    // Não autenticado, redireciona para login
-    this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    console.log('🔐 [AuthGuard] NÃO autenticado - redirecionando para /login');
+    this.router.navigate(['/login'], { queryParams: { returnUrl: url } });
     return false;
   }
 }

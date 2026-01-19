@@ -5,11 +5,16 @@
     </div>
 
     <div v-else-if="opportunity" class="max-w-4xl mx-auto">
+      <!-- Title Section -->
+      <div class="mb-6">
+        <h2 class="text-sm font-semibold text-gray-600">Detalhes Notificação</h2>
+      </div>
+
       <!-- Header -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
         <div class="flex items-start justify-between">
           <div class="flex-1">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ opportunity.title }}</h1>
+            <h1 class="text-xl font-bold text-gray-900 mb-2">{{ opportunity.title }}</h1>
             <div class="flex items-center space-x-4 text-sm text-gray-600">
               <span>Criada em {{ formatDate(opportunity.created_at) }}</span>
               <span class="px-3 py-1 rounded-full text-xs font-medium" :class="statusClass(opportunity.status)">
@@ -17,11 +22,24 @@
               </span>
             </div>
           </div>
-          <router-link to="/opportunities" class="text-gray-500 hover:text-gray-700">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </router-link>
+          <div class="flex items-center gap-3">
+            <!-- Botão IA Insights (redundante no topo para garantir visibilidade) -->
+            <button 
+              @click="showAnalysis"
+              class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium inline-flex items-center gap-2"
+              title="Análise de IA da Oportunidade"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5.36-5.36l.707-.707M5.05 5.05A9 9 0 1112 3c-4.4 0-8.27 2.903-9.657 6.82" />
+              </svg>
+              IA Insights
+            </button>
+            <router-link to="/opportunities" class="text-gray-500 hover:text-gray-700" title="Voltar para Oportunidades">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </router-link>
+          </div>
         </div>
       </div>
 

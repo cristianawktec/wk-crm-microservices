@@ -3,7 +3,22 @@
  * Conecta o AdminLTE com a API Laravel
  */
 
-const API_BASE_URL = 'http://localhost:8000/api';
+// Resolve API base URL dynamically for local and production
+const API_BASE_URL = (() => {
+    try {
+        if (window.WK_API_BASE) return window.WK_API_BASE;
+        const host = window.location.hostname || '';
+        const origin = window.location.origin || '';
+        // If served under api domain, use same origin
+        if (host.startsWith('api.')) return `${origin}/api`;
+        // If any consultoriawk.com domain, target public API domain
+        if (host.includes('consultoriawk.com')) return 'https://api.consultoriawk.com/api';
+        // Default to local dev
+        return 'http://localhost:8000/api';
+    } catch (_) {
+        return 'http://localhost:8000/api';
+    }
+})();
 
 class WKCrmAPI {
     constructor() {
@@ -12,10 +27,12 @@ class WKCrmAPI {
 
     async request(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`;
+        const token = localStorage.getItem('wk_token');
         const config = {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                 ...options.headers
             },
             ...options
@@ -33,6 +50,24 @@ class WKCrmAPI {
             console.error('API Error:', error);
             throw error;
         }
+    }
+
+    // Auth endpoints
+    async login(email, password) {
+        const res = await this.request('/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password })
+        });
+        if (res?.token) {
+            localStorage.setItem('wk_token', res.token);
+            const userData = res?.data || res?.user;
+            if (userData) localStorage.setItem('wk_user', JSON.stringify(userData));
+        }
+        return res;
+    }
+
+    async me() {
+        return this.request('/auth/me');
     }
 
     // Customer endpoints - Demo mode with fallback to simulation
@@ -322,18 +357,30 @@ function renderCustomersTable(customers) {
     const tableBody = document.getElementById('customers-table-body');
     if (!tableBody) return;
     
+    if (customers.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                    <i class="fas fa-info-circle fa-2x mb-2"></i>
+                    <p>Nenhum cliente cadastrado</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
     tableBody.innerHTML = customers.map(customer => `
         <tr>
             <td>${customer.id}</td>
-            <td>${customer.name}</td>
-            <td>${customer.email}</td>
-            <td>${customer.phone || 'N/A'}</td>
+            <td><strong>${customer.name}</strong></td>
+            <td><a href="mailto:${customer.email}">${customer.email}</a></td>
+            <td>${customer.phone || '<span class="text-muted">N/A</span>'}</td>
             <td>${formatDate(customer.created_at)}</td>
-            <td>
-                <button class="btn btn-sm btn-primary" onclick="editCustomer(${customer.id})">
+            <td class="text-nowrap">
+                <button class="btn btn-sm btn-info" onclick="showEditCustomerModal(${customer.id})" title="Editar">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteCustomer(${customer.id})">
+                <button class="btn btn-sm btn-danger" onclick="deleteCustomerConfirm(${customer.id}, '${customer.name.replace(/'/g, "\\'")}' )" title="Excluir">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
@@ -341,21 +388,18 @@ function renderCustomersTable(customers) {
     `).join('');
 }
 
-async function deleteCustomer(id) {
-    if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
+async function deleteCustomerConfirm(id, name) {
+    if (!confirm(`Tem certeza que deseja excluir o cliente "${name}"?\n\nEsta ação não pode ser desfeita.`)) {
+        return;
+    }
     
     try {
         await wkAPI.deleteCustomer(id);
-        showSuccess('Cliente excluído com sucesso!');
-        loadCustomersData(); // Reload table
+        await loadCustomersData();
+        showSuccess(`Cliente "${name}" excluído com sucesso!`);
     } catch (error) {
         showError('Erro ao excluir cliente: ' + error.message);
     }
-}
-
-function editCustomer(id) {
-    // TODO: Implementar modal de edição
-    alert(`Editar cliente ID: ${id} - Em desenvolvimento`);
 }
 
 // Enhanced dashboard functions

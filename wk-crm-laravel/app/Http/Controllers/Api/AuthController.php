@@ -165,10 +165,26 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Ensure customer record exists
+        \App\Models\Customer::firstOrCreate(
+            ['email' => $user->email],
+            [
+                'id' => $user->id,
+                'name' => $user->name,
+                'phone' => '000000000'
+            ]
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
             'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $user->getRoleNames(),
+            ],
+            'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,

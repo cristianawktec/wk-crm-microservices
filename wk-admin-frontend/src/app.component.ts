@@ -29,13 +29,12 @@ export class AppComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.isLoginPage = event.url.includes('login');
+        console.log('🔐 Navigation event - URL:', event.url, 'isLoginPage:', this.isLoginPage);
       });
   }
 
   ngOnInit(): void {
-    // Se usuário não está autenticado e não está na tela de login, redireciona
-    if (!this.authService.isAuthenticated() && !this.router.url.includes('login')) {
-      this.router.navigate(['/login']);
-    }
+    console.log('🔐 AppComponent.ngOnInit() - não faz nada aqui');
+    // Não fazer nada aqui - deixar rotas e AuthGuard controlarem
   }
 }

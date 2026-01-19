@@ -21,29 +21,23 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private authService: AuthService
   ) {
-    // Se já está logado, verifica se o token ainda é válido
-    if (this.authService.isAuthenticated()) {
-      this.authService.verifyToken().subscribe({
-        next: () => {
-          // Token válido, vai para dashboard
-          this.router.navigate(['/']);
-        },
-        error: () => {
-          // Token inválido/expirado, força logout
-          this.authService.logout();
-        }
-      });
-    }
+    console.log('🔐 [LoginComponent Constructor] CHAMADO');
+    // Limpar localStorage completamente ao entrar em login
+    localStorage.clear();
+    sessionStorage.clear();
+    console.log('🔐 [LoginComponent Constructor] localStorage + sessionStorage LIMPOS');
   }
 
   ngOnInit(): void {
+    console.log('🔐 [LoginComponent ngOnInit] CHAMADO - URL:', this.router.url);
+    
     this.loginForm = this.formBuilder.group({
       email: ['admin@consultoriawk.com', [Validators.required, Validators.email]],
-      password: ['Admin@123456', Validators.required]
+      password: ['Admin@2025', Validators.required]
     });
 
-    // Pega URL de retorno dos parâmetros da rota ou usa '/' como padrão
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    console.log('🔐 [LoginComponent ngOnInit] Form inicializado, returnUrl:', this.returnUrl);
   }
 
   get f() {
@@ -63,7 +57,7 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.f['email'].value, this.f['password'].value)
       .subscribe({
         next: (response) => {
-          if (response.success) {
+          if (response.token) {
             this.router.navigate([this.returnUrl]);
           } else {
             this.error = 'Credenciais inválidas';

@@ -11,15 +11,23 @@ export interface User {
 }
 
 export interface LoginResponse {
-  success: boolean;
-  message: string;
-  data: {
+  success?: boolean;
+  message?: string;
+  token?: string;
+  user?: {
     id: string;
     name: string;
     email: string;
-    roles: string[];
+    role?: string;
+    roles?: string[];
   };
-  token: string;
+  data?: {
+    id: string;
+    name: string;
+    email: string;
+    role?: string;
+    roles?: string[];
+  };
 }
 
 @Injectable({
@@ -53,12 +61,15 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password })
       .pipe(
         tap(response => {
-          if (response.success && response.token) {
-            localStorage.setItem('token', response.token);
+          const token = response.token;
+          const userData = response.data || response.user;
+
+          if (token && userData) {
+            localStorage.setItem('token', token);
             const user: User = {
-              id: response.data.id,
-              name: response.data.name,
-              email: response.data.email
+              id: userData.id,
+              name: userData.name,
+              email: userData.email
             };
             localStorage.setItem('currentUser', JSON.stringify(user));
             this.currentUserSubject.next(user);
@@ -92,12 +103,10 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     const token = this.token;
+    console.log('🔐 AuthService.isAuthenticated() - token exists:', !!token);
     if (!token) {
       return false;
     }
-    
-    // Verifica se o token é válido fazendo uma requisição ao backend
-    // Se falhar, limpa os dados de autenticação
     return true;
   }
 

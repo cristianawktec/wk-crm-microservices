@@ -34,6 +34,9 @@
     </ul>
 
     <ul class="navbar-nav ml-auto">
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="#" class="nav-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a>
+      </li>
       <li class="nav-item">
         <a class="nav-link" data-widget="fullscreen" href="#" role="button">
           <i class="fas fa-expand-arrows-alt"></i>
@@ -76,11 +79,15 @@
               <i class="nav-icon fas fa-users"></i>
               <p>
                 Gestão de Clientes
+              <script src="js/auth.js"></script>
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
+                // Require authentication
+                document.addEventListener('DOMContentLoaded', () => { requireAuth(); });
+
                 <a href="customers.html" class="nav-link active">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Lista de Clientes</p>
@@ -182,23 +189,64 @@
         </div>
         <form id="addCustomerForm" onsubmit="submitNewCustomer(event)">
           <div class="modal-body">
-            <div class="form-group">
+            <div class="form-group mb-3">
               <label for="customerName">Nome Completo *</label>
-              <input type="text" class="form-control" id="customerName" name="name" required>
+              <input type="text" class="form-control" id="customerName" name="name" required minlength="3">
+              <div class="invalid-feedback">Nome deve ter pelo menos 3 caracteres</div>
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
               <label for="customerEmail">Email *</label>
               <input type="email" class="form-control" id="customerEmail" name="email" required>
+              <div class="invalid-feedback">Email inválido</div>
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
               <label for="customerPhone">Telefone</label>
-              <input type="tel" class="form-control" id="customerPhone" name="phone" placeholder="(11) 99999-9999">
+              <input type="tel" class="form-control" id="customerPhone" name="phone" placeholder="(11) 99999-9999" pattern="\(\d{2}\)\s\d{4,5}-\d{4}">
+              <div class="invalid-feedback">Formato: (11) 99999-9999</div>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary" id="submitCustomerBtn">
               <i class="fas fa-save"></i> Salvar Cliente
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Customer Modal -->
+  <div class="modal fade" id="editCustomerModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Editar Cliente</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="editCustomerForm" onsubmit="submitEditCustomer(event)">
+          <input type="hidden" id="editCustomerId" name="id">
+          <div class="modal-body">
+            <div class="form-group mb-3">
+              <label for="editCustomerName">Nome Completo *</label>
+              <input type="text" class="form-control" id="editCustomerName" name="name" required minlength="3">
+              <div class="invalid-feedback">Nome deve ter pelo menos 3 caracteres</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="editCustomerEmail">Email *</label>
+              <input type="email" class="form-control" id="editCustomerEmail" name="email" required>
+              <div class="invalid-feedback">Email inválido</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="editCustomerPhone">Telefone</label>
+              <input type="tel" class="form-control" id="editCustomerPhone" name="phone" placeholder="(11) 99999-9999" pattern="\(\d{2}\)\s\d{4,5}-\d{4}">
+              <div class="invalid-feedback">Formato: (11) 99999-9999</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="submitEditBtn">
+              <i class="fas fa-save"></i> Atualizar Cliente
             </button>
           </div>
         </form>
@@ -250,14 +298,47 @@ async function loadCustomersData() {
 }
 
 function showAddCustomerModal() {
+    document.getElementById('addCustomerForm').reset();
+    document.getElementById('addCustomerForm').classList.remove('was-validated');
     const modal = new bootstrap.Modal(document.getElementById('addCustomerModal'));
     modal.show();
+}
+
+async function showEditCustomerModal(id) {
+    try {
+        const response = await wkAPI.getCustomer(id);
+        const customer = response.data || response;
+        
+        document.getElementById('editCustomerId').value = customer.id;
+        document.getElementById('editCustomerName').value = customer.name;
+        document.getElementById('editCustomerEmail').value = customer.email;
+        document.getElementById('editCustomerPhone').value = customer.phone || '';
+        
+        document.getElementById('editCustomerForm').classList.remove('was-validated');
+        
+        const modal = new bootstrap.Modal(document.getElementById('editCustomerModal'));
+        modal.show();
+    } catch (error) {
+        showError('Erro ao carregar dados do cliente: ' + error.message);
+    }
 }
 
 async function submitNewCustomer(event) {
     event.preventDefault();
     
-    const formData = new FormData(event.target);
+    const form = event.target;
+    if (!form.checkValidity()) {
+        event.stopPropagation();
+        form.classList.add('was-validated');
+        return;
+    }
+    
+    const submitBtn = document.getElementById('submitCustomerBtn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+    
+    const formData = new FormData(form);
     const customerData = {
         name: formData.get('name'),
         email: formData.get('email'),
@@ -267,25 +348,138 @@ async function submitNewCustomer(event) {
     try {
         await wkAPI.createCustomer(customerData);
         
-        // Close modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('addCustomerModal'));
         modal.hide();
         
-        // Reset form
-        event.target.reset();
+        form.reset();
+        form.classList.remove('was-validated');
         
-        // Reload customers
-        loadCustomersData();
+        await loadCustomersData();
         
         showSuccess('Cliente adicionado com sucesso!');
     } catch (error) {
         showError('Erro ao adicionar cliente: ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
     }
+}
+
+async function submitEditCustomer(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    if (!form.checkValidity()) {
+        event.stopPropagation();
+        form.classList.add('was-validated');
+        return;
+    }
+    
+    const submitBtn = document.getElementById('submitEditBtn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
+    
+    const formData = new FormData(form);
+    const customerId = formData.get('id');
+    const customerData = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone')
+    };
+    
+    try {
+        await wkAPI.updateCustomer(customerId, customerData);
+        
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editCustomerModal'));
+        modal.hide();
+        
+        form.classList.remove('was-validated');
+        
+        await loadCustomersData();
+        
+        showSuccess('Cliente atualizado com sucesso!');
+    } catch (error) {
+        showError('Erro ao atualizar cliente: ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+}
+
+async function deleteCustomerConfirm(id, name) {
+    if (!confirm(`Tem certeza que deseja excluir o cliente "${name}"?\n\nEsta ação não pode ser desfeita.`)) {
+        return;
+    }
+    
+    try {
+        await wkAPI.deleteCustomer(id);
+        await loadCustomersData();
+        showSuccess(`Cliente "${name}" excluído com sucesso!`);
+    } catch (error) {
+        showError('Erro ao excluir cliente: ' + error.message);
+    }
+}
+
+function renderCustomersTable(customers) {
+    const tableBody = document.getElementById('customers-table-body');
+    if (!tableBody) return;
+    
+    if (customers.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                    <i class="fas fa-info-circle fa-2x mb-2"></i>
+                    <p>Nenhum cliente cadastrado</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tableBody.innerHTML = customers.map(customer => `
+        <tr>
+            <td>${customer.id}</td>
+            <td><strong>${customer.name}</strong></td>
+            <td><a href="mailto:${customer.email}">${customer.email}</a></td>
+            <td>${customer.phone || '<span class="text-muted">N/A</span>'}</td>
+            <td>${formatDate(customer.created_at)}</td>
+            <td class="text-nowrap">
+                <button class="btn btn-sm btn-info" onclick="showEditCustomerModal(${customer.id})" title="Editar">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteCustomerConfirm(${customer.id}, '${customer.name.replace(/'/g, "\\'")} ')" title="Excluir">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Format date helper
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
 }
 
 // Load customers when page loads
 document.addEventListener('DOMContentLoaded', function() {
     loadCustomersData();
+    
+    // Auto-hide alerts after 5 seconds
+    setInterval(() => {
+        document.querySelectorAll('.alert').forEach(alert => {
+            setTimeout(() => {
+                const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                bsAlert.close();
+            }, 5000);
+        });
+    }, 100);
 });
 </script>
 

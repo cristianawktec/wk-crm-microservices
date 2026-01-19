@@ -39,11 +39,25 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
     try {
       const response = await apiClient.post('/auth/login', { email, password })
-      const { token: authToken, data: userData } = response.data
-      
+      const { token: authToken, data: userData, user: userPayload } = response.data
+      const resolvedUser = userData || userPayload
+
+      if (!authToken || !resolvedUser) {
+        throw new Error('Credenciais inválidas')
+      }
+
+      console.log('✅ Login normal - Token recebido:', authToken.substring(0, 20))
+      console.log('✅ Login normal - User:', resolvedUser)
+
+      // Garantir que token e user sejam salvos ANTES de retornar
       setToken(authToken)
-      user.value = userData
+      setUser(resolvedUser)
       
+      // Garantir que o header Authorization está setado
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${authToken}`
+      
+      console.log('✅ Token e user salvos no localStorage')
+
       return true
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Erro ao fazer login'

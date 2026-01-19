@@ -43,10 +43,20 @@ class ChatResponse(BaseModel):
 
 def get_model():
     api_key = os.getenv("GEMINI_API_KEY")
+    print(f"DEBUG: GEMINI_API_KEY present: {bool(api_key)}, length: {len(api_key) if api_key else 0}")
     if not api_key:
+        print("ERROR: GEMINI_API_KEY not found")
         return None
-    genai.configure(api_key=api_key)
-    return genai.GenerativeModel("gemini-1.5-flash")
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        print("SUCCESS: Gemini model initialized")
+        return model
+    except Exception as e:
+        print(f"ERROR initializing Gemini: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return None
 
 
 def build_prompt(payload: OpportunityInput) -> str:

@@ -194,14 +194,51 @@ async function analyzeOpportunity() {
       description: props.opportunity.notes || props.opportunity.title
     })
 
-    if (response && response.data && response.success) {
-      analysis.value = response.data
-    } else if (response && response.data) {
-      // In case response doesn't have success field
-      analysis.value = response.data
-    } else {
+    console.log('📦 Raw API Response:', response)
+    const payload = response?.data ?? response
+    console.log('📦 Extracted Payload:', payload)
+
+    if (!payload) {
       error.value = 'Não foi possível analisar a oportunidade'
+      return
     }
+
+    // Normaliza diferentes formatos de resposta do serviço de IA (inclui payload.data.data)
+    const baseBlock: any = payload?.data ?? payload?.analysis ?? payload
+    const rawAnalysis: any = baseBlock?.data ?? baseBlock?.analysis ?? baseBlock
+    console.log('📦 RawAnalysis (will normalize):', rawAnalysis)
+
+    // Normalizar risk_score (FastAPI retorna 0-1, converter para 0-100)
+    const rawScore = rawAnalysis.risk_score ?? rawAnalysis.riskScore ?? rawAnalysis.risk ?? rawAnalysis.score ?? 0
+    let normalizedScore = Number(rawScore)
+    if (!Number.isFinite(normalizedScore)) normalizedScore = 0
+    if (normalizedScore >= 0 && normalizedScore <= 1) normalizedScore = normalizedScore * 100
+    normalizedScore = Math.max(0, Math.min(100, Math.round(normalizedScore)))
+
+    console.log('🔍 AI Analysis Debug:', {
+      rawScore,
+      normalizedScore,
+      risk_label: rawAnalysis.risk_label,
+      summary: rawAnalysis.summary?.substring(0, 50)
+    })
+
+    const normalized = {
+      risk_score: normalizedScore,
+      risk_label: (rawAnalysis.risk_label ?? rawAnalysis.riskLabel ?? rawAnalysis.risk_level ?? rawAnalysis.riskLevel ?? 'Desconhecido').toString(),
+      summary: rawAnalysis.summary ?? rawAnalysis.overview ?? rawAnalysis.description ?? '',
+      next_action: rawAnalysis.next_action ?? rawAnalysis.nextAction ?? rawAnalysis.action ?? '',
+      recommendation: rawAnalysis.recommendation ?? rawAnalysis.recommendations ?? rawAnalysis.tip ?? '',
+      insights: Array.isArray(rawAnalysis.insights)
+        ? rawAnalysis.insights
+        : rawAnalysis.key_insights
+          ? (Array.isArray(rawAnalysis.key_insights) ? rawAnalysis.key_insights : [rawAnalysis.key_insights])
+          : [],
+      created_at: rawAnalysis.created_at ?? rawAnalysis.createdAt ?? payload.created_at ?? payload.createdAt,
+      processing_time_ms: rawAnalysis.processing_time_ms ?? rawAnalysis.processingTimeMs ?? rawAnalysis.time_ms
+    }
+
+    console.log('✅ Normalized Analysis:', normalized)
+    analysis.value = normalized
   } catch (err: any) {
     console.error('Erro ao analisar:', err)
     error.value = err.response?.data?.message || 'Erro ao analisar oportunidade'
