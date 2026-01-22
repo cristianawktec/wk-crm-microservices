@@ -49,9 +49,18 @@ def get_model():
         return None
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        print("SUCCESS: Gemini model initialized")
-        return model
+        # Try models in order of availability (AI Studio 2026)
+        model_names = ["gemini-2.0-flash-exp", "gemini-1.5-pro", "gemini-pro"]
+        for model_name in model_names:
+            try:
+                model = genai.GenerativeModel(model_name)
+                print(f"SUCCESS: Gemini model initialized with {model_name}")
+                return model
+            except Exception as model_error:
+                print(f"Failed to init {model_name}: {str(model_error)}")
+                continue
+        print("ERROR: No available Gemini model found")
+        return None
     except Exception as e:
         print(f"ERROR initializing Gemini: {str(e)}")
         import traceback
@@ -86,7 +95,7 @@ def parse_response(text: str) -> OpportunityInsight:
             next_action=str(data.get("next_action", "Reengajar o cliente")),
             recommendation=str(data.get("recommendation", "Envie um follow-up com proposta revisada.")),
             summary=str(data.get("summary", "Oportunidade com risco moderado.")),
-            model="gemini-1.5-flash",
+            model="gemini-pro",
         )
     except Exception:
         # Fallback if parsing fails
@@ -96,7 +105,7 @@ def parse_response(text: str) -> OpportunityInsight:
             next_action="Reengajar o cliente com próxima reunião",
             recommendation="Envie um follow-up reforçando o valor e prazos.",
             summary="Oportunidade com risco moderado; avance no relacionamento.",
-            model="gemini-1.5-flash",
+            model="gemini-pro",
         )
 
 
@@ -131,7 +140,7 @@ def generate_insight(payload: OpportunityInput) -> OpportunityInsight:
             next_action="Solicitar mais contexto ao cliente",
             recommendation="Tente novamente ou revise os dados da oportunidade.",
             summary="Falha ao consultar o modelo; usando fallback.",
-            model="gemini-1.5-flash",
+            model="gemini-pro",
             cached=True,
         )
 
@@ -197,6 +206,6 @@ async def chat(request: ChatRequest):
     answer = generate_chat_response(request.question, request.context)
     return ChatResponse(
         answer=answer,
-        model="gemini-1.5-flash",
+        model="gemini-pro",
         source="ai_service"
     )
