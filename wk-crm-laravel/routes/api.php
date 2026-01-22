@@ -87,66 +87,79 @@ Route::get('/auth/test-customer', function () {
     }
 
     // Criar oportunidades demo se o usuário não tiver nenhuma
-    if ($role === 'customer') {
-        $customerId = $customer->id;
-        $existingOpps = \App\Models\Opportunity::where('customer_id', $customerId)->count();
-        if ($existingOpps === 0) {
-            // Criar 4 oportunidades de demonstração
-            $opp1 = \App\Models\Opportunity::create([
-                'title' => 'Implantação CRM - Fase 1',
-                'value' => 45000,
-                'status' => 'open',
-                'probability' => 40,
-                'customer_id' => $customerId,
-                'notes' => 'Escopo inicial, aguardando aprovação de proposta.'
-            ]);
-
-            $opp2 = \App\Models\Opportunity::create([
-                'title' => 'Treinamento Times Comerciais',
-                'value' => 18000,
-                'status' => 'proposal',
-                'probability' => 55,
-                'customer_id' => $customerId,
-                'notes' => 'Pacote de workshops + playbook de vendas.'
-            ]);
-
-            $opp3 = \App\Models\Opportunity::create([
-                'title' => 'Consultoria de Processos',
-                'value' => 8000,
-                'status' => 'open',
-                'probability' => 80,
-                'customer_id' => $customerId,
-                'notes' => 'Mapeamento e otimização do fluxo de vendas.'
-            ]);
-
-            $opp4 = \App\Models\Opportunity::create([
-                'title' => 'Sistema de Automação',
-                'value' => 8000,
-                'status' => 'won',
-                'probability' => 100,
-                'customer_id' => $customerId,
-                'notes' => 'Integração com ferramentas de marketing.'
-            ]);
-
-            // Criar notificações demo para as oportunidades criadas
-            \App\Models\Notification::create([
-                'user_id' => $user->id,
-                'type' => 'opportunity_created',
-                'title' => 'Nova Oportunidade',
-                'message' => "Oportunidade '{$opp1->title}' foi criada. Valor: R$ " . number_format($opp1->value, 2, ',', '.'),
-                'action_url' => "/opportunities/{$opp1->id}",
-                'data' => ['opportunity_id' => $opp1->id]
-            ]);
-
-            \App\Models\Notification::create([
-                'user_id' => $user->id,
-                'type' => 'opportunity_created',
-                'title' => 'Nova Oportunidade',
-                'message' => "Oportunidade '{$opp2->title}' foi criada. Valor: R$ " . number_format($opp2->value, 2, ',', '.'),
-                'action_url' => "/opportunities/{$opp2->id}",
-                'data' => ['opportunity_id' => $opp2->id]
-            ]);
+    $userId = $user->id;
+    $existingOpps = \App\Models\Opportunity::where(function($query) use ($userId, $role) {
+        if ($role === 'customer') {
+            $query->where('customer_id', $userId);
+        } else {
+            $query->where('seller_id', $userId);
         }
+    })->count();
+    
+    if ($existingOpps === 0) {
+        // Determinar customer_id e seller_id baseado no role
+        $customerId = $role === 'customer' ? $userId : null;
+        $sellerId = $role === 'admin' ? $userId : null;
+        
+        // Criar 4 oportunidades de demonstração
+        $opp1 = \App\Models\Opportunity::create([
+            'title' => 'Implantação CRM - Fase 1',
+            'value' => 45000,
+            'status' => 'open',
+            'probability' => 40,
+            'customer_id' => $customerId,
+            'seller_id' => $sellerId,
+            'notes' => 'Escopo inicial, aguardando aprovação de proposta.'
+        ]);
+
+        $opp2 = \App\Models\Opportunity::create([
+            'title' => 'Treinamento Times Comerciais',
+            'value' => 18000,
+            'status' => 'proposal',
+            'probability' => 55,
+            'customer_id' => $customerId,
+            'seller_id' => $sellerId,
+            'notes' => 'Pacote de workshops + playbook de vendas.'
+        ]);
+
+        $opp3 = \App\Models\Opportunity::create([
+            'title' => 'Consultoria de Processos',
+            'value' => 8000,
+            'status' => 'open',
+            'probability' => 80,
+            'customer_id' => $customerId,
+            'seller_id' => $sellerId,
+            'notes' => 'Mapeamento e otimização do fluxo de vendas.'
+        ]);
+
+        $opp4 = \App\Models\Opportunity::create([
+            'title' => 'Sistema de Automação',
+            'value' => 8000,
+            'status' => 'won',
+            'probability' => 100,
+            'customer_id' => $customerId,
+            'seller_id' => $sellerId,
+            'notes' => 'Integração com ferramentas de marketing.'
+        ]);
+
+        // Criar notificações demo para as oportunidades criadas
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'type' => 'opportunity_created',
+            'title' => 'Nova Oportunidade',
+            'message' => "Oportunidade '{$opp1->title}' foi criada. Valor: R$ " . number_format($opp1->value, 2, ',', '.'),
+            'action_url' => "/opportunities/{$opp1->id}",
+            'data' => ['opportunity_id' => $opp1->id]
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'type' => 'opportunity_created',
+            'title' => 'Nova Oportunidade',
+            'message' => "Oportunidade '{$opp2->title}' foi criada. Valor: R$ " . number_format($opp2->value, 2, ',', '.'),
+            'action_url' => "/opportunities/{$opp2->id}",
+            'data' => ['opportunity_id' => $opp2->id]
+        ]);
     }
     
     $token = $user->createToken('test-token')->plainTextToken;
