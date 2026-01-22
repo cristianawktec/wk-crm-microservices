@@ -25,6 +25,22 @@ services:
     networks:
       - wk_network
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: wk_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@consultoriawk.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - wk_network
+
   wk-crm-laravel:
     build: ./wk-crm-laravel
     container_name: wk_crm_laravel
@@ -63,6 +79,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  pgadmin_data:
 
 networks:
   wk_network:

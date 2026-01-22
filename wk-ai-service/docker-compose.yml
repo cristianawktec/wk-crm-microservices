@@ -1,0 +1,8 @@
+wk-ai-service:
+  build: ./wk-ai-service
+  environment:
+    - GEMINI_API_KEY=${GEMINI_API_KEY}
+    - PYTHONIOENCODING=utf-8
+    - LANG=pt_BR.UTF-8
+  env_file:
+    - .env
