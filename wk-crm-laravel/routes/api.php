@@ -209,8 +209,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/sales-funnel', [ReportController::class, 'salesFunnelAnalytics']);
     Route::get('/analytics/summary', [ReportController::class, 'analyticalSummary']);
 
-    // AI Insights (Original method in AiController)
+    // AI Insights
     Route::post('/ai/opportunity-insights', [AiController::class, 'opportunityInsights']);
+    Route::post('/analyze-opportunity', [AiController::class, 'opportunityInsights']); // Alias for frontend
 
     // Autenticação - Endpoints Protegidos
     Route::post('/auth/logout', [AuthController::class, 'logout']);
