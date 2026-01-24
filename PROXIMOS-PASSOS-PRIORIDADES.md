@@ -248,6 +248,78 @@ Usar serviço Python FastAPI com Google Gemini para insights automáticos.
 ### Estimativa: 12-15 horas (13h concluídas)
 ### Status: ✅ **100% CONCLUÍDO** - Chatbot funcional, análise de tendências completa, deploy em produção
 
+### 🔧 Correções Pós-Deploy (24/01/2026)
+- ✅ **AI Insights corrigido**: Migrado para Groq API (Llama 3.3 70B)
+- ✅ **Parser JSON melhorado**: Remove markdown, extrai JSON com regex
+- ✅ **Prompt otimizado**: Análises contextualizadas baseadas em probabilidade real
+- ✅ **Notificações corrigidas**: URLs `/opportunities/{id}`, script SQL para popular dados existentes
+- ✅ **Access control**: Admin pode visualizar suas oportunidades via customer app
+- ✅ **Login rápido**: Cria oportunidades demo para admin e customer com notificações vinculadas
+
+---
+
+## 🎯 PLANO DE EXECUÇÃO - Próximas Sprints
+
+### Sprint 1: PRIORIDADE 4 - Admin Simple (AdminLTE) [6-8h]
+**Branch:** `feature/admin-simple-complete`
+**Objetivo:** Completar interface AdminLTE como alternativa leve ao Angular
+
+**Tasks:**
+1. ✅ Criar branch `feature/admin-simple-complete`
+2. ⏳ Modal de edição de clientes funcional
+3. ⏳ Validação de formulário (frontend + backend)
+4. ⏳ Feedback toast sucesso/erro
+5. ⏳ Testes de integração
+6. ⏳ Deploy em VPS
+7. ⏳ Merge para main
+
+### Sprint 2: PRIORIDADE 5.1 - Testes Unitários [5-7h]
+**Branch:** `feature/unit-tests`
+**Objetivo:** Cobertura de testes para componentes críticos
+
+**Tasks:**
+1. ⏳ Criar branch `feature/unit-tests`
+2. ⏳ Laravel Feature Tests (API endpoints)
+3. ⏳ Vue Component Tests (Vitest)
+4. ⏳ Angular Unit Tests (Jasmine/Karma)
+5. ⏳ CI/CD com GitHub Actions
+6. ⏳ Merge para main
+
+### Sprint 3: PRIORIDADE 5.2 - Paginação [3-4h]
+**Branch:** `feature/pagination`
+**Objetivo:** Implementar paginação em todas as listas
+
+**Tasks:**
+1. ⏳ Criar branch `feature/pagination`
+2. ⏳ Backend: Laravel pagination helpers
+3. ⏳ Frontend Vue: Componente de paginação
+4. ⏳ Frontend Angular: Paginação em clientes
+5. ⏳ Lazy loading e busca com paginação
+6. ⏳ Merge para main
+
+### Sprint 4: PRIORIDADE 5.3 - Permissões [4-5h]
+**Branch:** `feature/roles-permissions`
+**Objetivo:** Sistema robusto de permissões
+
+**Tasks:**
+1. ⏳ Criar branch `feature/roles-permissions`
+2. ⏳ Laravel Spatie Permission (roles/permissions)
+3. ⏳ Middleware de autorização
+4. ⏳ Gates personalizados
+5. ⏳ Proteção de rotas frontend
+6. ⏳ Merge para main
+
+### Sprint 5: PRIORIDADE 5.4 - Auditoria [3-4h]
+**Branch:** `feature/audit-log`
+**Objetivo:** Log de todas as alterações importantes
+
+**Tasks:**
+1. ⏳ Criar branch `feature/audit-log`
+2. ⏳ Laravel Auditing package
+3. ⏳ Painel de auditoria no admin
+4. ⏳ Filtros por usuário/data/ação
+5. ⏳ Merge para main
+
 ---
 
 ## 👨‍💼 PRIORIDADE 4: Admin Simple (AdminLTE)
@@ -372,42 +444,41 @@ POST /api/reports/export-excel
 ---
 
 **Criado em:** 11/12/2025  
-**Última atualização:** 22/12/2025  
+**Última atualização:** 24/01/2026  
 **Por:** GitHub Copilot  
-**Versão:** 1.1  
+**Versão:** 1.2 - Plano de Sprints com Branches
 
-Não. As notificações foram feitas no Laravel (PHP) com SSE, sem filas/worker dedicados. Fluxo atual:
+---
 
-Backend: NotificationService + NotificationController::stream() (SSE), integrados ao OpportunityController.
-Armazenamento: tabela notifications no Postgres.
-Auth SSE: token Sanctum via query string.
-Frontend (Vue): NotificationService usa EventSource; NotificationBell e NotificationsPage.
-Filas: não estão sendo usadas; as notificações são criadas direto no request. Para alta carga, podemos mover para queue (Redis) e consumir com Horizon.
+## 🚀 Próximos Passos - Execução Planejada
 
-🎯 Próximas Prioridades Disponíveis
-PRIORIDADE 3: Expandir IA (Chatbot + Análise de Tendências)
+### ✅ Prioridades Concluídas
+- ✅ PRIORIDADE 1: Relatórios & Analytics
+- ✅ PRIORIDADE 2: Sistema de Notificações  
+- ✅ PRIORIDADE 3: Integrações de IA (com correções 24/01)
 
-Widget de chatbot flutuante
-Dashboard com insights por setor/período
-Análise de padrões de venda
-Estimativa: 12-15h
-PRIORIDADE 4: Admin Simple (AdminLTE)
+### 🎯 Sprint Atual
+**Sprint 1: Admin Simple (AdminLTE)** - Estimativa 6-8h
+- Branch: `feature/admin-simple-complete`
+- Completar CRUD de clientes com validação
+- Deploy em produção
 
-Completar CRUD de clientes
-Edição com validação
-Deploy
-Estimativa: 6-8h
-PRIORIDADE 5: Melhorias (Testes + Permissões + Auditoria)
+### 📋 Próximas Sprints
+1. Sprint 2: Testes Unitários (5-7h)
+2. Sprint 3: Paginação (3-4h)
+3. Sprint 4: Permissões (4-5h)
+4. Sprint 5: Auditoria (3-4h)
 
-Testes unitários
-Sistema de roles/permissions
-Auditoria de mudanças
-Estimativa: 15-20h
-O que você quer fazer agora?
+**Total estimado para completar roadmap:** 21-28h distribuídas em 5 sprints
 
-Expandir IA (Chatbot)
-Completar Admin Simple
-Fazer melhorias gerais (testes/permissões)
-Documentar tudo e pausar
+---
 
-6y6-@Qw88-b)
+## 🔄 Workflow de Desenvolvimento
+
+1. **Criar branch** para cada feature
+2. **Desenvolver** e testar localmente
+3. **Commit** com mensagens descritivas
+4. **Deploy em VPS** para testes
+5. **Code review** (se em equipe)
+6. **Merge** para main após validação
+7. **Tag de versão** (ex: v1.2.0)
