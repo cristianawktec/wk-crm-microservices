@@ -274,17 +274,28 @@ Usar serviço Python FastAPI com Google Gemini para insights automáticos.
 6. ✅ Deploy em VPS (api.consultoriawk.com/admin-simple)
 7. ✅ Merge para main (commit 8891d49)
 
-### Sprint 2: PRIORIDADE 5.1 - Testes Unitários [5-7h]
+### Sprint 2: PRIORIDADE 5.1 - Testes Unitários [5-7h] ✅
 **Branch:** `feature/unit-tests`
 **Objetivo:** Cobertura de testes para componentes críticos
+**Status:** ✅ **CONCLUÍDO (24/01/2026)** - 57+ testes criados
 
 **Tasks:**
-1. ⏳ Criar branch `feature/unit-tests`
-2. ⏳ Laravel Feature Tests (API endpoints)
-3. ⏳ Vue Component Tests (Vitest)
-4. ⏳ Angular Unit Tests (Jasmine/Karma)
-5. ⏳ CI/CD com GitHub Actions
+1. ✅ Criar branch `feature/unit-tests`
+2. ✅ Laravel Feature Tests - 22 testes (NotificationTest + AiInsightsTest)
+3. ✅ Vue Component Tests - 35+ testes com Vitest configurado
+4. ⏳ Angular Unit Tests (Jasmine/Karma) - Para próxima iteração
+5. ⏳ CI/CD com GitHub Actions - Para próxima iteração
 6. ⏳ Merge para main
+
+**Testes Laravel (22):**
+- NotificationTest.php (10 testes): SSE, CRUD, ownership, URLs
+- AiInsightsTest.php (12 testes): Insights, chatbot, fallback, probabilidade
+
+**Testes Vue (35+):**
+- ChatbotWidget.spec.ts (11 testes): Toggle, mensagens, loading
+- NotificationBell.spec.ts (10 testes): Badge, contador, accessibility
+- OpportunityInsightModal.spec.ts (13 testes): Modal, AI insights, error handling
+- NotificationsPage.spec.ts (14 testes): Listagem, filtros, mark as read
 
 ### Sprint 3: PRIORIDADE 5.2 - Paginação [3-4h]
 **Branch:** `feature/pagination`
@@ -457,19 +468,22 @@ POST /api/reports/export-excel
 - ✅ PRIORIDADE 1: Relatórios & Analytics
 - ✅ PRIORIDADE 2: Sistema de Notificações  
 - ✅ PRIORIDADE 3: Integrações de IA (com correções 24/01)
+- ✅ SPRINT 1: Admin Simple (AdminLTE) - Toastify notifications
+- ✅ SPRINT 2: Testes Unitários - 57+ testes (Laravel + Vue)
 
 ### 🎯 Sprint Atual
-**Sprint 2: Testes Unitários** - Estimativa 5-7h
-- Branch: `feature/unit-tests`
-- Laravel Feature Tests para novos endpoints
-- Vue Component Tests com Vitest
-- Atualizar cobertura de testes
+**Sprint 3: Paginação** - Estimativa 3-4h
+- Branch: `feature/pagination`
+- Backend Laravel pagination helpers
+- Frontend Vue/Angular components
+- Lazy loading implementation
+✅ Sprint 1: Admin Simple - CONCLUÍDO
+2. ✅ Sprint 2: Testes Unitários - CONCLUÍDO (57+ testes)
+3. Sprint 3: Paginação (3-4h) - PRÓXIMO
+4. Sprint 4: Permissões (4-5h)
+5. Sprint 5: Auditoria (3-4h)
 
-### 📋 Próximas Sprints
-1. Sprint 2: Testes Unitários (5-7h)
-2. Sprint 3: Paginação (3-4h)
-3. Sprint 4: Permissões (4-5h)
-4. Sprint 5: Auditoria (3-4h)
+**Total estimado para completar roadmap:** 11-13h restantes (10-15h completadas)
 
 **Total estimado para completar roadmap:** 21-28h distribuídas em 5 sprints
 
