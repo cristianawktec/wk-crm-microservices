@@ -38,12 +38,46 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await apiClient.post('/auth/login', { email, password })
-      const { token: authToken, user: userPayload } = response.data
-      const resolvedUser = userPayload
+      // Send as form-urlencoded to match API expectations
+      const form = new URLSearchParams()
+      form.append('email', email)
+      form.append('password', password)
+      
+      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '') + '/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        },
+        body: form.toString(),
+        credentials: 'include'
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
+      const data = await response.json()
+      // Backend pode retornar duas formas:
+      // 1) { success, message, data: { id, name, email, roles }, token }
+      // 2) { success, message, user: { id, name, email, ... }, token }
+      const authToken = data.token
+      let resolvedUser: any = data?.data
+
+      if (!resolvedUser && data?.user) {
+        // Normalizar 'user' para o formato mínimo esperado
+        const u = data.user
+        resolvedUser = {
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          roles: Array.isArray(u.roles) ? u.roles : []
+        }
+      }
 
       if (!authToken || !resolvedUser) {
-        throw new Error('Credenciais inválidas')
+        console.error('❌ Login Response estrutura inesperada:', data)
+        throw new Error('Credenciais inválidas - resposta malformada')
       }
 
       console.log('✅ Login normal - Token recebido:', authToken.substring(0, 20))
@@ -60,7 +94,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       return true
     } catch (err: any) {
-      error.value = err.response?.data?.message || 'Erro ao fazer login'
+      error.value = err.message || 'Erro ao fazer login'
       throw err
     } finally {
       loading.value = false

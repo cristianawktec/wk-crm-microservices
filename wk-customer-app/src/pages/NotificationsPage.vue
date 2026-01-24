@@ -298,13 +298,21 @@ function formatCurrency(value: number): string {
 function goToOpportunity(notification: Notification) {
   if (!notification.action_url) return
 
-  // Mark as read when navigating
   if (!notification.is_read) {
     markAsRead(notification.id)
   }
 
-  // Simply push the path (now it's a relative path like "/opportunities/123")
-  router.push(notification.action_url)
+  // Normalize action_url to a client-side path
+  let path = notification.action_url
+  try {
+    const u = new URL(notification.action_url, window.location.origin)
+    path = (u.pathname || '/') + (u.search || '') + (u.hash || '')
+  } catch {
+    // keep original value if it's already a path
+  }
+  if (!path.startsWith('/')) path = '/' + path
+
+  router.push(path)
 }
 
 function previousPage() {
