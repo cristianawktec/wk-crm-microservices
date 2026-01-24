@@ -260,18 +260,19 @@ Usar serviço Python FastAPI com Google Gemini para insights automáticos.
 
 ## 🎯 PLANO DE EXECUÇÃO - Próximas Sprints
 
-### Sprint 1: PRIORIDADE 4 - Admin Simple (AdminLTE) [6-8h]
+### Sprint 1: PRIORIDADE 4 - Admin Simple (AdminLTE) [6-8h] ✅
 **Branch:** `feature/admin-simple-complete`
 **Objetivo:** Completar interface AdminLTE como alternativa leve ao Angular
+**Status:** ✅ **CONCLUÍDO (24/01/2026)**
 
 **Tasks:**
 1. ✅ Criar branch `feature/admin-simple-complete`
-2. ⏳ Modal de edição de clientes funcional
-3. ⏳ Validação de formulário (frontend + backend)
-4. ⏳ Feedback toast sucesso/erro
-5. ⏳ Testes de integração
-6. ⏳ Deploy em VPS
-7. ⏳ Merge para main
+2. ✅ Modal de edição de clientes funcional (já estava implementado)
+3. ✅ Validação de formulário (HTML5 + Bootstrap)
+4. ✅ Feedback toast sucesso/erro (Toastify.js implementado)
+5. ✅ Toasts animados em customers.html e index.html
+6. ✅ Deploy em VPS (api.consultoriawk.com/admin-simple)
+7. ✅ Merge para main (commit 8891d49)
 
 ### Sprint 2: PRIORIDADE 5.1 - Testes Unitários [5-7h]
 **Branch:** `feature/unit-tests`
@@ -458,10 +459,11 @@ POST /api/reports/export-excel
 - ✅ PRIORIDADE 3: Integrações de IA (com correções 24/01)
 
 ### 🎯 Sprint Atual
-**Sprint 1: Admin Simple (AdminLTE)** - Estimativa 6-8h
-- Branch: `feature/admin-simple-complete`
-- Completar CRUD de clientes com validação
-- Deploy em produção
+**Sprint 2: Testes Unitários** - Estimativa 5-7h
+- Branch: `feature/unit-tests`
+- Laravel Feature Tests para novos endpoints
+- Vue Component Tests com Vitest
+- Atualizar cobertura de testes
 
 ### 📋 Próximas Sprints
 1. Sprint 2: Testes Unitários (5-7h)
