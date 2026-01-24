@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             
             // Relações
-            $table->unsignedBigInteger('opportunity_id');
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->uuid('opportunity_id');
+            $table->uuid('user_id')->nullable();
             
             // Dados da análise
             $table->string('analysis_type')->default('risk_assessment'); // risk_assessment, trend_analysis, etc
