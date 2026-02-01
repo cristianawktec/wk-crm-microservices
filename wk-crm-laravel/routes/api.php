@@ -241,6 +241,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/sales-funnel', [ReportController::class, 'salesFunnelAnalytics']);
     Route::get('/analytics/summary', [ReportController::class, 'analyticalSummary']);
 
+    // Trends (protegido)
+    Route::get('/trends/analyze', [TrendsController::class, 'analyze']);
+
     // AI Insights
     Route::post('/ai/opportunity-insights', [AiController::class, 'opportunityInsights']);
     Route::post('/analyze-opportunity', [AiController::class, 'opportunityInsights']); // Alias for frontend
@@ -251,9 +254,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
     
 });
-
-// Public endpoints (sem autenticação necessária)
-Route::get('/trends/analyze', [TrendsController::class, 'analyze']);
 
 // Notifications endpoints
 Route::middleware(['auth:sanctum', \App\Http\Middleware\CorsMiddleware::class])->group(function () {

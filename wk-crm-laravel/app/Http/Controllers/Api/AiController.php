@@ -163,9 +163,18 @@ class AiController extends Controller
             ]);
 
             // Chamar FastAPI
-            $response = $this->callAiService('chat', [
+            $context = [
+                'user_id' => optional($request->user())->id,
+                'timestamp' => now()->toISOString(),
+            ];
+
+            if (!empty($validated['context'])) {
+                $context['note'] = $validated['context'];
+            }
+
+            $response = $this->callAiService('api/v1/chat', [
                 'question' => $validated['question'],
-                'context' => $validated['context'] ?? '',
+                'context' => $context,
             ]);
 
             if (!$response) {
