@@ -20,7 +20,7 @@ echo "3️⃣ Verificando Python..."
 python --version || python3 --version
 
 # 4. Iniciar serviço AI
-echo "4️⃣ Iniciando WK AI Service na porta 8001..."
+echo "4️⃣ Iniciando WK AI Service na porta 8000..."
 cd /var/www/wk-crm-api/wk-ai-service
 
 # Criar log directory se não existir
@@ -57,9 +57,9 @@ echo "================================================"
 echo "✅ Deploy finalizado!"
 echo ""
 echo "📊 Status do serviço:"
-echo "   Porta: 8000 (local) ou 8001 (via reverse proxy)"
+echo "   Porta: 8000 (local)"
 echo "   Log: /var/log/wk-ai-service/service.log"
 echo ""
 echo "🧪 Testar endpoints:"
 echo "   curl http://localhost:8000/health"
-echo "   curl http://api.consultoriawk.com:8001/health (via Nginx)"
+echo "   curl http://api.consultoriawk.com:8000/health (via Nginx)"

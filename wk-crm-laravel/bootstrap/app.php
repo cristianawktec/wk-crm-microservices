@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'auth.query.token' => \App\Http\Middleware\AuthenticateQueryToken::class,
             'auth.bearer.or.query' => \App\Http\Middleware\AuthBearerOrQueryToken::class,
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -22,17 +22,24 @@ class EnsureJsonBodyIsParsed
                 $rawContent = $request->getContent();
                 
                 \Log::info('[EnsureJsonBodyIsParsed] Processing JSON', [
-                    'raw_content' => $rawContent,
+                    'raw_content' => substr($rawContent, 0, 100),
                     'content_length' => strlen($rawContent),
                     'is_json' => $request->isJson(),
                 ]);
                 
                 if (!empty($rawContent)) {
-                    $data = json_decode($rawContent, true, 512, JSON_THROW_ON_ERROR);
-                    if (is_array($data)) {
+                    // Try to decode JSON without throwing on error
+                    $data = @json_decode($rawContent, true);
+                    
+                    if (json_last_error() !== JSON_ERROR_NONE) {
+                        \Log::warning('[EnsureJsonBodyIsParsed] JSON decode error', [
+                            'error' => json_last_error_msg(),
+                            'raw_content' => substr($rawContent, 0, 200),
+                        ]);
+                    } else if (is_array($data)) {
                         // Log what we're replacing with
                         \Log::info('[EnsureJsonBodyIsParsed] Replacing request data', [
-                            'parsed_data' => $data,
+                            'parsed_data_keys' => array_keys($data),
                         ]);
                         
                         // Use replace to fully replace request data
@@ -40,14 +47,13 @@ class EnsureJsonBodyIsParsed
                         
                         // Verify replacement worked
                         \Log::info('[EnsureJsonBodyIsParsed] After replace', [
-                            'request_all' => $request->all(),
+                            'request_all_keys' => array_keys($request->all()),
                         ]);
                     }
                 }
-            } catch (\JsonException $e) {
-                \Log::warning('[EnsureJsonBodyIsParsed] JSON parsing error', [
+            } catch (\Exception $e) {
+                \Log::warning('[EnsureJsonBodyIsParsed] Exception', [
                     'error' => $e->getMessage(),
-                    'content_length' => strlen($rawContent ?? ''),
                 ]);
             }
         }

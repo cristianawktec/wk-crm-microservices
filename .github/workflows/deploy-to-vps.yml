@@ -7,44 +7,119 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Copy code to VPS
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
-        run: |
-          sudo apt-get update && sudo apt-get install -y sshpass rsync
-          sshpass -p "$VPS_PASSWORD" rsync -avz --delete \
-            --exclude='.git' \
-            --exclude='node_modules' \
-            --exclude='vendor' \
-            --exclude='tests' \
-            --exclude='.env' \
-            --exclude='storage/logs/*' \
-            --exclude='bootstrap/cache/*' \
-            wk-crm-laravel/ $VPS_USER@$VPS_HOST:/opt/wk-crm/wk-crm-laravel/
+      - name: Set image tag
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
-      - name: Run migrations on VPS
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t wk-crm-laravel:${SHORT_SHA} \
+            -t wk-crm-laravel:latest \
+            ./wk-crm-laravel
+
+      - name: Package Docker image
+        run: |
+          docker save wk-crm-laravel:${SHORT_SHA} | gzip > /tmp/wk-crm-laravel_${SHORT_SHA}.tar.gz
+
+      - name: Upload image to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'ENDSSH'
+          sudo apt-get update && sudo apt-get install -y sshpass
+          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no \
+            /tmp/wk-crm-laravel_${SHORT_SHA}.tar.gz \
+            $VPS_USER@$VPS_HOST:/tmp/
+
+      - name: Deploy on VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+        run: |
+          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << EOF
             set -e
+            SHA="${SHORT_SHA}"
+            IMAGE_TAR="/tmp/wk-crm-laravel_${SHORT_SHA}.tar.gz"
             cd /opt/wk-crm
+
+            if [ ! -f "\$IMAGE_TAR" ]; then
+              echo "❌ Imagem não encontrada em \$IMAGE_TAR"
+              exit 1
+            fi
+
+            echo "📦 Carregando imagem Docker..."
+            gunzip -c "\$IMAGE_TAR" | docker load
+            rm -f "\$IMAGE_TAR"
+
+            OLD_TAG=$(grep -m1 -E 'image:\s*wk-crm-laravel:' docker-compose.yml | sed -E 's/.*wk-crm-laravel:([^ ]+).*/\1/')
+            if [ -z "\$OLD_TAG" ]; then
+              OLD_TAG="unknown"
+            fi
+
+            export NEW_SHA="\$SHA"
+            python3 - << 'PY'
+            import os
+            import re
+            from pathlib import Path
+
+            path = Path("/opt/wk-crm/docker-compose.yml")
+            text = path.read_text()
+            sha = os.environ["NEW_SHA"]
+
+            if re.search(r"(?m)^\s*image:\s*wk-crm-laravel:.*$", text):
+                text = re.sub(r"(?m)^(\s*image:\s*wk-crm-laravel:).*$", r"\1" + sha, text)
+            elif re.search(r"(?m)^\s*build:\s*\./wk-crm-laravel\s*$", text):
+                text = re.sub(r"(?m)^(\s*)build:\s*\./wk-crm-laravel\s*$", r"\1image: wk-crm-laravel:" + sha, text)
+            else:
+                text = re.sub(r"(?m)^(\s*wk-crm-laravel:\s*)$", r"\1\n    image: wk-crm-laravel:" + sha, text, count=1)
+
+            path.write_text(text)
+            PY
+
+            echo "🚀 Atualizando serviço wk-crm-laravel..."
+            docker-compose up -d --no-deps wk-crm-laravel
             docker-compose exec -T wk-crm-laravel composer install --no-dev --optimize-autoloader
             docker-compose exec -T wk-crm-laravel php artisan migrate --force
             docker-compose exec -T wk-crm-laravel php artisan config:cache
             docker-compose exec -T wk-crm-laravel php artisan route:cache
-            echo "Deploy successful!"
-          ENDSSH
-            echo "✅ Deploy completed successfully"
-          else
-            echo "❌ Deploy failed - check logs and rollback if needed"
-          fi
+
+            sleep 5
+            if curl -fsS http://localhost:8000/api/health > /dev/null; then
+              echo "✅ Deploy concluído com sucesso"
+              docker image prune -f
+            else
+              echo "❌ Health check falhou, iniciando rollback"
+              if [ "\$OLD_TAG" != "unknown" ]; then
+                export NEW_SHA="\$OLD_TAG"
+                python3 - << 'PY'
+                import os
+                import re
+                from pathlib import Path
+
+                path = Path("/opt/wk-crm/docker-compose.yml")
+                text = path.read_text()
+                sha = os.environ["NEW_SHA"]
+
+                if re.search(r"(?m)^\s*image:\s*wk-crm-laravel:.*$", text):
+                    text = re.sub(r"(?m)^(\s*image:\s*wk-crm-laravel:).*$", r"\1" + sha, text)
+                elif re.search(r"(?m)^\s*build:\s*\./wk-crm-laravel\s*$", text):
+                    text = re.sub(r"(?m)^(\s*)build:\s*\./wk-crm-laravel\s*$", r"\1image: wk-crm-laravel:" + sha, text)
+                else:
+                    text = re.sub(r"(?m)^(\s*wk-crm-laravel:\s*)$", r"\1\n    image: wk-crm-laravel:" + sha, text, count=1)
+
+                path.write_text(text)
+                PY
+                docker-compose up -d --no-deps wk-crm-laravel
+                docker-compose exec -T wk-crm-laravel php artisan config:cache
+                docker-compose exec -T wk-crm-laravel php artisan route:cache
+              fi
+              exit 1
+            fi
+          EOF

@@ -4,11 +4,12 @@ import OpportunityInsightModal from '@/components/OpportunityInsightModal.vue'
 
 describe('OpportunityInsightModal.vue', () => {
   const mockOpportunity = {
-    id: 1,
+    id: '1',
     title: 'Test Opportunity',
     value: 50000,
     probability: 75,
     status: 'open',
+    created_at: new Date().toISOString(),
   }
 
   let wrapper: any

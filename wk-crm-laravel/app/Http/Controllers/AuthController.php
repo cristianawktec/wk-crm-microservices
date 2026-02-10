@@ -19,7 +19,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $credentials['email'])->first();
 
-        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+        if (! $user || ! $this->isValidPassword($credentials['password'], $user)) {
             throw ValidationException::withMessages([
                 'email' => ['As credenciais fornecidas são inválidas.'],
             ]);
@@ -47,5 +47,49 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         return response()->json($request->user());
+    }
+
+    private function isValidPassword(string $password, User $user): bool
+    {
+        $hash = (string) $user->password;
+
+        if ($hash === '') {
+            return false;
+        }
+
+        try {
+            if (Hash::check($password, $hash)) {
+                return true;
+            }
+        } catch (\RuntimeException $e) {
+            Log::warning('Non-bcrypt password hash detected', [
+                'user_id' => $user->id,
+            ]);
+        }
+
+        if ($this->matchesLegacyHash($password, $hash)) {
+            $user->password = Hash::make($password);
+            $user->save();
+            return true;
+        }
+
+        return false;
+    }
+
+    private function matchesLegacyHash(string $password, string $hash): bool
+    {
+        if (preg_match('/^\$2[ayb]\$/', $hash) || str_starts_with($hash, '$argon2')) {
+            return false;
+        }
+
+        if (preg_match('/^[a-f0-9]{32}$/i', $hash)) {
+            return hash_equals(strtolower(md5($password)), strtolower($hash));
+        }
+
+        if (preg_match('/^[a-f0-9]{64}$/i', $hash)) {
+            return hash_equals(strtolower(hash('sha256', $password)), strtolower($hash));
+        }
+
+        return hash_equals($hash, $password);
     }
 }

@@ -278,4 +278,16 @@ export class ApiService {
       return throwError(() => err);
     }));
   }
+
+  getLoginAudits(params: any = {}): Observable<any> {
+    const qp = new URLSearchParams();
+    Object.keys(params || {}).forEach(k => {
+      if (params[k] !== undefined && params[k] !== null && params[k] !== '') qp.set(k, params[k]);
+    });
+    const url = `${this.base}/admin/login-audits` + (qp.toString() ? `?${qp.toString()}` : '');
+    return this.http.get(url).pipe(catchError(err => {
+      console.warn('Login audits API failed', err);
+      return throwError(() => err);
+    }));
+  }
 }

@@ -21,7 +21,9 @@ import { LoginComponent } from './app/components/login/login.component';
 import { ToastContainerComponent } from './app/components/toast-container/toast-container.component';
 import { AuthInterceptor } from './app/interceptors/auth.interceptor';
 import { AuthGuard } from './app/guards/auth.guard';
+import { AdminGuard } from './app/guards/admin.guard';
 import { RouterModule } from '@angular/router';
+import { LoginAuditsComponent } from './app/pages/login-audits/login-audits.component';
 
 @NgModule({
   imports: [
@@ -35,6 +37,11 @@ import { RouterModule } from '@angular/router';
       { 
         path: '', 
         component: DashboardComponent
+      },
+      {
+        path: 'admin/login-audits',
+        component: LoginAuditsComponent,
+        canActivate: [AuthGuard, AdminGuard]
       },
       { 
         path: 'customers', 
@@ -113,6 +120,7 @@ import { RouterModule } from '@angular/router';
     SalesComponent, 
     OpportunitiesComponent, 
     OpportunitiesFormComponent,
+    LoginAuditsComponent,
     LoginComponent,
     ToastContainerComponent
   ],

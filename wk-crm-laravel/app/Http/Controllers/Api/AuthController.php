@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\LoginAudit;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -154,7 +155,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $email)->first();
 
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (!$user || !$this->isValidPassword($password, $user)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -164,6 +165,8 @@ class AuthController extends Controller
         $user->tokens()->delete();
 
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        $this->logLogin($request, $user);
 
         // Ensure customer record exists
         try {
@@ -180,12 +183,134 @@ class AuthController extends Controller
             // Continue even if customer creation fails
         }
 
+        $roles = $user->getRoleNames();
+
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
-            'user' => $user,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $roles->first(),
+                'roles' => $roles,
+            ],
             'token' => $token,
         ], 200);
+    }
+
+    private function logLogin(Request $request, User $user): void
+    {
+        try {
+            $userAgent = (string) $request->header('User-Agent', '');
+            $parsed = $this->parseUserAgent($userAgent);
+
+            LoginAudit::create([
+                'user_id' => $user->id,
+                'ip_address' => $request->ip(),
+                'platform' => $parsed['platform'],
+                'browser' => $parsed['browser'],
+                'device' => $parsed['device'],
+                'route' => $request->path(),
+                'method' => $request->method(),
+                'accept_language' => (string) $request->header('Accept-Language', ''),
+                'user_agent' => $userAgent,
+                'logged_in_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('Failed to write login audit', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    private function parseUserAgent(string $userAgent): array
+    {
+        $ua = strtolower($userAgent);
+
+        $platform = 'Unknown';
+        if (str_contains($ua, 'android')) {
+            $platform = 'Android';
+        } elseif (str_contains($ua, 'iphone') || str_contains($ua, 'ipad')) {
+            $platform = 'iOS';
+        } elseif (str_contains($ua, 'windows')) {
+            $platform = 'Windows';
+        } elseif (str_contains($ua, 'mac')) {
+            $platform = 'Mac';
+        } elseif (str_contains($ua, 'linux')) {
+            $platform = 'Linux';
+        }
+
+        $browser = 'Unknown';
+        if (str_contains($ua, 'edg/')) {
+            $browser = 'Edge';
+        } elseif (str_contains($ua, 'opr/') || str_contains($ua, 'opera')) {
+            $browser = 'Opera';
+        } elseif (str_contains($ua, 'chrome/')) {
+            $browser = 'Chrome';
+        } elseif (str_contains($ua, 'firefox/')) {
+            $browser = 'Firefox';
+        } elseif (str_contains($ua, 'safari/') && !str_contains($ua, 'chrome/')) {
+            $browser = 'Safari';
+        }
+
+        $device = 'Desktop';
+        if (str_contains($ua, 'ipad') || str_contains($ua, 'tablet')) {
+            $device = 'Tablet';
+        } elseif (str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) {
+            $device = 'Mobile';
+        }
+
+        return [
+            'platform' => $platform,
+            'browser' => $browser,
+            'device' => $device,
+        ];
+    }
+
+    private function isValidPassword(string $password, User $user): bool
+    {
+        $hash = (string) $user->password;
+
+        if ($hash === '') {
+            return false;
+        }
+
+        try {
+            if (Hash::check($password, $hash)) {
+                return true;
+            }
+        } catch (\RuntimeException $e) {
+            \Log::warning('Non-bcrypt password hash detected', [
+                'user_id' => $user->id,
+            ]);
+        }
+
+        if ($this->matchesLegacyHash($password, $hash)) {
+            $user->password = Hash::make($password);
+            $user->save();
+            return true;
+        }
+
+        return false;
+    }
+
+    private function matchesLegacyHash(string $password, string $hash): bool
+    {
+        if (preg_match('/^\$2[ayb]\$/', $hash) || str_starts_with($hash, '$argon2')) {
+            return false;
+        }
+
+        if (preg_match('/^[a-f0-9]{32}$/i', $hash)) {
+            return hash_equals(strtolower(md5($password)), strtolower($hash));
+        }
+
+        if (preg_match('/^[a-f0-9]{64}$/i', $hash)) {
+            return hash_equals(strtolower(hash('sha256', $password)), strtolower($hash));
+        }
+
+        return hash_equals($hash, $password);
     }
 
     /**

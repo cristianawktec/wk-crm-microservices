@@ -43,6 +43,7 @@ class ChatResponse(BaseModel):
 
 def get_model():
     api_key = os.getenv("GEMINI_API_KEY")
+    model_override = os.getenv("GEMINI_MODEL")
     print(f"DEBUG: GEMINI_API_KEY present: {bool(api_key)}, length: {len(api_key) if api_key else 0}")
     if not api_key:
         print("ERROR: GEMINI_API_KEY not found")
@@ -50,7 +51,15 @@ def get_model():
     try:
         genai.configure(api_key=api_key)
         # Try models in order of availability (AI Studio 2026)
-        model_names = ["gemini-2.0-flash-exp", "gemini-1.5-pro", "gemini-pro"]
+        model_names = []
+        if model_override:
+            model_names.append(model_override)
+        model_names.extend([
+            "models/gemini-pro-latest",
+            "models/gemini-flash-latest",
+            "models/gemini-2.0-flash-001",
+            "models/gemini-2.5-flash",
+        ])
         for model_name in model_names:
             try:
                 model = genai.GenerativeModel(model_name)

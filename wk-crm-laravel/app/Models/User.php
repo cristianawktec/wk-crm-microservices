@@ -37,4 +37,9 @@ class User extends Authenticatable
             }
         });
     }
+
+    public function loginAudits()
+    {
+        return $this->hasMany(LoginAudit::class);
+    }
 }

@@ -28,8 +28,9 @@ export class AppComponent implements OnInit {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.isLoginPage = event.url.includes('login');
-        console.log('🔐 Navigation event - URL:', event.url, 'isLoginPage:', this.isLoginPage);
+        const url = event.urlAfterRedirects || event.url;
+        this.isLoginPage = url === '/login' || url.startsWith('/login?');
+        console.log('🔐 Navigation event - URL:', url, 'isLoginPage:', this.isLoginPage);
       });
   }
 

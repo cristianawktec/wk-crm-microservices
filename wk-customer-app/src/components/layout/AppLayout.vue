@@ -13,16 +13,27 @@
       </div>
       
       <nav class="p-4 space-y-2">
-        <router-link
-          v-for="item in menuItems"
-          :key="item.name"
-          :to="item.path"
-          class="flex items-center px-4 py-3 rounded-lg transition-colors"
-          :class="$route.name === item.name ? 'bg-indigo-800' : 'hover:bg-indigo-600'"
-        >
-          <component :is="item.icon" class="w-5 h-5 mr-3" />
-          {{ item.label }}
-        </router-link>
+        <template v-for="item in menuItems" :key="item.name">
+          <router-link
+            v-if="!item.external"
+            :to="item.path"
+            class="flex items-center px-4 py-3 rounded-lg transition-colors"
+            :class="$route.name === item.name ? 'bg-indigo-800' : 'hover:bg-indigo-600'"
+          >
+            <component :is="item.icon" class="w-5 h-5 mr-3" />
+            {{ item.label }}
+          </router-link>
+          <a
+            v-else
+            :href="item.path"
+            target="_blank"
+            rel="noopener"
+            class="flex items-center px-4 py-3 rounded-lg transition-colors hover:bg-indigo-600"
+          >
+            <component :is="item.icon" class="w-5 h-5 mr-3" />
+            {{ item.label }}
+          </a>
+        </template>
       </nav>
     </aside>
 
@@ -80,6 +91,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import type { Component } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import NotificationBell from '../NotificationBell.vue'
@@ -87,7 +99,8 @@ import {
   HomeIcon, 
   ChartBarIcon, 
   UserCircleIcon,
-  BellIcon
+  BellIcon,
+  ShieldCheckIcon
 } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
@@ -97,16 +110,51 @@ const authStore = useAuthStore()
 const sidebarOpen = ref(false)
 const userMenuOpen = ref(false)
 
-const menuItems = [
-  { name: 'Dashboard', path: '/', label: 'Dashboard', icon: HomeIcon },
-  { name: 'Opportunities', path: '/opportunities', label: 'Oportunidades', icon: ChartBarIcon },
-  { name: 'Notifications', path: '/notifications', label: 'Notificações', icon: BellIcon },
-  { name: 'Trends', path: '/trends', label: 'Análise de Tendências', icon: ChartBarIcon },
-  { name: 'Profile', path: '/profile', label: 'Meu Perfil', icon: UserCircleIcon }
-]
+type MenuItem = {
+  name: string
+  path: string
+  label: string
+  icon: Component
+  external?: boolean
+}
+
+const isAdmin = computed(() => {
+  const user: any = authStore.user || {}
+  const roles = Array.isArray(user.roles) ? user.roles : []
+  const role = user.role || ''
+  const email = (user.email || '').toLowerCase()
+
+  if (roles.includes('admin') || role === 'admin') {
+    return true
+  }
+
+  return email === 'admin@consultoriawk.com' || email === 'admin-test@wkcrm.local'
+})
+
+const menuItems = computed<MenuItem[]>(() => {
+  const items: MenuItem[] = [
+    { name: 'Dashboard', path: '/', label: 'Dashboard', icon: HomeIcon },
+    { name: 'Opportunities', path: '/opportunities', label: 'Oportunidades', icon: ChartBarIcon },
+    { name: 'Notifications', path: '/notifications', label: 'Notificações', icon: BellIcon },
+    { name: 'Trends', path: '/trends', label: 'Análise de Tendências', icon: ChartBarIcon },
+    { name: 'Profile', path: '/profile', label: 'Meu Perfil', icon: UserCircleIcon }
+  ]
+
+  if (isAdmin.value) {
+    items.push({
+      name: 'LoginAudits',
+      path: '/admin/#/admin/login-audits',
+      label: 'Acessos ao Sistema',
+      icon: ShieldCheckIcon,
+      external: true
+    })
+  }
+
+  return items
+})
 
 const pageTitle = computed(() => {
-  const item = menuItems.find(m => m.name === route.name)
+  const item = menuItems.value.find(m => m.name === route.name)
   return item?.label || 'Dashboard'
 })
 

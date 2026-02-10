@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, map, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 
@@ -8,6 +8,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  roles?: string[];
+  permissions?: string[];
 }
 
 export interface LoginResponse {
@@ -66,11 +68,7 @@ export class AuthService {
 
           if (token && userData) {
             localStorage.setItem('token', token);
-            const user: User = {
-              id: userData.id,
-              name: userData.name,
-              email: userData.email
-            };
+            const user: User = this.buildUser(userData);
             localStorage.setItem('currentUser', JSON.stringify(user));
             this.currentUserSubject.next(user);
           }
@@ -108,6 +106,56 @@ export class AuthService {
       return false;
     }
     return true;
+  }
+
+  loadProfile(): Observable<User | null> {
+    return this.http.get<any>(`${this.apiUrl}/auth/me`).pipe(
+      tap(response => {
+        const data = response?.data;
+        if (data) {
+          const user = this.buildUser(data);
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          this.currentUserSubject.next(user);
+        }
+      }),
+      map(response => {
+        const data = response?.data;
+        return data ? this.buildUser(data) : null;
+      })
+    );
+  }
+
+  isAdminCached(): boolean {
+    return this.isAdminUser();
+  }
+
+  getRoles(): string[] {
+    return this.currentUserSubject.value?.roles || [];
+  }
+
+  isAdminUser(user: User | null = this.currentUserSubject.value): boolean {
+    if (!user) {
+      return false;
+    }
+
+    const roles = user.roles || [];
+    const email = (user.email || '').toLowerCase();
+
+    if (roles.includes('admin')) {
+      return true;
+    }
+
+    return email === 'admin@consultoriawk.com' || email === 'admin-test@wkcrm.local';
+  }
+
+  private buildUser(userData: any): User {
+    return {
+      id: userData.id,
+      name: userData.name,
+      email: userData.email,
+      roles: userData.roles || (userData.role ? [userData.role] : []),
+      permissions: userData.permissions || []
+    };
   }
 
   verifyToken(): Observable<boolean> {

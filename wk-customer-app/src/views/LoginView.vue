@@ -82,7 +82,7 @@
       <div class="mt-8 pt-6 border-t border-gray-200">
         <p class="text-center text-xs text-gray-500 mb-3">Acesso para administradores:</p>
         <a 
-          href="https://api.consultoriawk.com/admin/"
+          href="/admin"
           target="_blank"
           class="block w-full text-center bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
         >
@@ -126,66 +126,24 @@ const handleLogin = async () => {
   }
 }
 
-const handleQuickLogin = async () => {
+const quickLogin = async (email: string, password: string, label: string) => {
   try {
-    console.log('🚀 Iniciando login rápido...')
-    const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
-    const response = await fetch(`${apiBase}/api/auth/test-customer`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      console.log('✅ Token recebido:', data.token?.substring(0, 20))
-      
-      if (data.success && data.token) {
-        localStorage.removeItem('loggedOut') // Limpar flag de logout
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        authStore.setToken(data.token)
-        authStore.setUser(data.user)
-        
-        toast.success('Login rápido realizado!')
-        router.push('/')
-      }
-    } else {
-      toast.error('Erro ao fazer login rápido')
-    }
-  } catch (error) {
-    console.error('❌ Erro no login rápido:', error)
-    toast.error('Erro ao conectar com o servidor')
+    await authStore.login(email, password)
+    localStorage.removeItem('loggedOut')
+    await new Promise(resolve => setTimeout(resolve, 100))
+    toast.success(`Login rápido ${label} realizado!`)
+    router.push('/')
+  } catch (error: any) {
+    toast.error(error?.response?.data?.message || 'Erro ao fazer login rápido')
   }
+}
+
+const handleQuickLogin = async () => {
+  await quickLogin('customer@consultoriawk.com', '123456', 'cliente')
 }
 
 const handleQuickAdminLogin = async () => {
-  try {
-    console.log('🚀 Iniciando login rápido ADMIN...')
-    const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
-    const response = await fetch(`${apiBase}/api/auth/test-customer?role=admin`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    })
-
-    if (response.ok) {
-      const data = await response.json()
-      console.log('✅ Admin token recebido:', data.token?.substring(0, 20))
-
-      if (data.success && data.token) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        authStore.setToken(data.token)
-        authStore.setUser(data.user)
-
-        toast.success('Login rápido ADMIN realizado!')
-        router.push('/')
-      }
-    } else {
-      toast.error('Erro ao fazer login rápido ADMIN')
-    }
-  } catch (error) {
-    console.error('❌ Erro no login rápido ADMIN:', error)
-    toast.error('Erro ao conectar com o servidor')
-  }
+  await quickLogin('admin@consultoriawk.com', 'Admin@2025', 'admin')
 }
+
 </script>

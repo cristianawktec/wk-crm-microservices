@@ -1,0 +1,200 @@
+﻿[2026-02-05 17:35:24] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:35:24] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:35:29] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:35:29-03:00"} 
+[2026-02-05 17:35:29] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:35:29] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:35:29] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:35:33] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:35:33-03:00"} 
+[2026-02-05 17:35:33] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:35:33] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:35:33] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:35:33] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:35:33-03:00"} 
+[2026-02-05 17:35:33] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:35:33] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:35:33] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:35:39] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:35:39-03:00"} 
+[2026-02-05 17:35:40] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:35:40] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:35:40] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:35:44] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:35:44-03:00"} 
+[2026-02-05 17:35:44] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:35:44] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:35:44] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:35:48] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:35:48-03:00"} 
+[2026-02-05 17:35:49] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:35:49] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:35:49] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:35:53] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:35:53-03:00"} 
+[2026-02-05 17:35:53] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:35:53] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:35:53] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:35:59] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:35:58-03:00"} 
+[2026-02-05 17:35:59] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:35:59] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:35:59] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:03] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:03-03:00"} 
+[2026-02-05 17:36:03] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:03] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:03] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:08] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:08-03:00"} 
+[2026-02-05 17:36:08] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:08] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:08] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:11] development.INFO: [EnsureJsonBodyIsParsed] Processing JSON {"raw_content":"{title:Test Title,description:Test Description,value:50000,probability:75,status:Active,customer_name:Test Customer,sector:Tech}","content_length":128,"is_json":true} 
+[2026-02-05 17:36:11] development.WARNING: [EnsureJsonBodyIsParsed] JSON parsing error {"error":"Syntax error","content_length":128} 
+[2026-02-05 17:36:11] development.INFO: [AiController@opportunityInsights] Request received {"all":[],"content":"{title:Test Title,description:Test Description,value:50000,probability:75,status:Active,customer_name:Test Customer,sector:Tech}","is_json":true} 
+[2026-02-05 17:36:11] development.ERROR: [AiController@opportunityInsights] ERROR {"message":"The title field is required.","trace":"#0 /var/www/html/vendor/laravel/framework/src/Illuminate/Validation/Validator.php(558): throw_if(true, 'Illuminate\\\\Vali...', Object(Illuminate\\Validation\\Validator))
+#1 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Providers/FoundationServiceProvider.php(155): Illuminate\\Validation\\Validator->validate()
+#2 /var/www/html/vendor/laravel/framework/src/Illuminate/Macroable/Traits/Macroable.php(126): Illuminate\\Http\\Request->Illuminate\\Foundation\\Providers\\{closure}(Array)
+#3 /var/www/html/app/Http/Controllers/Api/AiController.php(300): Illuminate\\Http\\Request->__call('validate', Array)
+#4 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(54): App\\Http\\Controllers\\Api\\AiController->opportunityInsights(Object(Illuminate\\Http\\Request))
+#5 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('opportunityInsi...', Array)
+#6 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\AiController), 'opportunityInsi...')
+#7 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(212): Illuminate\\Routing\\Route->runController()
+#8 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(808): Illuminate\\Routing\\Route->run()
+#9 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#10 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#11 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#12 /var/www/html/vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php(64): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#13 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'sanctum')
+#14 /var/www/html/app/Http/Middleware/EnsureJsonBodyIsParsed.php(55): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#15 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): App\\Http\\Middleware\\EnsureJsonBodyIsParsed->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#16 /var/www/html/app/Http/Middleware/CorsMiddleware.php(43): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#17 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#20 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#21 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#22 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#23 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#24 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#25 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#28 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#29 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#30 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#31 /var/www/html/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#32 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#33 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#34 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#35 /var/www/html/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#36 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#37 /var/www/html/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#38 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#39 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php(22): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#40 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#41 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#42 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#43 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#44 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#45 /var/www/html/public/index.php(20): Illuminate\\Foundation\\Application->handleRequest(Object(Illuminate\\Http\\Request))
+#46 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(23): require_once('/var/www/html/p...')
+#47 {main}"} 
+[2026-02-05 17:36:12] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:12-03:00"} 
+[2026-02-05 17:36:12] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:12] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:12] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:15] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:15-03:00"} 
+[2026-02-05 17:36:15] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:15] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:15] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:18] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:18-03:00"} 
+[2026-02-05 17:36:18] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:18] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:18] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:20] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:20-03:00"} 
+[2026-02-05 17:36:20] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:20] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:20] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:25] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:24-03:00"} 
+[2026-02-05 17:36:25] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:25] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:25] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:29] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:29-03:00"} 
+[2026-02-05 17:36:29] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:29] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:29] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:34] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:33-03:00"} 
+[2026-02-05 17:36:34] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:34] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:34] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:38] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:38-03:00"} 
+[2026-02-05 17:36:38] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:38] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:38] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:43] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:42-03:00"} 
+[2026-02-05 17:36:43] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:43] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:43] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:47] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:47-03:00"} 
+[2026-02-05 17:36:47] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:47] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:47] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:51] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:51-03:00"} 
+[2026-02-05 17:36:52] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:52] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:52] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:36:52] development.INFO: [EnsureJsonBodyIsParsed] Processing JSON {"raw_content":"´╗┐{\"title\":\"Test Title\",\"description\":\"Test Description\",\"value\":50000,\"probability\":75,\"status\":\"Active\",\"customer_name\":\"TestCustomer\",\"sector\":\"Tech\"}","content_length":154,"is_json":true} 
+[2026-02-05 17:36:52] development.WARNING: [EnsureJsonBodyIsParsed] JSON parsing error {"error":"Syntax error","content_length":154} 
+[2026-02-05 17:36:52] development.INFO: [AiController@opportunityInsights] Request received {"all":[],"content":"´╗┐{\"title\":\"Test Title\",\"description\":\"Test Description\",\"value\":50000,\"probability\":75,\"status\":\"Active\",\"customer_name\":\"TestCustomer\",\"sector\":\"Tech\"}","is_json":true} 
+[2026-02-05 17:36:52] development.ERROR: [AiController@opportunityInsights] ERROR {"message":"The title field is required.","trace":"#0 /var/www/html/vendor/laravel/framework/src/Illuminate/Validation/Validator.php(558): throw_if(true, 'Illuminate\\\\Vali...', Object(Illuminate\\Validation\\Validator))
+#1 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Providers/FoundationServiceProvider.php(155): Illuminate\\Validation\\Validator->validate()
+#2 /var/www/html/vendor/laravel/framework/src/Illuminate/Macroable/Traits/Macroable.php(126): Illuminate\\Http\\Request->Illuminate\\Foundation\\Providers\\{closure}(Array)
+#3 /var/www/html/app/Http/Controllers/Api/AiController.php(300): Illuminate\\Http\\Request->__call('validate', Array)
+#4 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(54): App\\Http\\Controllers\\Api\\AiController->opportunityInsights(Object(Illuminate\\Http\\Request))
+#5 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('opportunityInsi...', Array)
+#6 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\AiController), 'opportunityInsi...')
+#7 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(212): Illuminate\\Routing\\Route->runController()
+#8 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(808): Illuminate\\Routing\\Route->run()
+#9 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#10 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#11 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#12 /var/www/html/vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php(64): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#13 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'sanctum')
+#14 /var/www/html/app/Http/Middleware/EnsureJsonBodyIsParsed.php(55): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#15 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): App\\Http\\Middleware\\EnsureJsonBodyIsParsed->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#16 /var/www/html/app/Http/Middleware/CorsMiddleware.php(43): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#17 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#20 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#21 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#22 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#23 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#24 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#25 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#28 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#29 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#30 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#31 /var/www/html/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#32 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#33 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#34 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#35 /var/www/html/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#36 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#37 /var/www/html/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#38 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#39 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php(22): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#40 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#41 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#42 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#43 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#44 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#45 /var/www/html/public/index.php(20): Illuminate\\Foundation\\Application->handleRequest(Object(Illuminate\\Http\\Request))
+#46 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(23): require_once('/var/www/html/p...')
+#47 {main}"} 
+[2026-02-05 17:36:56] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:36:56-03:00"} 
+[2026-02-05 17:36:56] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:36:56] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:36:56] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:37:00] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:37:00-03:00"} 
+[2026-02-05 17:37:00] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:37:00] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:37:00] development.INFO: [NotificationController] Flushed connected event  
+[2026-02-05 17:37:05] development.INFO: [NotificationController] Starting SSE stream {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737","timestamp":"2026-02-05T17:37:05-03:00"} 
+[2026-02-05 17:37:05] development.INFO: [NotificationController] Inside stream callback {"user_id":"80db5148-28d8-4e5a-8195-bac6dad87737"} 
+[2026-02-05 17:37:05] development.INFO: [NotificationController] Sent connected event  
+[2026-02-05 17:37:05] development.INFO: [NotificationController] Flushed connected event  

@@ -1,0 +1,125 @@
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6"><h1 class="m-0">Acessos ao Sistema</h1></div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#/">Inicio</a></li>
+          <li class="breadcrumb-item active">Acessos</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="content">
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Registros de Login</h3>
+        <div class="card-tools">
+          <button class="btn btn-outline-primary btn-sm" (click)="refresh()">
+            <i class="fas fa-sync-alt"></i> Atualizar
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <input
+              class="form-control"
+              type="text"
+              placeholder="Filtrar por User ID"
+              [(ngModel)]="userIdFilter"
+              (keyup.enter)="applyFilter()"
+            />
+          </div>
+          <div class="col-md-2">
+            <select class="form-control" [(ngModel)]="perPage" (change)="load(1)">
+              <option [ngValue]="25">25 por pagina</option>
+              <option [ngValue]="50">50 por pagina</option>
+              <option [ngValue]="100">100 por pagina</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <input
+              class="form-control"
+              type="text"
+              placeholder="Pesquisar por nome ou email"
+              [(ngModel)]="searchQuery"
+              (keyup.enter)="applyFilter()"
+            />
+          </div>
+          <div class="col-md-3 text-end">
+            <button class="btn btn-primary btn-sm me-2" (click)="applyFilter()">
+              <i class="fas fa-filter"></i> Filtrar
+            </button>
+            <button class="btn btn-secondary btn-sm" (click)="clearFilter()">
+              <i class="fas fa-times"></i> Limpar
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="loading" class="text-center py-4">
+          <div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>
+        </div>
+
+        <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+        <div *ngIf="!loading && audits?.length" class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Data/Hora</th>
+                <th>Usuario</th>
+                <th>IP</th>
+                <th>SO</th>
+                <th>Navegador</th>
+                <th>Dispositivo</th>
+                <th>Rota</th>
+                <th>Metodo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let a of audits; trackBy: trackById">
+                <td>{{ a.logged_in_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                  <div class="fw-semibold">{{ a.user?.name || 'N/A' }}</div>
+                  <small class="text-muted">{{ a.user?.email || a.user_id }}</small>
+                </td>
+                <td>{{ a.ip_address || '—' }}</td>
+                <td>{{ a.platform || '—' }}</td>
+                <td>{{ a.browser || '—' }}</td>
+                <td>{{ a.device || '—' }}</td>
+                <td title="{{ a.user_agent || '' }}">{{ a.route || '—' }}</td>
+                <td>{{ a.method || '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="!loading && (!audits || audits.length === 0)" class="alert alert-info">
+          <i class="fas fa-info-circle"></i> Nenhum registro encontrado.
+        </div>
+
+        <div *ngIf="!loading && total > 0" class="d-flex justify-content-between align-items-center mt-3">
+          <div class="text-muted">
+            Total: {{ total }} registros
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-outline-secondary btn-sm" (click)="prevPage()" [disabled]="page <= 1">
+              <i class="fas fa-chevron-left"></i> Anterior
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" disabled>
+              Pagina {{ page }} de {{ lastPage }}
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="nextPage()" [disabled]="page >= lastPage">
+              Proxima <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

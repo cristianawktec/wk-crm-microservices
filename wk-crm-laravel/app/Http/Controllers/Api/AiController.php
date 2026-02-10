@@ -15,14 +15,13 @@ class AiController extends Controller
 {
     /**
      * FastAPI service URL
-     * Use host.docker.internal for Docker environments
      */
     private $aiServiceUrl;
 
     public function __construct()
     {
-        // Docker environments need host.docker.internal, local dev uses localhost
-        $this->aiServiceUrl = env('AI_SERVICE_URL', 'http://host.docker.internal:8080');
+        // Local default targets FastAPI dev server (localhost:8000)
+        $this->aiServiceUrl = env('AI_SERVICE_URL', 'http://localhost:8000');
     }
 
     /**
@@ -294,9 +293,19 @@ class AiController extends Controller
         try {
             \Log::info('[AiController@opportunityInsights] Request received', [
                 'all' => $request->all(),
-                'content' => $request->getContent(),
+                'json_data' => $request->json()->all(),
+                'content' => substr($request->getContent(), 0, 200),
                 'is_json' => $request->isJson(),
             ]);
+
+            // Try alternative parsing method
+            if (empty($request->all()) && $request->isJson()) {
+                $jsonData = $request->json()->all();
+                $request->replace($jsonData);
+                \Log::info('[AiController] Replaced request with json data', [
+                    'new_all' => $request->all(),
+                ]);
+            }
 
             $data = $request->validate([
                 'id' => ['nullable', 'string'],

@@ -34,6 +34,17 @@ export const useAuthStore = defineStore('auth', () => {
     delete apiClient.defaults.headers.common['Authorization']
   }
 
+  const normalizeUser = (data: any): User | null => {
+    if (!data) return null
+    return {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      roles: Array.isArray(data.roles) ? data.roles : (data.role ? [data.role] : [])
+    }
+  }
+
   const login = async (email: string, password: string) => {
     loading.value = true
     error.value = null
@@ -62,17 +73,12 @@ export const useAuthStore = defineStore('auth', () => {
       // 1) { success, message, data: { id, name, email, roles }, token }
       // 2) { success, message, user: { id, name, email, ... }, token }
       const authToken = data.token
-      let resolvedUser: any = data?.data
+      let resolvedUser: any = normalizeUser(data?.data)
 
       if (!resolvedUser && data?.user) {
         // Normalizar 'user' para o formato mínimo esperado
         const u = data.user
-        resolvedUser = {
-          id: u.id,
-          name: u.name,
-          email: u.email,
-          roles: Array.isArray(u.roles) ? u.roles : []
-        }
+        resolvedUser = normalizeUser(u)
       }
 
       if (!authToken || !resolvedUser) {
@@ -127,7 +133,13 @@ export const useAuthStore = defineStore('auth', () => {
     
     try {
       const response = await apiClient.get('/auth/me')
-      user.value = response.data
+      const payload = response.data?.data ?? response.data?.user ?? response.data
+      const normalized = normalizeUser(payload)
+      if (normalized) {
+        setUser(normalized)
+      } else {
+        clearAuth()
+      }
     } catch (err) {
       console.error('Erro ao buscar usuário:', err)
       clearAuth()

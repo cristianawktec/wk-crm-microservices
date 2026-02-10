@@ -1,0 +1,5 @@
+﻿wk_crm_laravel	Up 18 minutes	0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+wk_pgadmin	Up 18 minutes	0.0.0.0:5050->80/tcp, [::]:5050->80/tcp
+wk_postgres	Up 19 minutes	0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+wk_redis	Up 19 minutes	0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp
+wk_ai_service	Up 19 minutes (healthy)	0.0.0.0:8001->8000/tcp, [::]:8001->8000/tcp
