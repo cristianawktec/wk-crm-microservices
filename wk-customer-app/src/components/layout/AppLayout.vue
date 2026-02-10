@@ -143,7 +143,7 @@ const menuItems = computed<MenuItem[]>(() => {
   if (isAdmin.value) {
     items.push({
       name: 'LoginAudits',
-      path: '/admin/#/admin/login-audits',
+      path: 'https://consultoriawk.com/admin/#/admin/login-audits',
       label: 'Acessos ao Sistema',
       icon: ShieldCheckIcon,
       external: true
