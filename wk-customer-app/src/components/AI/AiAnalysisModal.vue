@@ -120,8 +120,15 @@
         >
           Fechar
         </button>
+        <button
+          v-if="!loading && isFallback"
+          @click="analyzeOpportunity"
+          class="px-4 py-2 border border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-50 transition-colors font-medium"
+        >
+          Tentar novamente
+        </button>
         <button 
-          v-if="!loading"
+          v-if="!loading && !isFallback"
           @click="analyzeOpportunity"
           class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
         >
@@ -165,6 +172,7 @@ const emit = defineEmits<{
 const loading = ref(false)
 const error = ref('')
 const analysis = ref<Analysis | null>(null)
+const isFallback = ref(false)
 
 watch(() => props.isOpen, (newVal) => {
   if (newVal && props.opportunity) {
@@ -174,6 +182,7 @@ watch(() => props.isOpen, (newVal) => {
     // Reset when modal closes
     analysis.value = null
     error.value = ''
+    isFallback.value = false
   }
 })
 
@@ -222,10 +231,21 @@ async function analyzeOpportunity() {
       summary: rawAnalysis.summary?.substring(0, 50)
     })
 
+    const fallbackReason = typeof rawAnalysis.summary === 'string'
+      ? rawAnalysis.summary
+      : ''
+    isFallback.value = [
+      rawAnalysis.model,
+      rawAnalysis.source,
+      fallbackReason
+    ].some((value) => typeof value === 'string' && /fallback|timeout|falha ao consultar|serviço de ia/i.test(value))
+
     const normalized = {
       risk_score: normalizedScore,
       risk_label: (rawAnalysis.risk_label ?? rawAnalysis.riskLabel ?? rawAnalysis.risk_level ?? rawAnalysis.riskLevel ?? 'Desconhecido').toString(),
-      summary: rawAnalysis.summary ?? rawAnalysis.overview ?? rawAnalysis.description ?? '',
+      summary: isFallback.value
+        ? 'Instabilidade do provedor de IA; exibindo resposta de contingencia.'
+        : (rawAnalysis.summary ?? rawAnalysis.overview ?? rawAnalysis.description ?? ''),
       next_action: rawAnalysis.next_action ?? rawAnalysis.nextAction ?? rawAnalysis.action ?? '',
       recommendation: rawAnalysis.recommendation ?? rawAnalysis.recommendations ?? rawAnalysis.tip ?? '',
       insights: Array.isArray(rawAnalysis.insights)
