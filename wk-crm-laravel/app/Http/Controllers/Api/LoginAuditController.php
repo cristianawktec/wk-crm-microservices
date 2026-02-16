@@ -10,6 +10,59 @@ use Illuminate\Support\Facades\Mail;
 
 class LoginAuditController extends Controller
 {
+    public function testSendEmail(Request $request)
+    {
+        $user = $request->user();
+        if (!$this->isAdminUser($user)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acesso negado.'
+            ], 403);
+        }
+
+        try {
+            $audits = LoginAudit::query()
+                ->with(['user:id,name,email'])
+                ->orderByDesc('logged_in_at')
+                ->limit(10)
+                ->get()
+                ->toArray();
+
+            $recipientEmail = config('mail.audit_recipient', 'admin@consultoriawk.com');
+            $auditCollection = collect($audits);
+
+            // Enviar IMEDIATAMENTE para teste (não na fila)
+            Mail::to($recipientEmail)->send(
+                new LoginAuditMail($auditCollection, $recipientEmail, $user->email)
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Email de teste enviado com sucesso!',
+                'recipient' => $recipientEmail,
+                'records_sent' => count($audits),
+                'triggered_by' => $user->email,
+                'mail_driver' => config('mail.default'),
+                'mail_host' => config('mail.mailers.' . config('mail.default') . '.host'),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao enviar email de teste', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao enviar email: ' . $e->getMessage(),
+                'mail_driver' => config('mail.default'),
+                'debug_info' => [
+                    'mail_host' => config('mail.mailers.' . config('mail.default') . '.host'),
+                    'mail_port' => config('mail.mailers.' . config('mail.default') . '.port'),
+                ]
+            ], 500);
+        }
+    }
+
     public function index(Request $request)
     {
         $user = $request->user();
@@ -70,22 +123,31 @@ class LoginAuditController extends Controller
     private function sendAuditEmail(array $audits, string $triggeredBy): void
     {
         try {
-            $recipientEmail = config('mail.audit_recipient', 'admin@consultoria.com.br');
+            $recipientEmail = config('mail.audit_recipient', 'admin@consultoriawk.com');
             
             if (!$recipientEmail) {
+                \Log::warning('Email de auditoria não configurado');
                 return;
             }
 
             // Limitar a 50 registros mais recentes por email
             $auditCollection = collect($audits)->take(50);
 
-            Mail::to($recipientEmail)->queue(
+            // Enviar imediatamente (não enfileirar) para garantir entrega
+            Mail::to($recipientEmail)->send(
                 new LoginAuditMail($auditCollection, $recipientEmail, $triggeredBy)
             );
-        } catch (\Exception $e) {
-            \Log::warning('Erro ao enviar email de auditoria de login', [
-                'error' => $e->getMessage(),
+
+            \Log::info('Email de auditoria enviado com sucesso', [
+                'recipient' => $recipientEmail,
+                'records' => count($auditCollection),
                 'triggered_by' => $triggeredBy
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao enviar email de auditoria de login', [
+                'error' => $e->getMessage(),
+                'triggered_by' => $triggeredBy,
+                'trace' => $e->getTraceAsString()
             ]);
         }
     }

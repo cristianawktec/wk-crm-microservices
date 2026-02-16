@@ -153,6 +153,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // Admin-only access logs
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/admin/login-audits', [LoginAuditController::class, 'index']);
+    Route::get('/admin/login-audits/send-test-email', [LoginAuditController::class, 'testSendEmail']);
 });
 
 // Notifications endpoints
