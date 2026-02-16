@@ -25,11 +25,10 @@ class LoginAuditController extends Controller
                 ->with(['user:id,name,email'])
                 ->orderByDesc('logged_in_at')
                 ->limit(10)
-                ->get()
-                ->toArray();
+                ->get();
 
             $recipientEmail = config('mail.audit_recipient', 'admin@consultoriawk.com');
-            $auditCollection = collect($audits);
+            $auditCollection = $audits;
 
             // Enviar IMEDIATAMENTE para teste (não na fila)
             Mail::to($recipientEmail)->send(
@@ -43,7 +42,7 @@ class LoginAuditController extends Controller
                 'records_sent' => count($audits),
                 'triggered_by' => $user->email,
                 'mail_driver' => config('mail.default'),
-                'mail_host' => config('mail.mailers.' . config('mail.default') . '.host'),
+                'mail_host' => config('mail.mailers.' . config('mail.default') . '.host', 'log driver'),
             ]);
         } catch (\Exception $e) {
             \Log::error('Erro ao enviar email de teste', [
