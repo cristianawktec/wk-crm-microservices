@@ -320,18 +320,15 @@ class AiController extends Controller
 
             // Call FastAPI ai/opportunity-insights endpoint
             $response = $this->callAiService('ai/opportunity-insights', $data);
-            
-            if ($response && is_array($response)) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $response,
-                ]);
+
+            if (!$response || !is_array($response)) {
+                $response = $this->fallbackInsights($data, 'AI service unavailable');
             }
 
             return response()->json([
-                'success' => false,
-                'message' => 'Falha ao analisar oportunidade',
-            ], 400);
+                'success' => true,
+                'data' => $response,
+            ]);
         } catch (\Exception $e) {
             \Log::error('[AiController@opportunityInsights] ERROR', [
                 'message' => $e->getMessage(),
@@ -343,5 +340,23 @@ class AiController extends Controller
                 'message' => 'Erro ao processar análise: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function fallbackInsights(array $data, string $reason): array
+    {
+        $summary = 'Fallback IA: ' . $reason;
+        if (!empty($data['title'])) {
+            $summary .= ' (' . $data['title'] . ')';
+        }
+
+        return [
+            'risk_score' => 0.5,
+            'risk_label' => 'unknown',
+            'next_action' => 'Reengajar o cliente com mais contexto',
+            'recommendation' => 'Verifique o serviço de IA e tente novamente.',
+            'summary' => $summary,
+            'model' => 'fallback',
+            'cached' => true,
+        ];
     }
 }

@@ -3,6 +3,7 @@ $ErrorActionPreference = 'Stop'
 
 $root = 'C:\xampp\htdocs\wk-crm-microservices'
 $adminScript = Join-Path $root 'scripts\start-admin-frontend.ps1'
+$customerScript = Join-Path $root 'scripts\start-customer-app.ps1'
 $logDir = Join-Path $root 'logs'
 $logFile = Join-Path $logDir 'startup.log'
 
@@ -38,4 +39,8 @@ $ErrorActionPreference = $prevPreference
 
 if (Test-Path $adminScript) {
     Start-Process -FilePath 'powershell.exe' -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$adminScript`"" -WindowStyle Hidden
+}
+
+if (Test-Path $customerScript) {
+    Start-Process -FilePath 'powershell.exe' -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$customerScript`"" -WindowStyle Hidden
 }

@@ -1,5 +1,6 @@
 import os
 from typing import Optional
+import concurrent.futures
 
 import google.generativeai as genai
 from fastapi import FastAPI
@@ -55,10 +56,11 @@ def get_model():
         if model_override:
             model_names.append(model_override)
         model_names.extend([
-            "models/gemini-pro-latest",
-            "models/gemini-flash-latest",
-            "models/gemini-2.0-flash-001",
+            "models/gemini-flash-latest",    # Current working model
             "models/gemini-2.5-flash",
+            "models/gemini-2.0-flash-001",
+            "gemini-2.0-flash",
+            "models/gemini-pro-latest",
         ])
         for model_name in model_names:
             try:
@@ -135,10 +137,29 @@ def generate_insight(payload: OpportunityInput) -> OpportunityInsight:
     prompt = build_prompt(payload)
     try:
         print(f"Calling Gemini for opportunity: {payload.title}")
-        result = model.generate_content(prompt)
+        timeout_seconds = int(os.getenv("GEMINI_TIMEOUT_SECONDS", "12"))
+        generation_config = {
+            "temperature": 0.3,
+            "max_output_tokens": 256,
+        }
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(model.generate_content, prompt, generation_config)
+            result = future.result(timeout=timeout_seconds)
         text = result.text or "{}"
         print(f"Gemini response received: {text[:100]}...")
         return parse_response(text)
+    except concurrent.futures.TimeoutError:
+        print("ERROR: Gemini request timed out")
+        return OpportunityInsight(
+            risk_score=0.5,
+            risk_label="unknown",
+            next_action="Solicitar mais contexto ao cliente",
+            recommendation="Tente novamente; o provedor de IA demorou para responder.",
+            summary="Falha por timeout no provedor; usando fallback.",
+            model="gemini-timeout",
+            cached=True,
+        )
     except Exception as e:
         print(f"ERROR calling Gemini: {str(e)}")
         import traceback
@@ -183,9 +204,23 @@ def generate_chat_response(question: str, context: Optional[dict] = None) -> str
                 "O serviço de IA não está configurado. "
                 "Por favor, tente novamente mais tarde ou entre em contato com o suporte."
             )
-        
-        result = model.generate_content(prompt)
+
+        timeout_seconds = int(os.getenv("GEMINI_TIMEOUT_SECONDS", "12"))
+        generation_config = {
+            "temperature": 0.3,
+            "max_output_tokens": 256,
+        }
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(model.generate_content, prompt, generation_config)
+            result = future.result(timeout=timeout_seconds)
+
         return result.text or "Não consegui gerar uma resposta."
+    except concurrent.futures.TimeoutError:
+        return (
+            "O provedor de IA demorou para responder. "
+            "Tente novamente em alguns instantes."
+        )
     except Exception as e:
         print(f"Error generating chat response: {str(e)}")
         return (

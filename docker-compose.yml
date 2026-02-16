@@ -84,6 +84,7 @@ services:
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - GEMINI_MODEL=models/gemini-flash-latest
+      - GEMINI_TIMEOUT_SECONDS=12
     networks:
       - wk_network
 

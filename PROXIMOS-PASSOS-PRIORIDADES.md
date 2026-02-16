@@ -1,7 +1,7 @@
 # 🎯 Próximos Passos - Prioridades de Desenvolvimento
 
 **Data:** 11 de dezembro de 2025  
-**Última atualização:** 2 de janeiro de 2026  
+**Última atualização:** 16 de fevereiro de 2026  
 **Status Geral:** Prioridades 1, 2 e 3 = 100% funcional | Prioridades 4, 5 = Pendentes  
 **Versão:** 1.1.0 - AI Chatbot + Trend Analysis + Deploy
 
@@ -256,6 +256,10 @@ Usar serviço Python FastAPI com Google Gemini para insights automáticos.
 - ✅ **Access control**: Admin pode visualizar suas oportunidades via customer app
 - ✅ **Login rápido**: Cria oportunidades demo para admin e customer com notificações vinculadas
 
+### 🔧 Observação Operacional (16/02/2026)
+- ⚠️ **Instabilidade do provedor Gemini**: algumas chamadas retornam timeout (504/latência).
+- ✅ **Mitigação local**: timeout configurável no AI service para evitar travas na UI e fallback gracioso.
+
 ---
 
 ## 🎯 PLANO DE EXECUÇÃO - Próximas Sprints
@@ -456,7 +460,7 @@ POST /api/reports/export-excel
 ---
 
 **Criado em:** 11/12/2025  
-**Última atualização:** 24/01/2026  
+**Última atualização:** 16/02/2026  
 **Por:** GitHub Copilot  
 **Versão:** 1.2 - Plano de Sprints com Branches
 
