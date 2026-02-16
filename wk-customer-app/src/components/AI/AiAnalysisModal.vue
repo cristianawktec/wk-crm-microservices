@@ -243,9 +243,7 @@ async function analyzeOpportunity() {
     const normalized = {
       risk_score: normalizedScore,
       risk_label: (rawAnalysis.risk_label ?? rawAnalysis.riskLabel ?? rawAnalysis.risk_level ?? rawAnalysis.riskLevel ?? 'Desconhecido').toString(),
-      summary: isFallback.value
-        ? 'Instabilidade do provedor de IA; exibindo resposta de contingencia.'
-        : (rawAnalysis.summary ?? rawAnalysis.overview ?? rawAnalysis.description ?? ''),
+      summary: rawAnalysis.summary ?? rawAnalysis.overview ?? rawAnalysis.description ?? '',
       next_action: rawAnalysis.next_action ?? rawAnalysis.nextAction ?? rawAnalysis.action ?? '',
       recommendation: rawAnalysis.recommendation ?? rawAnalysis.recommendations ?? rawAnalysis.tip ?? '',
       insights: Array.isArray(rawAnalysis.insights)
