@@ -49,5 +49,5 @@ return [
     ],
     
     // Auditoria de Login
-    'audit_recipient' => env('MAIL_AUDIT_RECIPIENT', 'admin@consultoria.com.br'),
+    'audit_recipient' => env('MAIL_AUDIT_RECIPIENT', 'admin@consultoriawk.com'),
 ];

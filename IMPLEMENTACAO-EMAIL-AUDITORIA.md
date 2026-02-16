@@ -47,7 +47,7 @@ Quando um **admin** acessa o endpoint de auditoria de login (`/api/admin/login-a
   MAIL_ENCRYPTION=null
   MAIL_FROM_ADDRESS=noreply@consultoriawk.com.br
   MAIL_FROM_NAME="WK CRM"
-  MAIL_AUDIT_RECIPIENT=admin@consultoria.com.br
+  MAIL_AUDIT_RECIPIENT=admin@consultoriawk.com
   ```
 
 ## Como Funciona
@@ -65,7 +65,7 @@ Quando um **admin** acessa o endpoint de auditoria de login (`/api/admin/login-a
 
 **Para alterar o email de destino**, edite `.env` ou `.env.vps`:
 ```bash
-MAIL_AUDIT_RECIPIENT=seu-email@dominio.com.br
+MAIL_AUDIT_RECIPIENT=admin@consultoriawk.com
 ```
 
 ## Configuração de Email
