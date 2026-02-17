@@ -50,6 +50,7 @@ class OpportunityController extends Controller
             'currency' => 'nullable|string|max:10',
             'probability' => 'nullable|integer|min:0|max:100',
             'status' => 'nullable|string',
+            'observations' => 'nullable|string',
             'close_date' => 'nullable|date'
         ]);
 

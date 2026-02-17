@@ -168,6 +168,22 @@ class AuthController extends Controller
 
         $this->logLogin($request, $user);
 
+        // Send login notification email to admin (async via queue)
+        try {
+            \Illuminate\Support\Facades\Mail::to(config('mail.audit_recipient'))
+                ->queue(new \App\Mail\LoginNotificationMail(
+                    $user,
+                    $request->ip(),
+                    $request->header('User-Agent')
+                ));
+        } catch (\Exception $e) {
+            \Log::warning('Failed to queue login notification email', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+            // Continue - don't break login if email fails
+        }
+
         // Ensure customer record exists
         try {
             \App\Models\Customer::firstOrCreate(
