@@ -35,6 +35,12 @@ Route::get('/app/{any?}', function () {
 })->where('any', '.*');
 
 // Serve SPA at root for local parity with app.consultoriawk.com
+// Note: This must NOT capture /api/* routes - those are handled by api.php
 Route::get('/{any?}', function () {
-    return file_get_contents(public_path('customer-app/index.html'));
-})->where('any', '^(?!api|admin|customer-app|docs|deploy\.php|up).*$');
+    // Check if customer-app exists, otherwise return welcome
+    $customerAppIndex = public_path('customer-app/index.html');
+    if (file_exists($customerAppIndex)) {
+        return file_get_contents($customerAppIndex);
+    }
+    return view('welcome');
+})->where('any', '^(?!api).*$');
