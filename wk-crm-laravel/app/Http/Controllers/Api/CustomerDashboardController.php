@@ -59,45 +59,6 @@ class CustomerDashboardController extends Controller
                 'timestamp' => $opp->updated_at->toIso8601String(),
                 'icon' => 'briefcase'
             ]);
-
-        // Demo fallback when não há dados reais
-        if ($totalOpportunities === 0) {
-            $demoOpps = [
-                [
-                    'id' => 'demo-1',
-                    'title' => 'Implantação CRM - Fase 1',
-                    'value' => 45000,
-                    'status' => 'Em Negociação',
-                    'probability' => 40,
-                    'seller' => 'Equipe WK',
-                    'created_at' => now()->subDays(5)->toIso8601String(),
-                    'notes' => 'Escopo inicial, aguardando aprovação de proposta.'
-                ],
-                [
-                    'id' => 'demo-2',
-                    'title' => 'Treinamento Times Comerciais',
-                    'value' => 18000,
-                    'status' => 'Proposta Enviada',
-                    'probability' => 55,
-                    'seller' => 'Equipe WK',
-                    'created_at' => now()->subDays(10)->toIso8601String(),
-                    'notes' => 'Pacote de workshops + playbook de vendas.'
-                ]
-            ];
-
-            $totalOpportunities = count($demoOpps);
-            $totalValue = collect($demoOpps)->sum('value');
-            $openOpportunities = 2;
-            $avgProbability = (int) round(collect($demoOpps)->avg('probability'));
-            $activities = collect($demoOpps)->map(fn($opp) => [
-                'id' => $opp['id'],
-                'type' => 'opportunity',
-                'title' => 'Oportunidade: ' . $opp['title'],
-                'description' => 'Status: ' . $opp['status'] . ' | Valor: R$ ' . number_format($opp['value'], 2, ',', '.'),
-                'timestamp' => $opp['created_at'],
-                'icon' => 'briefcase'
-            ]);
-        }
         
         return response()->json([
             'success' => true,
@@ -231,34 +192,6 @@ class CustomerDashboardController extends Controller
             'created_at' => $opp->created_at->toIso8601String(),
             'notes' => $opp->description ?? ''
         ]);
-
-        // Demo fallback apenas quando não há oportunidades reais E não há filtros aplicados
-        if ($formattedOpps->isEmpty() && !$hasFilters) {
-            $formattedOpps = collect([
-                [
-                    'id' => 'demo-1',
-                    'title' => 'Implantação CRM - Fase 1',
-                    'value' => 45000,
-                    'status' => 'Em Negociação',
-                    'probability' => 40,
-                    'seller_id' => null,
-                    'seller' => 'Equipe WK',
-                    'created_at' => now()->subDays(5)->toIso8601String(),
-                    'notes' => 'Escopo inicial, aguardando aprovação de proposta.'
-                ],
-                [
-                    'id' => 'demo-2',
-                    'title' => 'Treinamento Times Comerciais',
-                    'value' => 18000,
-                    'status' => 'Proposta Enviada',
-                    'probability' => 55,
-                    'seller_id' => null,
-                    'seller' => 'Equipe WK',
-                    'created_at' => now()->subDays(10)->toIso8601String(),
-                    'notes' => 'Pacote de workshops + playbook de vendas.'
-                ]
-            ]);
-        }
         
         return response()->json([
             'success' => true,
