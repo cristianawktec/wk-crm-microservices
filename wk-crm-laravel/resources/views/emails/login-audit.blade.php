@@ -52,9 +52,9 @@
               <td>{{ $audit->user->name ?? $audit->user_id ?? '-' }}</td>
               <td>{{ $audit->user->email ?? '-' }}</td>
               <td><code>{{ $audit->ip_address ?? '-' }}</code></td>
-              <td>{{ $audit->user_agent_browser ?? '-' }}</td>
-              <td>{{ $audit->user_agent_os ?? '-' }}</td>
-              <td>{{ $audit->device_type ?? '-' }}</td>
+              <td>{{ $audit->browser ?? '-' }}</td>
+              <td>{{ $audit->platform ?? '-' }}</td>
+              <td>{{ $audit->device ?? '-' }}</td>
               <td><code>{{ $audit->route ?? '-' }}</code></td>
             </tr>
           @empty

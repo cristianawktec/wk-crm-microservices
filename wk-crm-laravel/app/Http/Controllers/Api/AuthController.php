@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\LoginAudit;
 use App\Models\User;
+use App\Mail\LoginAuditMail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -166,18 +168,19 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        $this->logLogin($request, $user);
+        $audit = $this->logLogin($request, $user);
 
-        // Send login notification email to admin (async via queue)
+        // Send login audit report email to admin (sync to avoid queue dependency)
         try {
-            \Illuminate\Support\Facades\Mail::to(config('mail.audit_recipient'))
-                ->queue(new \App\Mail\LoginNotificationMail(
-                    $user,
-                    $request->ip(),
-                    $request->header('User-Agent')
-                ));
+            $recipient = config('mail.audit_recipient', 'admin@consultoriawk.com');
+            if (!empty($recipient) && $audit) {
+                $audit->loadMissing('user:id,name,email');
+                Mail::to($recipient)->send(
+                    new LoginAuditMail(collect([$audit]), $recipient, $user->email)
+                );
+            }
         } catch (\Exception $e) {
-            \Log::warning('Failed to queue login notification email', [
+            \Log::warning('Failed to send login audit email', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);
@@ -215,13 +218,13 @@ class AuthController extends Controller
         ], 200);
     }
 
-    private function logLogin(Request $request, User $user): void
+    private function logLogin(Request $request, User $user): ?LoginAudit
     {
         try {
             $userAgent = (string) $request->header('User-Agent', '');
             $parsed = $this->parseUserAgent($userAgent);
 
-            LoginAudit::create([
+            $audit = LoginAudit::create([
                 'user_id' => $user->id,
                 'ip_address' => $request->ip(),
                 'platform' => $parsed['platform'],
@@ -233,11 +236,14 @@ class AuthController extends Controller
                 'user_agent' => $userAgent,
                 'logged_in_at' => now(),
             ]);
+
+            return $audit;
         } catch (\Throwable $e) {
             \Log::warning('Failed to write login audit', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);
+            return null;
         }
     }
 
