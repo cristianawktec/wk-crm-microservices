@@ -131,14 +131,30 @@ const isAdmin = computed(() => {
   return email === 'admin@consultoriawk.com' || email === 'admin-test@wkcrm.local'
 })
 
+const isCustomer = computed(() => {
+  const user: any = authStore.user || {}
+  const roles = Array.isArray(user.roles) ? user.roles : []
+  const role = user.role || ''
+
+  // Customer é identificado por ter role 'customer' ou não ter roles de admin/manager
+  return roles.includes('customer') || role === 'customer' || (!roles.includes('admin') && !roles.includes('manager') && role !== 'admin' && role !== 'manager')
+})
+
 const menuItems = computed<MenuItem[]>(() => {
   const items: MenuItem[] = [
     { name: 'Dashboard', path: '/', label: 'Dashboard', icon: HomeIcon },
-    { name: 'Opportunities', path: '/opportunities', label: 'Oportunidades', icon: ChartBarIcon },
-    { name: 'Notifications', path: '/notifications', label: 'Notificações', icon: BellIcon },
+    { name: 'Opportunities', path: '/opportunities', label: 'Oportunidades', icon: ChartBarIcon }
+  ]
+
+  // Notificações apenas para admin e managers (não para customers)
+  if (!isCustomer.value) {
+    items.push({ name: 'Notifications', path: '/notifications', label: 'Notificações', icon: BellIcon })
+  }
+
+  items.push(
     { name: 'Trends', path: '/trends', label: 'Análise de Tendências', icon: ChartBarIcon },
     { name: 'Profile', path: '/profile', label: 'Meu Perfil', icon: UserCircleIcon }
-  ]
+  )
 
   if (isAdmin.value) {
     items.push({
