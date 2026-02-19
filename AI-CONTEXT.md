@@ -30,4 +30,12 @@ Baseado em PROXIMOS-PASSOS-PRIORIDADES.md:
 - Sprint 4: Permissões granulares (nova branch)
 - Sprint 5: Auditoria estendida (nova branch)
 
+## Cuidados a seguir
+- Cuidar ao fazer qualquer alteração para não quebrar a estabilidade atual
+- Testar localmente antes de pushar
+- Nunca e jamais deletar qualquer dados do banco de dados sem backup prévio
+- Antes de excluir containers antigos, verificar logs e dados persistentes para nao perder informações importantes
+- Manter comunicação clara no time sobre o status de cada task e possíveis bloqueios
+
 # Depois, no chat novo, comece com: Leia o arquivo AI-CONTEXT.md e continue exatamente de onde paramos. Não reexplique contexto já documentado.
+
