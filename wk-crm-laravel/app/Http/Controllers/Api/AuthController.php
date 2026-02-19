@@ -190,9 +190,9 @@ class AuthController extends Controller
         // Ensure customer record exists
         try {
             \App\Models\Customer::firstOrCreate(
-                ['email' => $user->email],
+                ['id' => $user->id],
                 [
-                    'id' => $user->id,
+                    'email' => $user->email,
                     'name' => $user->name,
                     'phone' => '000000000'
                 ]
