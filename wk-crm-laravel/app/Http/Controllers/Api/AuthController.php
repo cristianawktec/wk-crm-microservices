@@ -168,35 +168,51 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Log login audit (safe - audit table is designed for this)
         $audit = $this->logLogin($request, $user);
+        \Log::info('Login audit created', ['audit_id' => $audit ? $audit->id : 'null']);
 
         // Send login audit report email to admin (sync to avoid queue dependency)
         try {
             $recipient = config('mail.audit_recipient', 'admin@consultoriawk.com');
+            \Log::info('Attempting to send login audit email', [
+                'recipient' => $recipient,
+                'has_audit' => !empty($audit),
+                'user_email' => $user->email
+            ]);
+            
             if (!empty($recipient) && $audit) {
                 $audit->loadMissing('user:id,name,email');
                 Mail::to($recipient)->send(
                     new LoginAuditMail(collect([$audit]), $recipient, $user->email)
                 );
+                \Log::info('Login audit email sent successfully', ['recipient' => $recipient]);
+            } else {
+                \Log::warning('Login audit email NOT sent', [
+                    'recipient_empty' => empty($recipient),
+                    'audit_empty' => empty($audit)
+                ]);
             }
         } catch (\Exception $e) {
-            \Log::warning('Failed to send login audit email', [
+            \Log::error('Failed to send login audit email - EXCEPTION', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
             // Continue - don't break login if email fails
         }
 
         // Ensure customer record exists
+        // SAFE: Only creates if customer doesn't exist, never modifies existing opportunities
         try {
-            \App\Models\Customer::firstOrCreate(
-                ['id' => $user->id],
-                [
+            $customer = \App\Models\Customer::find($user->id);
+            if (!$customer) {
+                \App\Models\Customer::create([
+                    'id' => $user->id,
                     'email' => $user->email,
                     'name' => $user->name,
-                    'phone' => '000000000'
-                ]
-            );
+                ]);
+            }
         } catch (\Exception $e) {
             \Log::error('Error creating customer record: ' . $e->getMessage());
             // Continue even if customer creation fails
