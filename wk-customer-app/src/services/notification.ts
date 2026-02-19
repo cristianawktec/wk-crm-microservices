@@ -24,7 +24,16 @@ const SSE_BASE_RETRY_INTERVAL = 10000 // 10 seconds, increases exponentially
 
 export function useNotificationService() {
   const toast = useToast()
-  const apiUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '')
+  
+  // Runtime API URL detection - ALWAYS use localhost:8000 for local development
+  const getApiUrl = (): string => {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      return 'http://localhost:8000'
+    }
+    return (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '')
+  }
+  
+  const apiUrl = getApiUrl()
 
   /**
    * Initialize notification service

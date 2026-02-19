@@ -1,9 +1,15 @@
 import axios, { type AxiosInstance } from 'axios'
 
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+// Runtime API URL detection - ALWAYS use localhost:8000 for local development
+const getApiBase = (): string => {
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:8000'
+  }
+  return (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+}
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: `${apiBase}/api`,
+  baseURL: `${getApiBase()}/api`,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
