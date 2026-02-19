@@ -49,12 +49,20 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     error.value = null
     try {
+      // Determine API URL - always use localhost:8000 for development
+      const apiUrl = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+        ? 'http://localhost:8000'
+        : (import.meta.env.VITE_API_URL || 'http://localhost:8000')
+      
       // Send as form-urlencoded to match API expectations
       const form = new URLSearchParams()
       form.append('email', email)
       form.append('password', password)
       
-      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '') + '/api/auth/login', {
+      const loginUrl = apiUrl.replace(/\/$/, '') + '/api/auth/login'
+      console.log('🔗 Login URL:', loginUrl)
+      
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

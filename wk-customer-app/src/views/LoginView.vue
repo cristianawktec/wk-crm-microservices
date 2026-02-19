@@ -139,11 +139,11 @@ const quickLogin = async (email: string, password: string, label: string) => {
 }
 
 const handleQuickLogin = async () => {
-  await quickLogin('customer@consultoriawk.com', 'password123', 'cliente')
+  await quickLogin('customer@consultoriawk.com', '123456', 'cliente')
 }
 
 const handleQuickAdminLogin = async () => {
-  await quickLogin('admin@consultoriawk.com', 'password123', 'admin')
+  await quickLogin('admin@consultoriawk.com', 'Admin@2025', 'admin')
 }
 
 </script>
