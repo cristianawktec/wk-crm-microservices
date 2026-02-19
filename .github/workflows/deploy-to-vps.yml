@@ -3,9 +3,48 @@ name: deploy-to-vps
 on:
   push:
     branches: ["main"]
+    paths:
+      - '.github/workflows/deploy-to-vps.yml'
+      - 'wk-crm-laravel/**'
+      - 'wk-gateway/**'
+      - 'wk-admin-frontend/**'
+      - 'docker-compose.yml'
+
+concurrency:
+  group: deploy-to-vps
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      laravel: ${{ steps.filter.outputs.laravel }}
+      gateway: ${{ steps.filter.outputs.gateway }}
+      admin: ${{ steps.filter.outputs.admin }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect changed services
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            laravel:
+              - 'wk-crm-laravel/**'
+              - 'docker-compose.yml'
+              - '.github/workflows/deploy-to-vps.yml'
+            gateway:
+              - 'wk-gateway/**'
+              - 'docker-compose.yml'
+              - '.github/workflows/deploy-to-vps.yml'
+            admin:
+              - 'wk-admin-frontend/**'
+              - '.github/workflows/deploy-to-vps.yml'
+
+  deploy-laravel:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.laravel == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -121,5 +160,84 @@ jobs:
                 docker-compose exec -T wk-crm-laravel php artisan route:cache
               fi
               exit 1
+            fi
+          EOF
+
+  deploy-gateway:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.gateway == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy gateway on VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y sshpass
+          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'EOF'
+            set -e
+            cd /opt/wk-crm
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            if [ -f docker-compose.yml ] && grep -qE '^\s*wk-gateway:\s*$' docker-compose.yml; then
+              docker-compose up -d --build --no-deps wk-gateway
+            else
+              echo "ℹ️ Serviço wk-gateway não encontrado no docker-compose.yml; sync de código concluído."
+            fi
+          EOF
+
+  deploy-admin-frontend:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.admin == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'wk-admin-frontend/package-lock.json'
+
+      - name: Build admin frontend
+        working-directory: wk-admin-frontend
+        run: |
+          npm ci
+          npm run build:prod
+
+      - name: Package admin build
+        run: |
+          tar -czf /tmp/wk-admin-frontend_dist.tar.gz -C wk-admin-frontend/dist/admin-frontend .
+
+      - name: Upload and deploy admin frontend
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y sshpass
+          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no \
+            /tmp/wk-admin-frontend_dist.tar.gz \
+            $VPS_USER@$VPS_HOST:/tmp/
+
+          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'EOF'
+            set -e
+            TARGET_DIR="/var/www/consultoriawk-crm/admin"
+
+            mkdir -p "$TARGET_DIR"
+            rm -rf "$TARGET_DIR"/*
+            tar -xzf /tmp/wk-admin-frontend_dist.tar.gz -C "$TARGET_DIR"
+            rm -f /tmp/wk-admin-frontend_dist.tar.gz
+
+            chown -R www-data:www-data "$TARGET_DIR"
+            if command -v nginx >/dev/null 2>&1; then
+              nginx -t && systemctl reload nginx
             fi
           EOF
