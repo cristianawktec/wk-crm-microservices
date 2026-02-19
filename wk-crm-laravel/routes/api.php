@@ -58,12 +58,41 @@ Route::get('/info', function () {
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-// Quick-login endpoint removed to prevent unintended user creation
+// Quick-login endpoint - Apenas em desenvolvimento local
 Route::get('/auth/test-customer', function () {
+    // Only allow on localhost for development
+    if (!in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1'])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Endpoint only available in development.'
+        ], 403);
+    }
+
+    $role = request()->query('role', 'customer');
+    $name = $role === 'admin' ? 'Admin WK' : 'Customer Test';
+    $email = $role === 'admin' ? 'admin@consultoriawk.com' : 'customer@consultoriawk.com';
+
+    // Create or update test user
+    $user = \App\Models\User::updateOrCreate(
+        ['email' => $email],
+        [
+            'name' => $name,
+            'email' => $email,
+            'role' => $role,
+            'password' => bcrypt('password123')
+        ]
+    );
+
+    // Generate token
+    $token = $user->createToken('test-token')->plainTextToken;
+
     return response()->json([
-        'success' => false,
-        'message' => 'Endpoint desativado.'
-    ], 410);
+        'success' => true,
+        'token' => $token,
+        'user' => $user,
+        'name' => $user->name,
+        'role' => $user->role
+    ], 200);
 });
 
 // CRUD routes with authentication - Protegido com auth:sanctum
