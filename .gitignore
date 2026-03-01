@@ -52,6 +52,9 @@ wk-ai-service/PHASE1-COMPLETE.md
 **/*.sh
 **/*.txt
 **/*.zip
+**/*.ps1
+**/*.bat
+**/*.gz
 
 # Exceção necessária para build do AI service
 !wk-ai-service/requirements.txt
