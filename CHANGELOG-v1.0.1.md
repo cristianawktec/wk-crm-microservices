@@ -83,24 +83,13 @@ A partir desta versão, **todas as novas tasks seguem o modelo:**
 
 ---
 
-## 📊 Próximos Passos (Alinhado com PROXIMOS-PASSOS-PRIORIDADES.md)
+## 📊 Próximos Passos
 
-### Prioridade 1, 2 e 3: ✅ Concluídas
-- Reports & Analytics (Chart.js, KPIs)
-- Sistema de Notificações (SSE, Email)
-- Integrações de IA (Chatbot, Trends)
+Para evitar divergência entre documentos, o planejamento oficial e atualizado de roadmap está centralizado em:
 
-### Prioridade 4: ✅ Admin Simple (AdminLTE) - Concluído
-- Modal de edição funcional
-- Validação + toasts animados
+- `PROXIMOS-PASSOS-PRIORIDADES.md`
 
-### Prioridade 5: ⏳ Pendente
-1. **Testes Unitários** (em andamento - branch `feature/unit-tests`)
-   - 57+ testes criados (Laravel 22, Vue 35+)
-   - Falta: Angular tests, CI/CD integration
-2. **Paginação** (TODO)
-3. **Permissões Granulares** (TODO)
-4. **Auditoria Estendida** (TODO)
+Este changelog mantém apenas histórico de versão e mudanças realizadas.
 
 ---
 
@@ -108,7 +97,7 @@ A partir desta versão, **todas as novas tasks seguem o modelo:**
 
 **Versão anterior:** 1.0.0 (implícita)  
 **Versão atual:** 1.0.1  
-**Próxima versão:** 1.0.2 (após conclusão de Sprint 2 - Testes)
+**Próxima versão:** Definida conforme roadmap canônico em `PROXIMOS-PASSOS-PRIORIDADES.md`
 
 ### Convenção Adotada
 - **MAJOR.MINOR.PATCH** (Semantic Versioning)

@@ -190,11 +190,11 @@ crontab -e
 
 ## 🎯 Próximos Passos
 
-1. ✅ **Deploy Completo** - Todos os arquivos sincronizados
-2. ✅ **AdminLTE Funcionando** - Interface responsiva ativa
-3. ✅ **API Laravel Ativa** - Endpoints DDD funcionais
-4. 🔄 **SSL Configurado** - HTTPS ativo
-5. 📊 **Monitoramento** - Logs e métricas
+Para manter uma única fonte de verdade sobre prioridades e roadmap, consulte:
+
+- `PROXIMOS-PASSOS-PRIORIDADES.md`
+
+Neste guia de deploy, mantenha apenas instruções operacionais de publicação.
 
 ---
 
