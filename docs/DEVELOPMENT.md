@@ -364,6 +364,28 @@ php artisan migrate:fresh --seed
 - [FastAPI Documentation](https://fastapi.tiangolo.com)
 - [Docker Documentation](https://docs.docker.com)
 
+## 📝 Registro de Melhorias (Contribuidores)
+
+Sempre que abrir um PR, adicione uma entrada nesta seção com o resumo da contribuição.
+
+### Template obrigatório
+
+```markdown
+- Data: YYYY-MM-DD
+- Autor: @seu-usuario
+- Tipo: feat | fix | refactor | docs | chore | test
+- Resumo: descrição curta da melhoria entregue
+- Arquivos principais: caminho/arquivo1, caminho/arquivo2
+```
+
+### Entradas
+
+- Data: 2026-03-01
+- Autor: @cristianawktec
+- Tipo: docs
+- Resumo: padronização do fluxo de contribuição com exigência de registro de melhorias por PR.
+- Arquivos principais: README.md, docs/DEVELOPMENT.md
+
 ---
 
 **Happy Coding! 🚀**
