@@ -34,7 +34,6 @@ wk-crm-laravel/.env
 !/WORKFLOW-CI-CD.md
 !/CONVENCAO-BRANCHES.md
 !/PROXIMOS-PASSOS-PRIORIDADES.md
-!/PROXIMOS-PASSOS-PRIORIDADES.en.md
 
 # Mantém documentação estruturada em pastas
 !/.github/copilot-instructions.md
