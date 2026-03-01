@@ -104,7 +104,5 @@ docker compose up -d postgres redis wk-crm-laravel
 - Admin panel AdminLTE
 
 ⭐ **Próximos Passos:**
-1. Iniciar Docker Desktop
-2. Executar containers
-3. Testar todos os microservices
-4. Conectar frontends às APIs
+- Para prioridades de produto e roadmap: `PROXIMOS-PASSOS-PRIORIDADES.md`
+- Para este documento: focar apenas no setup/execução Docker e verificação técnica dos serviços

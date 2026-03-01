@@ -162,24 +162,8 @@ echo "✅ Rollback concluído!"
 
 ## 🎯 Próximos Passos
 
-### **Fase 1: SSL Fix (Atual)**
-1. Criar branch `feature/ssl-certificate-fix`
-2. Diagnosticar e corrigir SSL
-3. Implementar renovação automática
-4. Code review e merge
+Para evitar duplicação de planejamento entre documentos, o roadmap oficial está centralizado em:
 
-### **Fase 2: CI/CD Pipeline**
-1. Configurar GitHub Actions
-2. Implementar deploy automático
-3. Configurar testes automatizados
-4. Setup de monitoramento
+- `PROXIMOS-PASSOS-PRIORIDADES.md`
 
-### **Fase 3: Infraestrutura**
-1. Docker production
-2. Load balancer
-3. Database replication
-4. Backup automático
-
----
-
-**🚀 Vamos começar com a Fase 1: SSL Fix!**
+Este documento deve descrever exclusivamente fluxo e padrão de CI/CD.
