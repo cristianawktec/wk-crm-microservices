@@ -83,7 +83,7 @@ A partir desta versão, **todas as novas tasks seguem o modelo:**
 
 ---
 
-## 📊 Próximos Passos
+## 📊 Referência de Roadmap
 
 Para evitar divergência entre documentos, o planejamento oficial e atualizado de roadmap está centralizado em:
 
@@ -97,7 +97,7 @@ Este changelog mantém apenas histórico de versão e mudanças realizadas.
 
 **Versão anterior:** 1.0.0 (implícita)  
 **Versão atual:** 1.0.1  
-**Próxima versão:** Definida conforme roadmap canônico em `PROXIMOS-PASSOS-PRIORIDADES.md`
+**Próxima versão:** Definida conforme o roadmap canônico em `PROXIMOS-PASSOS-PRIORIDADES.md`
 
 ### Convenção Adotada
 - **MAJOR.MINOR.PATCH** (Semantic Versioning)

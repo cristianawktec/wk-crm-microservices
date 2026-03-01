@@ -103,6 +103,6 @@ docker compose up -d postgres redis wk-crm-laravel
 - Endpoints em português
 - Admin panel AdminLTE
 
-⭐ **Próximos Passos:**
+⭐ **Referência de Roadmap:**
 - Para prioridades de produto e roadmap: `PROXIMOS-PASSOS-PRIORIDADES.md`
 - Para este documento: focar apenas no setup/execução Docker e verificação técnica dos serviços

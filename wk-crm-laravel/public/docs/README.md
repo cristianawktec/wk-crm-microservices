@@ -45,7 +45,7 @@ Verificações pós-publicação
 Rollback
 - Se algo falhar, restaure a pasta `public/docs` a partir do backup criado antes do deploy, ou remova os arquivos e recarregue o Nginx.
 
-Próximos passos recomendados
+Referência de roadmap
 - Roadmap oficial do projeto: `PROXIMOS-PASSOS-PRIORIDADES.md`
 - Neste documento, manter apenas passos técnicos de publicação da documentação OpenAPI.
 

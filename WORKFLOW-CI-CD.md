@@ -160,7 +160,7 @@ echo "✅ Rollback concluído!"
 
 ---
 
-## 🎯 Próximos Passos
+## 🎯 Referência de Roadmap
 
 Para evitar duplicação de planejamento entre documentos, o roadmap oficial está centralizado em:
 
