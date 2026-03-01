@@ -23,3 +23,35 @@ wk-crm-laravel/.env
 
 # Build outputs
 **/dist/
+
+# Curadoria de documentação para repositório público
+# Ignora .md operacionais na raiz (mantém apenas docs principais)
+/*.md
+!/README.md
+!/CHANGELOG-v1.0.1.md
+!/DEPLOY_GUIDE.md
+!/DOCKER-SETUP.md
+!/WORKFLOW-CI-CD.md
+!/CONVENCAO-BRANCHES.md
+!/PROXIMOS-PASSOS-PRIORIDADES.md
+!/PROXIMOS-PASSOS-PRIORIDADES.en.md
+
+# Mantém documentação estruturada em pastas
+!/.github/copilot-instructions.md
+!/docs/*.md
+!/wk-crm-laravel/README.md
+!/wk-api-simple/README.md
+!/wk-ai-service/README.md
+!/wk-crm-laravel/public/docs/README.md
+
+# Ignora markdowns internos de status/fix em submódulos
+wk-ai-service/AI-SERVICE-FIX.md
+wk-ai-service/PHASE1-COMPLETE.md
+
+# Artefatos operacionais e sensíveis para repositório público
+**/*.sh
+**/*.txt
+**/*.zip
+
+# Exceção necessária para build do AI service
+!wk-ai-service/requirements.txt
