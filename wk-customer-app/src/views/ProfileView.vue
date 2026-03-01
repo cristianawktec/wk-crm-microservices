@@ -6,9 +6,39 @@
       <!-- Avatar Card -->
       <div class="lg:col-span-1">
         <div class="bg-white rounded-xl shadow-sm p-6 text-center">
-          <div class="w-32 h-32 mx-auto bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4">
-            {{ userInitials }}
+          <div class="w-32 h-32 mx-auto mb-4">
+            <img
+              v-if="profile.avatar"
+              :src="profile.avatar"
+              alt="Avatar"
+              class="w-32 h-32 rounded-full object-cover"
+            />
+            <div
+              v-else
+              class="w-32 h-32 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-4xl font-bold"
+            >
+              {{ userInitials }}
+            </div>
           </div>
+
+          <input
+            ref="avatarInput"
+            type="file"
+            accept="image/png,image/jpeg,image/jpg"
+            class="hidden"
+            @change="handleAvatarChange"
+          />
+
+          <button
+            type="button"
+            @click="openAvatarPicker"
+            :disabled="avatarLoading"
+            class="mb-4 px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span v-if="!avatarLoading">Trocar imagem</span>
+            <span v-else>Enviando...</span>
+          </button>
+
           <h2 class="text-xl font-bold text-gray-900">{{ profile.name }}</h2>
           <p class="text-gray-600 mt-1">{{ profile.email }}</p>
           <div v-if="profile.company" class="mt-4 px-4 py-2 bg-indigo-50 rounded-lg">
@@ -111,20 +141,63 @@
 import { ref, computed, onMounted } from 'vue'
 import { api } from '../services/api'
 import { useToast } from 'vue-toastification'
+import { useAuthStore } from '../stores/auth'
 import type { User } from '../types'
 
 const toast = useToast()
+const authStore = useAuthStore()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const success = ref(false)
+const avatarLoading = ref(false)
+const avatarInput = ref<HTMLInputElement | null>(null)
 
 const profile = ref<User>({
   id: '',
   name: '',
   email: '',
+  avatar: '',
   company: '',
   phone: ''
 })
+
+const openAvatarPicker = () => {
+  avatarInput.value?.click()
+}
+
+const handleAvatarChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+
+  if (!file) return
+
+  if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+    toast.error('Formato inválido. Use JPG ou PNG.')
+    target.value = ''
+    return
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    toast.error('Imagem muito grande. Máximo 2MB.')
+    target.value = ''
+    return
+  }
+
+  avatarLoading.value = true
+  try {
+    const result = await api.uploadAvatar(file)
+    profile.value.avatar = result.avatar_url
+    if (authStore.user) {
+      authStore.setUser({ ...authStore.user, avatar: result.avatar_url })
+    }
+    toast.success('Imagem de perfil atualizada!')
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || 'Erro ao enviar imagem')
+  } finally {
+    avatarLoading.value = false
+    target.value = ''
+  }
+}
 
 const userInitials = computed(() => {
   const name = profile.value.name || 'U'
@@ -138,6 +211,7 @@ const fetchProfile = async () => {
       id: data.id,
       name: data.name,
       email: data.email,
+      avatar: data.avatar || '',
       phone: data.phone || '',
       company: data.company || ''
     }
@@ -157,6 +231,7 @@ const handleUpdate = async () => {
       id: updated.id,
       name: updated.name,
       email: updated.email,
+      avatar: updated.avatar || profile.value.avatar || '',
       phone: updated.phone || '',
       company: updated.company || ''
     }

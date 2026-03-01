@@ -59,7 +59,13 @@
             <!-- User Menu -->
             <div class="relative" @click="userMenuOpen = !userMenuOpen" @blur="userMenuOpen = false" tabindex="0">
               <button class="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg">
-                <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-semibold">
+                <img
+                  v-if="userAvatar"
+                  :src="userAvatar"
+                  alt="Avatar"
+                  class="w-8 h-8 rounded-full object-cover"
+                />
+                <div v-else class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-semibold">
                   {{ userInitials }}
                 </div>
                 <span class="hidden lg:block text-sm font-medium text-gray-700">{{ authStore.user?.name }}</span>
@@ -177,6 +183,10 @@ const pageTitle = computed(() => {
 const userInitials = computed(() => {
   const name = authStore.user?.name || 'U'
   return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
+})
+
+const userAvatar = computed(() => {
+  return authStore.user?.avatar || ''
 })
 
 const handleLogout = async () => {

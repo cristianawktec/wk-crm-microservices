@@ -40,6 +40,7 @@ export const useAuthStore = defineStore('auth', () => {
       id: data.id,
       name: data.name,
       email: data.email,
+      avatar: data.avatar || '',
       role: data.role,
       roles: Array.isArray(data.roles) ? data.roles : (data.role ? [data.role] : [])
     }
