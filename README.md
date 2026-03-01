@@ -320,11 +320,26 @@ Use `Ctrl+Shift+P` e digite "Tasks" para acessar:
 
 ## 🤝 Contribuindo
 
-1. Faça fork do repositório
-2. Crie branch de feature (`git checkout -b feature/amazing-feature`)
-3. Commit suas mudanças (`git commit -m 'Add amazing feature'`)
-4. Push para a branch (`git push origin feature/amazing-feature`)
-5. Abra um Pull Request
+Quer colaborar com o projeto? Você é muito bem-vindo(a)! 🚀
+
+1. Faça um **fork** deste repositório
+2. Crie uma branch da sua melhoria (`git checkout -b feature/minha-melhoria`)
+3. Implemente e teste localmente
+4. Commit suas mudanças (`git commit -m 'feat: minha melhoria'`)
+5. Push para o seu fork (`git push origin feature/minha-melhoria`)
+6. Abra um Pull Request para este repositório
+
+### 📌 Regra obrigatória para PR
+
+Em **toda contribuição**, além do código, o participante deve registrar o que foi melhorado no arquivo:
+
+- `docs/DEVELOPMENT.md` (seção: **Registro de Melhorias (Contribuidores)**)
+
+O registro deve incluir, no mínimo:
+- Data
+- Autor/GitHub
+- Resumo da melhoria
+- Arquivos principais alterados
 
 ## 📄 Licença
 
