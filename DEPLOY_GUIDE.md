@@ -188,7 +188,7 @@ crontab -e
 0 2 * * * /opt/wk-crm/scripts/backup.sh
 ```
 
-## 🎯 Próximos Passos
+## 🎯 Referência de Roadmap
 
 Para manter uma única fonte de verdade sobre prioridades e roadmap, consulte:
 
